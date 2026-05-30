@@ -65,20 +65,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '')
 
-    const { data: orgData, error: orgError } = await supabase
-      .from('organizations')
-      .insert({ name: businessName.trim(), slug })
-      .select('id')
-      .single()
-    if (orgError) return orgError.message
-
-    const { error: userError } = await supabase.from('users').insert({
-      id: authData.user.id,
-      organization_id: orgData.id,
+    const { data: orgData, error: orgError } = await supabase.rpc('create_org_for_current_user', {
+      org_name: businessName.trim(),
+      org_slug: slug,
     })
-    if (userError) return userError.message
+    if (orgError) return orgError.message
+    if (!orgData) return 'Gagal membuat organisasi'
 
-    set({ user: authData.user, organization: { id: orgData.id, name: businessName.trim(), slug } })
+    set({ user: authData.user, organization: { id: orgData.id, name: orgData.name, slug: orgData.slug } })
     return null
   },
 
