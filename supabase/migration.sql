@@ -69,7 +69,7 @@ CREATE TABLE suppliers (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
--- 6. inventory_transactions
+-- 6. inventory_transactions (FK to production_batches added after that table exists)
 CREATE TABLE inventory_transactions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id uuid NOT NULL REFERENCES organizations(id),
@@ -178,6 +178,11 @@ CREATE TABLE product_variants (
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
+
+-- Now that production_batches exists, add FK on inventory_transactions
+ALTER TABLE inventory_transactions
+  ADD CONSTRAINT fk_transactions_batch
+  FOREIGN KEY (batch_id) REFERENCES production_batches(id);
 
 -- ============================================================
 -- INDEXES
