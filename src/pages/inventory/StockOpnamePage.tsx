@@ -5,6 +5,7 @@ import { useStockIn } from '@/hooks/useInventoryTransactions'
 import { useAuth } from '@/hooks/useAuth'
 import { saveOpnameCount, getOpnameCounts, clearOpnameCounts } from '@/lib/offline'
 import { toast } from 'sonner'
+import VoiceInput from '@/components/opname/VoiceInput'
 
 interface OpnameEntry {
   ingredientId: string
@@ -136,13 +137,19 @@ export default function StockOpnamePage() {
               <p className="text-xs text-secondary">Sistem: {entry.systemQty} {entry.unit}</p>
             </div>
             <div className="text-right">
-              <input
-                type="number"
-                value={entry.physicalQty}
-                onChange={(e) => updatePhysical(entry.ingredientId, Number(e.target.value))}
-                className="h-10 w-24 rounded-lg border border-border bg-surface px-3 text-right text-base outline-none focus:border-primary"
-                disabled={confirmed}
-              />
+              <div className="flex items-center gap-1 justify-end">
+                <VoiceInput
+                  onResult={(value) => updatePhysical(entry.ingredientId, value)}
+                  disabled={confirmed}
+                />
+                <input
+                  type="number"
+                  value={entry.physicalQty}
+                  onChange={(e) => updatePhysical(entry.ingredientId, Number(e.target.value))}
+                  className="h-10 w-24 rounded-lg border border-border bg-surface px-3 text-right text-base outline-none focus:border-primary"
+                  disabled={confirmed}
+                />
+              </div>
             </div>
           </div>
           <div className="mt-2 text-right">

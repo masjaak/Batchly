@@ -21,6 +21,7 @@ import BatchDetailPage from '@/pages/production/BatchDetailPage'
 import ProductsPage from '@/pages/products/ProductsPage'
 import ProductDetailPage from '@/pages/products/ProductDetailPage'
 import SalesPage from '@/pages/sales/SalesPage'
+import SettingsPage from '@/pages/settings/SettingsPage'
 
 export default function App() {
   return (
@@ -49,6 +50,7 @@ export default function App() {
           <Route path="/app/products" element={<ProductsPage />} />
           <Route path="/app/products/:id" element={<ProductDetailPage />} />
           <Route path="/app/sales" element={<SalesPage />} />
+          <Route path="/app/settings" element={<SettingsPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/app" replace />} />
