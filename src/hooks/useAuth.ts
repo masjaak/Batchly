@@ -58,14 +58,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '')
 
-    const { error: orgError } = await supabase.from('organizations').insert({
-      name: businessName.trim(),
-      slug,
-    })
+    const { data: orgData, error: orgError } = await supabase
+      .from('organizations')
+      .insert({ name: businessName.trim(), slug })
+      .select('id')
+      .single()
     if (orgError) return orgError.message
 
-    set({ user: authData.user })
-    await get().initialize()
+    const { error: userError } = await supabase.from('users').insert({
+      id: authData.user.id,
+      organization_id: orgData.id,
+    })
+    if (userError) return userError.message
+
+    set({ user: authData.user, organization: { id: orgData.id, name: businessName.trim(), slug } })
     return null
   },
 
