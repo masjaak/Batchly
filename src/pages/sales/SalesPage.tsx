@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useSales, useCreateSale } from '@/hooks/useSales'
 import { useProducts } from '@/hooks/useProducts'
 import { useAuth } from '@/hooks/useAuth'
-import { calculateRecipeCost, calculateSaleProfit } from '@/lib/calculations'
+import { calculateRecipeCost, calculateSaleProfit, getTopProducts } from '@/lib/calculations'
 import { exportCSV, downloadCSV } from '@/lib/export'
 import { toast } from 'sonner'
 
@@ -116,6 +116,26 @@ export default function SalesPage() {
           Ekspor CSV
         </button>
       </div>
+
+      {sales && sales.length > 0 && products && (() => {
+        const top = getTopProducts(sales as any[], products as any[], 5)
+        return (
+          <div className="rounded-xl border border-border bg-surface p-4">
+            <h3 className="mb-2 text-xs font-medium text-secondary uppercase tracking-wider">Produk Terlaris</h3>
+            <div className="space-y-1">
+              {top.map((p, i) => (
+                <div key={p.productId} className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-secondary">{i + 1}.</span>
+                    <span className="text-primary">{p.name}</span>
+                  </div>
+                  <span className="font-medium">Rp {p.revenue.toLocaleString('id-ID')}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
 
       {sales && sales.length > 0 && (
         <div className="space-y-2">

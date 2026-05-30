@@ -77,6 +77,28 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {sales && sales.length > 0 && (() => {
+        const weekly = calculateWeeklyComparison(sales as any[])
+        return (
+          <div className="rounded-xl border border-border bg-surface p-4">
+            <div className="flex justify-between text-sm">
+              <span className="text-secondary">Minggu Ini</span>
+              <span className="font-medium">Rp {weekly.currentWeekRevenue.toLocaleString('id-ID')}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-secondary">Minggu Lalu</span>
+              <span className="font-medium">Rp {weekly.prevWeekRevenue.toLocaleString('id-ID')}</span>
+            </div>
+            <div className="mt-1 flex justify-between text-sm border-t border-border pt-1">
+              <span className="font-medium">Perubahan</span>
+              <span className={`font-semibold ${weekly.changePct >= 0 ? 'text-success' : 'text-danger'}`}>
+                {weekly.changePct >= 0 ? '↑' : '↓'} {Math.abs(weekly.changePct).toFixed(1)}%
+              </span>
+            </div>
+          </div>
+        )
+      })()}
+
       {lowStock.length > 0 && (
         <div className="rounded-xl border border-warning/30 bg-orange-50 p-4">
           <h2 className="mb-2 text-sm font-medium text-warning">Stok Menipis</h2>
