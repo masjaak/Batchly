@@ -55,6 +55,7 @@ export default function RecipeDetailPage() {
 
       for (const item of items) {
         await addItem({
+          organization_id: organization.id,
           recipe_id: newRecipe.id,
           ingredient_id: item.ingredient_id,
           quantity: item.quantity,
@@ -278,6 +279,7 @@ export default function RecipeDetailPage() {
                         try {
                           await removeItem(item.id)
                           await addItem({
+                            organization_id: organization!.id,
                             recipe_id: id!,
                             ingredient_id: alternatives[0].ingredientId,
                             quantity: item.quantity,

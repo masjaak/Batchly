@@ -25,7 +25,7 @@ export function useCreateCategory() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (category: Omit<NewCategory, 'organization_id'>) => {
+    mutationFn: async (category: NewCategory) => {
       const { data, error } = await supabase
         .from('ingredient_categories')
         .insert(category)

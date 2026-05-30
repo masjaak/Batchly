@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useIngredients, useCreateIngredient, useUpdateIngredient } from '@/hooks/useIngredients'
-import { useIngredientCategories } from '@/hooks/useIngredientCategories'
+import { useIngredientCategories, useCreateCategory } from '@/hooks/useIngredientCategories'
+import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { Select } from '@/components/ui/Select'
 
@@ -10,16 +11,20 @@ const CURATED_UNITS = ['g', 'kg', 'ml', 'L', 'pcs', 'sdt', 'sdm', 'cup']
 export default function IngredientFormPage() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
+  const { organization } = useAuth()
   const { data: ingredients } = useIngredients()
   const { data: categories } = useIngredientCategories()
   const { mutateAsync: create } = useCreateIngredient()
   const { mutateAsync: update } = useUpdateIngredient()
+  const { mutateAsync: createCategory } = useCreateCategory()
 
   const existing = id ? ingredients?.find((i: any) => i.id === id) : null
   const isEditing = !!existing
 
   const [name, setName] = useState(existing?.name ?? '')
   const [categoryId, setCategoryId] = useState(existing?.category_id ?? '')
+  const [newCategory, setNewCategory] = useState('')
+  const [addingCategory, setAddingCategory] = useState(false)
   const [unitType, setUnitType] = useState<'curated' | 'custom'>(
     existing && !CURATED_UNITS.includes(existing.unit) ? 'custom' : 'curated'
   )
@@ -33,8 +38,25 @@ export default function IngredientFormPage() {
 
   const unitValue = unitType === 'curated' ? curatedUnit : customUnit
 
+  const handleAddCategory = async () => {
+    if (!organization || !newCategory.trim()) return
+    try {
+      const cat = await createCategory({ organization_id: organization.id, name: newCategory.trim(), sort_order: (categories?.length ?? 0) + 1 })
+      setCategoryId(cat.id)
+      setNewCategory('')
+      setAddingCategory(false)
+      toast.success('Kategori ditambahkan')
+    } catch {
+      toast.error('Gagal menambah kategori')
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!organization) {
+      toast.error('Sesi tidak ditemukan. Silakan login ulang.')
+      return
+    }
     if (!name || !unitValue) {
       toast.error('Nama dan satuan wajib diisi')
       return
@@ -53,6 +75,7 @@ export default function IngredientFormPage() {
         navigate(`/app/inventory/${id}`)
       } else {
         const data = await create({
+          organization_id: organization.id,
           name,
           category_id: categoryId || null,
           unit: unitValue,
@@ -88,6 +111,21 @@ export default function IngredientFormPage() {
           placeholder="Pilih kategori..."
           options={(categories ?? []).map((cat: any) => ({ value: cat.id, label: cat.name }))}
         />
+        {addingCategory ? (
+          <div className="mt-2 flex gap-2">
+            <input
+              type="text"
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              placeholder="Nama kategori baru"
+              className="h-10 flex-1 rounded-xl border border-border bg-surface px-3 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+            />
+            <button type="button" onClick={handleAddCategory} className="h-10 rounded-xl bg-ink px-4 text-sm font-medium text-white">Simpan</button>
+            <button type="button" onClick={() => setAddingCategory(false)} className="h-10 rounded-xl border border-border px-3 text-sm text-secondary">Batal</button>
+          </div>
+        ) : (
+          <button type="button" onClick={() => setAddingCategory(true)} className="mt-1.5 text-xs font-medium text-accent">+ Kategori baru</button>
+        )}
       </div>
 
       <div>

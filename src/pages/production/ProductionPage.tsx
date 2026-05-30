@@ -1,13 +1,23 @@
 import { Link } from 'react-router-dom'
-import { Factory } from 'lucide-react'
+import { Factory, Plus } from 'lucide-react'
 import { useProductionBatches } from '@/hooks/useProductionBatches'
-import { EmptyState } from '@/components/ui/EmptyState'
+import { EmptyState, PageHeader } from '@/components/ui/EmptyState'
+import { Button } from '@/components/ui/Button'
 
 export default function ProductionPage() {
   const { data: batches, isLoading } = useProductionBatches()
 
   return (
     <div className="space-y-4">
+      <PageHeader
+        title="Produksi"
+        subtitle="Catat batch produksi dan pantau selisih biaya."
+        action={
+          <Link to="/app/production/new">
+            <Button size="sm"><Plus className="h-4 w-4" /> Catat Produksi</Button>
+          </Link>
+        }
+      />
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -41,13 +51,6 @@ export default function ProductionPage() {
           ))}
         </div>
       )}
-
-      <Link
-        to="/app/production/new"
-        className="fixed bottom-20 left-4 right-4 z-10 h-12 rounded-xl bg-ink text-sm font-medium text-white flex items-center justify-center"
-      >
-        Catat Produksi
-      </Link>
     </div>
   )
 }

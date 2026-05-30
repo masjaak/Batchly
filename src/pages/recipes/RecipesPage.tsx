@@ -1,20 +1,24 @@
 import { Link } from 'react-router-dom'
-import { BookOpen } from 'lucide-react'
+import { BookOpen, Plus } from 'lucide-react'
 import { useRecipes } from '@/hooks/useRecipes'
 import { calculateRecipeCost } from '@/lib/calculations'
-import { EmptyState } from '@/components/ui/EmptyState'
+import { EmptyState, PageHeader } from '@/components/ui/EmptyState'
+import { Button } from '@/components/ui/Button'
 
 export default function RecipesPage() {
   const { data: recipes, isLoading } = useRecipes()
 
   return (
     <div className="space-y-4">
-      <Link
-        to="/app/recipes/new"
-        className="flex h-12 w-full items-center justify-center rounded-xl bg-ink text-sm font-medium text-white"
-      >
-        Buat Resep Baru
-      </Link>
+      <PageHeader
+        title="Resep"
+        subtitle="Kelola resep dan hitung HPP otomatis."
+        action={
+          <Link to="/app/recipes/new">
+            <Button size="sm"><Plus className="h-4 w-4" /> Resep Baru</Button>
+          </Link>
+        }
+      />
 
       {isLoading ? (
         <div className="space-y-3">

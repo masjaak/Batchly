@@ -77,8 +77,8 @@ describe('useCreateCategory', () => {
   })
 
   it('inserts a new category and returns it', async () => {
-    const newCategory = { name: 'Dairy', sort_order: 4 }
-    const returned = { id: '4', organization_id: 'org-1', ...newCategory, created_at: '', updated_at: '' }
+    const newCategory = { organization_id: 'org-1', name: 'Dairy', sort_order: 4 }
+    const returned = { id: '4', created_at: '', updated_at: '', ...newCategory }
 
     mockInsert.mockReturnValue({
       select: vi.fn(() => ({
@@ -96,7 +96,8 @@ describe('useCreateCategory', () => {
     })
 
     expect(data).toEqual(returned)
-    expect(mockInsert).toHaveBeenCalledWith({ name: 'Dairy', sort_order: 4 })
+    // Regression: category insert MUST carry organization_id (RLS + NOT NULL).
+    expect(mockInsert).toHaveBeenCalledWith(expect.objectContaining({ organization_id: 'org-1' }))
   })
 
   it('throws on insert error', async () => {
@@ -112,7 +113,7 @@ describe('useCreateCategory', () => {
 
     await expect(
       act(async () => {
-        await result.current.mutateAsync({ name: 'Duplicate', sort_order: 1 })
+        await result.current.mutateAsync({ organization_id: 'org-1', name: 'Duplicate', sort_order: 1 })
       }),
     ).rejects.toThrow('Duplicate name')
   })
