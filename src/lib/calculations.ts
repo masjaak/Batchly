@@ -121,6 +121,62 @@ export function formatCurrency(amount: number): string {
   }).format(amount)
 }
 
+// ── Margin Guard: profitability intelligence (USP) ──────────────
+export interface ProductMarginInsight {
+  productId: string
+  name: string
+  sellingPrice: number
+  lockedHpp: number // HPP saat resep dibuat
+  currentHpp: number // HPP dengan harga bahan terkini
+  currentMargin: number // % margin terkini
+  costDriftPct: number // kenaikan HPP vs saat dibuat
+  status: 'loss' | 'risk' | 'healthy'
+  suggestedPrice: number // harga untuk capai target margin
+}
+
+export function suggestPrice(hpp: number, targetMarginPct: number): number {
+  if (targetMarginPct >= 100) return hpp * 2
+  return Math.ceil(hpp / (1 - targetMarginPct / 100) / 500) * 500 // bulatkan ke Rp500
+}
+
+export function analyzeProductMargins(
+  products: any[],
+  priceMap: Record<string, number>,
+  targetMargin = 30,
+): ProductMarginInsight[] {
+  return products
+    .filter((p) => p.recipe)
+    .map((p) => {
+      const recipe = p.recipe
+      const items = recipe.recipe_items ?? []
+      const lockedHpp = calculateRecipeCost(recipe, items.map((i: any) => ({ quantity: i.quantity, cost_at_create: i.cost_at_create }))).perUnitHpp
+      const currentHpp = calculateRecipeCost(recipe, items.map((i: any) => ({ quantity: i.quantity, cost_at_create: priceMap[i.ingredient_id] ?? i.cost_at_create }))).perUnitHpp
+      const sellingPrice = p.default_price || recipe.selling_price || 0
+      const currentMargin = sellingPrice > 0 ? ((sellingPrice - currentHpp) / sellingPrice) * 100 : 0
+      const costDriftPct = lockedHpp > 0 ? ((currentHpp - lockedHpp) / lockedHpp) * 100 : 0
+      const status: ProductMarginInsight['status'] = currentMargin < 0 ? 'loss' : currentMargin < targetMargin ? 'risk' : 'healthy'
+      return {
+        productId: p.id,
+        name: p.name,
+        sellingPrice,
+        lockedHpp,
+        currentHpp,
+        currentMargin,
+        costDriftPct,
+        status,
+        suggestedPrice: suggestPrice(currentHpp, targetMargin),
+      }
+    })
+    .sort((a, b) => a.currentMargin - b.currentMargin)
+}
+
+export function profitHealthScore(insights: ProductMarginInsight[]): number {
+  if (insights.length === 0) return 100
+  const healthy = insights.filter((i) => i.status === 'healthy').length
+  const loss = insights.filter((i) => i.status === 'loss').length
+  return Math.round(Math.max(0, ((healthy - loss) / insights.length) * 100))
+}
+
 export interface CheaperAlternative {
   ingredientId: string
   name: string

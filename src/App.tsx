@@ -23,6 +23,7 @@ import ProductsPage from '@/pages/products/ProductsPage'
 import ProductDetailPage from '@/pages/products/ProductDetailPage'
 import SalesPage from '@/pages/sales/SalesPage'
 import ExpensesPage from '@/pages/expenses/ExpensesPage'
+import MarginGuardPage from '@/pages/insights/MarginGuardPage'
 import SettingsPage from '@/pages/settings/SettingsPage'
 
 export default function App() {
@@ -53,6 +54,7 @@ export default function App() {
           <Route path="/app/products/:id" element={<ProductDetailPage />} />
           <Route path="/app/sales" element={<SalesPage />} />
           <Route path="/app/expenses" element={<ExpensesPage />} />
+          <Route path="/app/margin-guard" element={<MarginGuardPage />} />
           <Route path="/app/settings" element={<SettingsPage />} />
         </Route>
       </Route>

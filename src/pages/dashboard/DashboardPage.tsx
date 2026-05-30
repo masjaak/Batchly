@@ -6,11 +6,13 @@ import { useIngredients } from '@/hooks/useIngredients'
 import { useSales } from '@/hooks/useSales'
 import { useExpenses } from '@/hooks/useExpenses'
 import { useReorderSuggestions } from '@/hooks/useReorderSuggestions'
+import { useMarginGuard } from '@/hooks/useMarginGuard'
 import { calculateRecipeCost, calculateWeeklyComparison, formatCurrency } from '@/lib/calculations'
 import { Card, CardHeader } from '@/components/ui/Card'
 import { StatCard } from '@/components/ui/StatCard'
 import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
+import { ShieldCheck, ArrowRight } from 'lucide-react'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
 
@@ -25,6 +27,7 @@ export default function DashboardPage() {
   useRecipes()
   const { data: expenses } = useExpenses()
   const { data: reorder } = useReorderSuggestions()
+  const margin = useMarginGuard(30)
   const [period, setPeriod] = useState('year')
 
   const salesList: any[] = sales ?? []
@@ -57,7 +60,32 @@ export default function DashboardPage() {
   ].sort((a, b) => String(b.date).localeCompare(String(a.date))).slice(0, 6)
 
   return (
-    <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
+    <div className="space-y-5">
+      {/* Margin Guard teaser — USP hook */}
+      <Link to="/app/margin-guard" className="block">
+        <div className="flex items-center justify-between gap-4 rounded-2xl bg-ink p-4 text-white shadow-card">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent">
+              <ShieldCheck className="h-5 w-5 text-white" />
+            </span>
+            <div>
+              <p className="text-sm font-semibold">Margin Guard · Skor {margin.score}/100</p>
+              <p className="text-xs text-white/70">
+                {margin.lossCount > 0
+                  ? `${margin.lossCount} produk dijual RUGI karena harga bahan naik. Cek sekarang.`
+                  : margin.riskCount > 0
+                    ? `${margin.riskCount} produk margin tipis. Lihat saran harga.`
+                    : 'Semua produk margin sehat. Pantau terus keuntunganmu.'}
+              </p>
+            </div>
+          </div>
+          <span className="hidden items-center gap-1 text-sm font-medium text-accent sm:flex">
+            Buka <ArrowRight className="h-4 w-4" />
+          </span>
+        </div>
+      </Link>
+
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
       {/* Hero balance */}
       <Card className="p-5 lg:col-span-4">
         <div className="flex items-start justify-between">
@@ -183,6 +211,7 @@ export default function DashboardPage() {
           </div>
         )}
       </Card>
+      </div>
     </div>
   )
 }

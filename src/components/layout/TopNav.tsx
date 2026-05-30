@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth'
 
 const nav = [
   { to: '/app', label: 'Overview', end: true },
+  { to: '/app/margin-guard', label: 'Margin Guard' },
   { to: '/app/inventory', label: 'Stok' },
   { to: '/app/production', label: 'Produksi' },
   { to: '/app/recipes', label: 'Resep' },

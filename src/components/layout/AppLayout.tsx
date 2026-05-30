@@ -1,11 +1,12 @@
 import { Outlet, useLocation, NavLink } from 'react-router-dom'
-import { LayoutGrid, Package, Factory, BookOpen, ShoppingCart, Wallet, Settings } from 'lucide-react'
+import { LayoutGrid, Package, Factory, BookOpen, ShoppingCart, Wallet, Settings, ShieldCheck } from 'lucide-react'
 import TopNav from './TopNav'
 import BottomNav from './BottomNav'
 import GreetingHeader from './GreetingHeader'
 
 const rail = [
   { to: '/app', icon: LayoutGrid, end: true },
+  { to: '/app/margin-guard', icon: ShieldCheck },
   { to: '/app/inventory', icon: Package },
   { to: '/app/production', icon: Factory },
   { to: '/app/recipes', icon: BookOpen },
