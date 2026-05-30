@@ -1,5 +1,6 @@
+import { useEffect } from 'react'
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth, useAuthStore } from '@/hooks/useAuth'
 import PublicLayout from '@/components/layout/PublicLayout'
 import AppLayout from '@/components/layout/AppLayout'
 import LoginPage from '@/pages/auth/LoginPage'
@@ -60,6 +61,10 @@ export default function App() {
 
 function ProtectedRoute() {
   const { user, isLoading } = useAuth()
+
+  useEffect(() => {
+    useAuthStore.getState().initialize()
+  }, [])
 
   if (isLoading) {
     return (
