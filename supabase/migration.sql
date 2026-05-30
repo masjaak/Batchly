@@ -150,7 +150,21 @@ CREATE TABLE audit_logs (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
--- 12. production_batches (Phase 2)
+-- 12. product_variants (Phase 2)
+CREATE TABLE product_variants (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  organization_id uuid NOT NULL REFERENCES organizations(id),
+  product_id uuid NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  name text NOT NULL,
+  sku text,
+  packaging_cost numeric NOT NULL DEFAULT 0,
+  default_price numeric NOT NULL,
+  sort_order integer NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- 13. production_batches (Phase 2) — references product_variants
 CREATE TABLE production_batches (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id uuid NOT NULL REFERENCES organizations(id),
@@ -165,21 +179,7 @@ CREATE TABLE production_batches (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
--- 13. product_variants (Phase 2)
-CREATE TABLE product_variants (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  organization_id uuid NOT NULL REFERENCES organizations(id),
-  product_id uuid NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-  name text NOT NULL,
-  sku text,
-  packaging_cost numeric NOT NULL DEFAULT 0,
-  default_price numeric NOT NULL,
-  sort_order integer NOT NULL DEFAULT 0,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
-);
-
--- Now that production_batches exists, add FK on inventory_transactions
+-- FK on inventory_transactions.batch_id
 ALTER TABLE inventory_transactions
   ADD CONSTRAINT fk_transactions_batch
   FOREIGN KEY (batch_id) REFERENCES production_batches(id);
