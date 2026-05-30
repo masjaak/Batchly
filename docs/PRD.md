@@ -284,11 +284,15 @@ Existing solutions fail because:
 | Product variants (different packaging) | FR-PRD-03 - FR-PRD-04 | Sprint 6 |
 
 ### Phase 3 (Month 7-9): Intelligence
-- AI assistant: voice-input stock opname
-- Recipe cost optimization (suggest cheaper ingredient substitutes)
-- Low-stock auto-reorder suggestions
-- Sales trend recognition
-- Photo ingredient recognition (label → ingredient)
+
+**Goal**: Data-driven insights without external AI APIs. Help users save money, reduce waste, and spot trends.
+
+| Feature | FRs | Approach |
+|---------|-----|----------|
+| Recipe cost optimization | FR-OPT-01 - FR-OPT-03 | Compare ingredient prices within same category |
+| Low-stock auto-reorder | FR-REO-01 - FR-REO-02 | Show last supplier + price, one-tap to stock-in |
+| Sales trend recognition | FR-TRD-01 - FR-TRD-03 | Week-over-week, top/bottom products |
+| Voice-input stock opname | FR-VOI-01 | Web Speech API (browser-native, Chrome-only) |
 
 ### Phase 4 (Month 10-12): Scale
 - Multi-outlet inventory (transfer between locations)

@@ -456,6 +456,103 @@ async function createProductionBatch(data: {
 
 ---
 
+## Sprint 7: Cost Optimization + Reorder Suggestions (Week 13-14)
+
+### Task 7.1: Price Comparison Engine (2 days)
+**Files**: src/lib/calculations.ts (extend), src/test/calculations.test.ts (add tests)
+- `findCheaperAlternatives(ingredientId, allIngredients)` → list of same-category ingredients sorted by price
+- `calculatePotentialSavings(ingredient, alternative, recipeQty)` → savings per batch
+- `getRecipeOptimizations(recipe, allIngredients)` → per-item optimization suggestions
+
+**Edge cases**:
+- Ingredient has no category → no alternatives found
+- Only one ingredient in category → no suggestion
+- Alternative is the same ingredient → skip
+- Multiple alternatives → show cheapest 3
+
+### Task 7.2: Recipe Cost Optimization UI (2 days)
+**Files**: src/pages/recipes/RecipeDetailPage.tsx (extend)
+- Add "Optimasi Biaya" section on recipe detail
+- For each ingredient with a cheaper alternative, show: "Ganti dengan {cheaper}: hemat Rp X/batch"
+- Tap "Ganti" → opens confirmation dialog → updates recipe_item
+- Show total potential savings card
+
+### Task 7.3: Auto-Reorder Suggestions (2 days)
+**Files**: src/hooks/useReorderSuggestions.ts, src/components/dashboard/ReorderList.tsx, src/pages/dashboard/DashboardPage.tsx (extend)
+- `useReorderSuggestions()` — fetch low-stock ingredients with last transaction info
+- For each: ingredient, current stock, min stock, last supplier, last price, last purchase date
+- Dashboard section: "Pesan Stok" — sorted by urgency (current_stock / min_stock_level ratio)
+- Each item: one-tap "Tambah Stok" → navigates to stock-in with pre-filled ingredient + supplier
+- Dismiss button (snooze 7 days — stored in localStorage)
+
+**Edge cases**:
+- Ingredient never had stock-in → no supplier info → show "Tambah Stok" without supplier
+- Multiple transactions from different suppliers → show most recent
+- All stock healthy → hide section entirely
+
+### Task 7.4: Tests (1 day)
+- Price comparison tests: category match, no alternatives, same ingredient excluded
+- Reorder suggestion tests: low stock identification, urgency sorting
+- Integration: optimization + reorder on recipe detail page
+
+---
+
+## Sprint 8: Sales Trends + Analysis (Week 15-16)
+
+### Task 8.1: Sales Trend Calculations (2 days)
+**Files**: src/lib/calculations.ts (extend), src/test/calculations.test.ts (add tests)
+- `calculateWeeklyComparison(sales)` → { currentWeekRevenue, prevWeekRevenue, changePct }
+- `getTopProducts(sales, products, n)` → top N by revenue
+- `getBottomProducts(sales, products, n)` → bottom N with sales in period
+- `getProductTrend(sales, productId)` → ↑ stable ↓ based on 4 aggregates
+
+### Task 8.2: Sales Trends UI (2 days)
+**Files**: src/pages/sales/SalesPage.tsx (extend), src/components/dashboard/TrendSection.tsx
+- Sales page: add trend summary section at top
+- Dashboard: "Tren Penjualan" card with week-over-week, top/bottom products
+- Product trend indicators in sales list
+
+### Task 8.3: Tests (1 day)
+- Trend calculation tests: weekly comparison with various data
+- Edge: no sales this week, no sales last week, same week comparison
+
+---
+
+## Sprint 9: Voice Input + Settings + Polish (Week 17-18)
+
+### Task 9.1: Voice Input for Stock Opname (2 days)
+**Files**: src/components/opname/VoiceInput.tsx, src/pages/inventory/StockOpnamePage.tsx (extend)
+- Microphone button next to each physical count input
+- Web Speech API integration (SpeechRecognition)
+- Indonesian language support: `lang: 'id-ID'`
+- Parse spoken number (e.g., "dua belas" → 12, "nol koma lima" → 0.5)
+- Unsupported browser → hide button, show tooltip
+
+**Edge cases**:
+- Browser doesn't support SpeechRecognition → hidden gracefully
+- Microphone permission denied → show error with retry
+- Speech not recognized → "Coba lagi" with tips
+- Ambient noise → increase confidence threshold
+- Numbers as words (e.g., "lima belas" → 15)
+
+### Task 9.2: Settings Page (1 day)
+**Files**: src/pages/settings/SettingsPage.tsx (new)
+- Profile section (name edit)
+- Organization section (name edit)
+- Language selector (Indonesian only for MVP)
+- Logout button
+- Version info
+
+### Task 9.3: Final Polish (2 days)
+- Empty states for all Phase 3 features
+- Loading skeletons for all new components
+- Error states for voice API failures
+- Responsive testing at 375px
+- Touch target audit (minimum 44px)
+- Performance: lazy load voice component
+
+---
+
 ## Total Effort Summary
 
 | Sprint | Tasks | Days | Story Points |
@@ -466,7 +563,12 @@ async function createProductionBatch(data: {
 | Sprint 4: Sales + Dashboard + Polish | 6 tasks | 10.5 days | 21 |
 | Sprint 5: Production Batches | 6 tasks | 9 days | 18 |
 | Sprint 6: Export + Variants + Polish | 5 tasks | 9 days | 18 |
-| **Total (Phase 1 + 2)** | **33 tasks** | **60.5 days** | **121 SP** |
+| **Phase 1 + 2 Total** | **33 tasks** | **60.5 days** | **121 SP** |
+| Sprint 7: Cost Optimization + Reorder | 4 tasks | 7 days | 14 |
+| Sprint 8: Sales Trends | 3 tasks | 5 days | 10 |
+| Sprint 9: Voice Input + Settings + Polish | 3 tasks | 5 days | 10 |
+| **Phase 3 Total** | **10 tasks** | **17 days** | **34 SP** |
+| **Grand Total** | **43 tasks** | **77.5 days** | **155 SP** |
 
 *(Based on 1 developer. With 2 developers: ~5 weeks.)*
 

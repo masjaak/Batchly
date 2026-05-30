@@ -120,3 +120,109 @@ export function formatCurrency(amount: number): string {
     maximumFractionDigits: 0,
   }).format(amount)
 }
+
+export interface CheaperAlternative {
+  ingredientId: string
+  name: string
+  unit: string
+  price: number
+  savingsPerUnit: number
+}
+
+export function findCheaperAlternatives(
+  ingredientId: string,
+  categoryName: string | null,
+  price: number,
+  allIngredients: { id: string; name: string; unit: string; latest_price: number; category?: { name: string } | null }[],
+  limit = 3,
+): CheaperAlternative[] {
+  if (!categoryName) return []
+
+  return allIngredients
+    .filter((i) => i.id !== ingredientId && i.category?.name === categoryName && i.latest_price > 0 && i.latest_price < price)
+    .map((i) => ({
+      ingredientId: i.id,
+      name: i.name,
+      unit: i.unit,
+      price: i.latest_price,
+      savingsPerUnit: price - i.latest_price,
+    }))
+    .sort((a, b) => b.savingsPerUnit - a.savingsPerUnit)
+    .slice(0, limit)
+}
+
+export function calculatePotentialSavings(
+  currentCost: number,
+  alternativeCost: number,
+  recipeQty: number,
+): number {
+  return (currentCost - alternativeCost) * recipeQty
+}
+
+export interface WeeklyComparison {
+  currentWeekRevenue: number
+  prevWeekRevenue: number
+  changePct: number
+  currentWeekCount: number
+  prevWeekCount: number
+}
+
+export function calculateWeeklyComparison(sales: { sale_date: string; quantity: number; unit_price: number }[]): WeeklyComparison {
+  const now = new Date()
+  const currentStart = new Date(now)
+  currentStart.setDate(now.getDate() - now.getDay()) // Start of current week (Sunday)
+  currentStart.setHours(0, 0, 0, 0)
+
+  const prevStart = new Date(currentStart)
+  prevStart.setDate(prevStart.getDate() - 7)
+  const prevEnd = new Date(currentStart)
+
+  let currentWeekRevenue = 0
+  let prevWeekRevenue = 0
+  let currentWeekCount = 0
+  let prevWeekCount = 0
+
+  sales.forEach((s) => {
+    const d = new Date(s.sale_date)
+    const revenue = s.quantity * s.unit_price
+
+    if (d >= prevStart && d < prevEnd) {
+      prevWeekRevenue += revenue
+      prevWeekCount += s.quantity
+    } else if (d >= currentStart) {
+      currentWeekRevenue += revenue
+      currentWeekCount += s.quantity
+    }
+  })
+
+  const changePct = prevWeekRevenue > 0
+    ? ((currentWeekRevenue - prevWeekRevenue) / prevWeekRevenue) * 100
+    : currentWeekRevenue > 0 ? 100 : 0
+
+  return { currentWeekRevenue, prevWeekRevenue, changePct, currentWeekCount, prevWeekCount }
+}
+
+export function getTopProducts(
+  sales: { product_id: string; quantity: number; unit_price: number }[],
+  products: { id: string; name: string }[],
+  n = 5,
+): { productId: string; name: string; revenue: number; quantity: number }[] {
+  const revenueMap = new Map<string, { revenue: number; quantity: number }>()
+
+  sales.forEach((s) => {
+    const existing = revenueMap.get(s.product_id) ?? { revenue: 0, quantity: 0 }
+    revenueMap.set(s.product_id, {
+      revenue: existing.revenue + s.quantity * s.unit_price,
+      quantity: existing.quantity + s.quantity,
+    })
+  })
+
+  return Array.from(revenueMap.entries())
+    .map(([productId, data]) => ({
+      productId,
+      name: products.find((p) => p.id === productId)?.name ?? 'Unknown',
+      ...data,
+    }))
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, n)
+}

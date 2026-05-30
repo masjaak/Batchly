@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calculateRecipeCost, calculateSaleProfit, calculateBatchCostVariance } from '@/lib/calculations'
+import { calculateRecipeCost, calculateSaleProfit, calculateBatchCostVariance, findCheaperAlternatives, calculateWeeklyComparison, getTopProducts } from '@/lib/calculations'
 
 describe('calculateRecipeCost', () => {
   const recipe = {
@@ -139,5 +139,111 @@ describe('calculateSaleProfit', () => {
     const result = calculateSaleProfit(85000, 0, 2683.33)
     expect(result.revenue).toBe(0)
     expect(result.grossProfit).toBe(0)
+  })
+})
+
+describe('findCheaperAlternatives', () => {
+  const all = [
+    { id: 'i1', name: 'Tepung Segitiga', unit: 'kg', latest_price: 15000, category: { name: 'Bahan Baku' } },
+    { id: 'i2', name: 'Tepung Cakra', unit: 'kg', latest_price: 18000, category: { name: 'Bahan Baku' } },
+    { id: 'i3', name: 'Tepung Kunci', unit: 'kg', latest_price: 12000, category: { name: 'Bahan Baku' } },
+    { id: 'i4', name: 'Gula Pasir', unit: 'kg', latest_price: 16000, category: { name: 'Bahan Baku' } },
+    { id: 'i5', name: 'Vanili Bubuk', unit: 'sdt', latest_price: 5000, category: { name: 'Bumbu' } },
+  ]
+
+  it('finds cheaper alternatives in same category', () => {
+    const result = findCheaperAlternatives('i2', 'Bahan Baku', 18000, all)
+    expect(result).toHaveLength(3)
+    expect(result[0].name).toBe('Tepung Kunci')
+    expect(result[0].savingsPerUnit).toBe(6000)
+  })
+
+  it('returns empty if no category', () => {
+    const result = findCheaperAlternatives('i1', null, 15000, all)
+    expect(result).toHaveLength(0)
+  })
+
+  it('excludes the ingredient itself', () => {
+    const result = findCheaperAlternatives('i3', 'Bahan Baku', 12000, all)
+    expect(result.find((r) => r.ingredientId === 'i3')).toBeUndefined()
+  })
+
+  it('returns empty if no cheaper alternative exists', () => {
+    const result = findCheaperAlternatives('i3', 'Bahan Baku', 12000, all)
+    expect(result).toHaveLength(0)
+  })
+
+  it('returns empty for ingredients in a different category', () => {
+    const result = findCheaperAlternatives('i5', 'Bumbu', 5000, all)
+    expect(result).toHaveLength(0) // only one in Bumbu
+  })
+})
+
+describe('calculateWeeklyComparison', () => {
+  const today = new Date()
+  const thisWeek = today.toISOString().split('T')[0]
+  const lastWeek = new Date(today.getTime() - 7 * 86400000).toISOString().split('T')[0]
+  const twoWeeksAgo = new Date(today.getTime() - 14 * 86400000).toISOString().split('T')[0]
+
+  it('compares current week vs last week', () => {
+    const sales = [
+      { sale_date: thisWeek, quantity: 10, unit_price: 50000 },
+      { sale_date: lastWeek, quantity: 5, unit_price: 40000 },
+    ]
+    const result = calculateWeeklyComparison(sales)
+    expect(result.currentWeekRevenue).toBe(500000)
+    expect(result.prevWeekRevenue).toBe(200000)
+    expect(result.changePct).toBe(150)
+  })
+
+  it('handles no sales this week', () => {
+    const sales = [
+      { sale_date: lastWeek, quantity: 5, unit_price: 40000 },
+    ]
+    const result = calculateWeeklyComparison(sales)
+    expect(result.currentWeekRevenue).toBe(0)
+    expect(result.changePct).toBe(-100)
+  })
+
+  it('handles no sales last week', () => {
+    const sales = [
+      { sale_date: thisWeek, quantity: 10, unit_price: 50000 },
+    ]
+    const result = calculateWeeklyComparison(sales)
+    expect(result.currentWeekRevenue).toBe(500000)
+    expect(result.prevWeekRevenue).toBe(0)
+    expect(result.changePct).toBe(100)
+  })
+
+  it('handles empty sales', () => {
+    const result = calculateWeeklyComparison([])
+    expect(result.currentWeekRevenue).toBe(0)
+    expect(result.prevWeekRevenue).toBe(0)
+    expect(result.changePct).toBe(0)
+  })
+})
+
+describe('getTopProducts', () => {
+  const products = [
+    { id: 'p1', name: 'Brownies' },
+    { id: 'p2', name: 'Cold Brew' },
+    { id: 'p3', name: 'Donat' },
+  ]
+
+  it('returns top products by revenue', () => {
+    const sales = [
+      { product_id: 'p1', quantity: 10, unit_price: 50000 },
+      { product_id: 'p2', quantity: 20, unit_price: 25000 },
+      { product_id: 'p3', quantity: 5, unit_price: 10000 },
+    ]
+    const result = getTopProducts(sales, products, 2)
+    expect(result).toHaveLength(2)
+    expect(result[0].name).toBe('Brownies')
+    expect(result[0].revenue).toBe(500000)
+  })
+
+  it('handles empty sales', () => {
+    const result = getTopProducts([], products)
+    expect(result).toHaveLength(0)
   })
 })

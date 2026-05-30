@@ -1,13 +1,15 @@
 import { useRecipes } from '@/hooks/useRecipes'
 import { useIngredients } from '@/hooks/useIngredients'
 import { useSales } from '@/hooks/useSales'
-import { calculateSaleProfit, calculateRecipeCost } from '@/lib/calculations'
+import { useReorderSuggestions } from '@/hooks/useReorderSuggestions'
+import { calculateSaleProfit, calculateRecipeCost, calculateWeeklyComparison } from '@/lib/calculations'
 import { Link } from 'react-router-dom'
 
 export default function DashboardPage() {
   const { data: recipes } = useRecipes()
   const { data: ingredients } = useIngredients()
   const { data: sales } = useSales()
+  const { data: reorderSuggestions } = useReorderSuggestions()
 
   const lowStock = ingredients?.filter((i) => i.current_stock <= i.min_stock_level) ?? []
   const totalRevenue = sales?.reduce((sum: number, s: any) => sum + s.quantity * s.unit_price, 0) ?? 0
@@ -91,6 +93,36 @@ export default function DashboardPage() {
               Lihat semua
             </Link>
           )}
+        </div>
+      )}
+
+      {reorderSuggestions && reorderSuggestions.length > 0 && (
+        <div className="rounded-xl border border-border bg-surface p-4">
+          <h2 className="mb-3 text-sm font-medium text-primary">Pesan Stok</h2>
+          <div className="space-y-2">
+            {reorderSuggestions.slice(0, 5).map((s) => (
+              <Link
+                key={s.ingredientId}
+                to={`/app/inventory/stock-in?ingredient=${s.ingredientId}&supplier=${s.lastSupplierId ?? ''}`}
+                className="block rounded-lg border border-border bg-surface p-3"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-primary">{s.name}</p>
+                    <p className="text-xs text-secondary">
+                      Stok: {s.currentStock} {s.unit} (min {s.minStockLevel})
+                    </p>
+                    {s.lastSupplierName && (
+                      <p className="text-xs text-secondary">
+                        {s.lastSupplierName} · Rp {s.lastPrice.toLocaleString('id-ID')}
+                      </p>
+                    )}
+                  </div>
+                  <span className="text-xs font-medium text-primary underline">+ Stok</span>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       )}
 

@@ -4,7 +4,7 @@ import { useRecipe, useCreateRecipe, useUpdateRecipe, useAddRecipeItem, useRemov
 import { useIngredients } from '@/hooks/useIngredients'
 import { useCreateProduct } from '@/hooks/useProducts'
 import { useAuth } from '@/hooks/useAuth'
-import { calculateRecipeCost } from '@/lib/calculations'
+import { calculateRecipeCost, findCheaperAlternatives } from '@/lib/calculations'
 import { toast } from 'sonner'
 
 export default function RecipeDetailPage() {
@@ -251,6 +251,63 @@ export default function RecipeDetailPage() {
           )}
         </div>
       </div>
+
+      {id && id !== 'new' && items.length > 0 && (
+        <div className="rounded-xl border border-border bg-surface p-4">
+          <h3 className="mb-3 text-xs font-medium text-secondary uppercase tracking-wider">Optimasi Biaya</h3>
+          <div className="space-y-2">
+            {items.map((item) => {
+              const ing = allIngredients?.find((i: any) => i.id === item.ingredient_id)
+              if (!ing) return null
+              const alternatives = findCheaperAlternatives(
+                item.ingredient_id,
+                (ing as any).category?.name ?? null,
+                item.cost_at_create,
+                allIngredients as any[],
+              )
+              if (alternatives.length === 0) return null
+              const savings = (item.cost_at_create - alternatives[0].price) * item.quantity
+              return (
+                <div key={item.id ?? item.ingredient_id} className="rounded-lg border border-border bg-background p-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-primary">{ing.name}</p>
+                      <p className="text-xs text-secondary">
+                        Ganti {alternatives[0].name} — hemat Rp {savings.toLocaleString('id-ID')}/batch
+                      </p>
+                    </div>
+                    <button
+                      onClick={async () => {
+                        try {
+                          await removeItem(item.id)
+                          await addItem({
+                            recipe_id: id!,
+                            ingredient_id: alternatives[0].ingredientId,
+                            quantity: item.quantity,
+                            unit: alternatives[0].unit,
+                            cost_at_create: alternatives[0].price,
+                          })
+                          toast.success(`Bahan diganti ke ${alternatives[0].name}`)
+                        } catch {
+                          toast.error('Gagal mengganti bahan')
+                        }
+                      }}
+                      className="text-xs font-medium text-primary underline"
+                    >
+                      Ganti
+                    </button>
+                  </div>
+                  {alternatives.slice(0, 3).map((alt) => (
+                    <p key={alt.ingredientId} className="mt-1 text-xs text-secondary">
+                      {alt.name} Rp {alt.price.toLocaleString('id-ID')}/{alt.unit} (hemat Rp {alt.savingsPerUnit.toLocaleString('id-ID')}/{alt.unit})
+                    </p>
+                  ))}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       <button onClick={handleSave} className="h-12 w-full rounded-lg bg-primary text-base font-medium text-white">
         Simpan Resep

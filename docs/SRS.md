@@ -235,6 +235,60 @@ Mobile-first web app. React + TypeScript + Vite. Supabase (PostgreSQL, Auth, RLS
 - When back online: sync adjustments → create inventory_transactions
 - Conflict detection: if stock changed while offline, warn user
 
+### 2.13 Cost Optimization Module
+
+**FR-OPT-01**: Ingredient price comparison
+- For any ingredient, show all other ingredients in the same category
+- Display: name, current stock, latest price, price per unit
+- Sort by price ascending to show cheapest options
+
+**FR-OPT-02**: Recipe cost optimization
+- On recipe detail page, highlight ingredients where a cheaper substitute exists
+- Show: current ingredient cost, cheapest alternative cost, potential savings
+- One-tap "Ganti" button to update recipe_item with cheaper ingredient
+
+**FR-OPT-03**: Optimization report
+- Show total potential savings if all cheaper substitutes were applied
+- List of suggested replacements with savings per item
+
+### 2.14 Reorder Module
+
+**FR-REO-01**: Auto-reorder suggestions
+- For each ingredient where current_stock <= min_stock_level:
+  - Show last supplier, last price, last purchase date
+  - "Tambah Stok" one-tap action → pre-fill stock-in form
+- Sorted by urgency (stock level / min level ratio)
+
+**FR-REO-02**: Reorder from dashboard
+- Dedicated "Pesan Stok" section on dashboard
+- Each item: ingredient name, supplier, last price, action button
+- Ignored ingredients can be dismissed (snooze 7 days)
+
+### 2.15 Sales Trends Module
+
+**FR-TRD-01**: Week-over-week comparison
+- Compare current week sales vs previous week
+- Display: revenue change %, top product change
+- Shown on dashboard
+
+**FR-TRD-02**: Top/bottom products
+- Top 5 selling products (by revenue)
+- Bottom 5 products (by revenue, with sales in period)
+- Shown on dashboard or sales page
+
+**FR-TRD-03**: Trend indicators
+- Per product: ↑ stable ↓ indicators based on 4-week trend
+- Revenue trend: daily chart (last 14 days) — text-based, no chart library
+
+### 2.16 Voice Input Module
+
+**FR-VOI-01**: Voice-input stock opname
+- On stock opname page, microphone button per ingredient
+- Uses Web Speech API (SpeechRecognition) — Chrome/Edge only
+- Voice input enters physical count number
+- Falls back to keyboard entry on unsupported browsers
+- Instructional tooltip: "Coba: 'dua belas' atau 'nol koma lima'"
+
 ---
 
 ## 3. Business Rules
