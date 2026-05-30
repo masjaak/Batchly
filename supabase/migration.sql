@@ -1,9 +1,9 @@
 -- ============================================================
--- Batchly — Full Database Migration
--- Paste this entire file into Supabase SQL Editor and run
+-- Batchly — Full Database Migration (idempotent)
+-- Safe to run multiple times. Paste entire file and run.
 -- ============================================================
 
--- Cleanup any existing objects (safe to re-run)
+-- Cleanup existing objects
 DROP TABLE IF EXISTS audit_logs CASCADE;
 DROP TABLE IF EXISTS sales CASCADE;
 DROP TABLE IF EXISTS product_variants CASCADE;
@@ -22,14 +22,13 @@ DROP FUNCTION IF EXISTS fn_update_ingredient_on_transaction CASCADE;
 DROP FUNCTION IF EXISTS fn_audit_inventory_transaction CASCADE;
 DROP FUNCTION IF EXISTS apply_org_policies CASCADE;
 
--- 0. Extensions
+-- Extensions
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- ============================================================
 -- TABLES
 -- ============================================================
 
--- 1. organizations
 CREATE TABLE organizations (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL,
@@ -39,7 +38,6 @@ CREATE TABLE organizations (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
--- 2. users (links Supabase auth.users to an organization)
 CREATE TABLE users (
   id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   organization_id uuid NOT NULL REFERENCES organizations(id),
@@ -48,7 +46,6 @@ CREATE TABLE users (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
--- 3. ingredient_categories
 CREATE TABLE ingredient_categories (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id uuid NOT NULL REFERENCES organizations(id),
@@ -58,7 +55,6 @@ CREATE TABLE ingredient_categories (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
--- 4. ingredients
 CREATE TABLE ingredients (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id uuid NOT NULL REFERENCES organizations(id),
@@ -73,7 +69,6 @@ CREATE TABLE ingredients (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
--- 5. suppliers
 CREATE TABLE suppliers (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id uuid NOT NULL REFERENCES organizations(id),
@@ -88,7 +83,6 @@ CREATE TABLE suppliers (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
--- 6. inventory_transactions (FK to production_batches added after that table exists)
 CREATE TABLE inventory_transactions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id uuid NOT NULL REFERENCES organizations(id),
@@ -104,7 +98,6 @@ CREATE TABLE inventory_transactions (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
--- 7. recipes
 CREATE TABLE recipes (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id uuid NOT NULL REFERENCES organizations(id),
@@ -119,7 +112,6 @@ CREATE TABLE recipes (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
--- 8. recipe_items
 CREATE TABLE recipe_items (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id uuid NOT NULL REFERENCES organizations(id),
@@ -132,7 +124,6 @@ CREATE TABLE recipe_items (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
--- 9. products
 CREATE TABLE products (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id uuid NOT NULL REFERENCES organizations(id),
@@ -145,7 +136,6 @@ CREATE TABLE products (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
--- 10. sales
 CREATE TABLE sales (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id uuid NOT NULL REFERENCES organizations(id),
@@ -157,7 +147,6 @@ CREATE TABLE sales (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
--- 11. audit_logs
 CREATE TABLE audit_logs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id uuid NOT NULL REFERENCES organizations(id),
@@ -170,7 +159,6 @@ CREATE TABLE audit_logs (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
--- 12. product_variants (Phase 2)
 CREATE TABLE product_variants (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id uuid NOT NULL REFERENCES organizations(id),
@@ -184,7 +172,6 @@ CREATE TABLE product_variants (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
--- 13. production_batches (Phase 2) — references product_variants
 CREATE TABLE production_batches (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id uuid NOT NULL REFERENCES organizations(id),
@@ -208,41 +195,30 @@ ALTER TABLE inventory_transactions
 -- INDEXES
 -- ============================================================
 
-CREATE INDEX idx_users_org ON users(organization_id);
-
-CREATE INDEX idx_categories_org ON ingredient_categories(organization_id);
-
-CREATE INDEX idx_ingredients_org_name ON ingredients(organization_id, name);
-CREATE INDEX idx_ingredients_org_category ON ingredients(organization_id, category_id);
-CREATE INDEX idx_ingredients_org_stock ON ingredients(organization_id, current_stock);
-
-CREATE INDEX idx_suppliers_org_name ON suppliers(organization_id, name);
-
-CREATE INDEX idx_transactions_org_ingredient_date ON inventory_transactions(organization_id, ingredient_id, transaction_date);
-CREATE INDEX idx_transactions_org_supplier ON inventory_transactions(organization_id, supplier_id);
-CREATE INDEX idx_transactions_org_created ON inventory_transactions(organization_id, created_at);
-CREATE INDEX idx_transactions_org_batch ON inventory_transactions(organization_id, batch_id);
-
-CREATE INDEX idx_recipes_org_name ON recipes(organization_id, name);
-
-CREATE INDEX idx_recipe_items_recipe ON recipe_items(recipe_id);
-CREATE INDEX idx_recipe_items_recipe_ingredient ON recipe_items(recipe_id, ingredient_id);
-
-CREATE INDEX idx_products_org_name ON products(organization_id, name);
-CREATE INDEX idx_products_org_recipe ON products(organization_id, recipe_id);
-
-CREATE INDEX idx_sales_org_date ON sales(organization_id, sale_date DESC);
-CREATE INDEX idx_sales_org_product ON sales(organization_id, product_id);
-
-CREATE INDEX idx_audit_org_table ON audit_logs(organization_id, table_name, created_at);
-CREATE INDEX idx_audit_org_record ON audit_logs(organization_id, record_id);
-
-CREATE INDEX idx_batches_org_date ON production_batches(organization_id, production_date DESC);
-CREATE INDEX idx_batches_org_recipe ON production_batches(organization_id, recipe_id);
-CREATE UNIQUE INDEX idx_batches_org_number ON production_batches(organization_id, batch_number);
-
-CREATE INDEX idx_variants_org_product ON product_variants(organization_id, product_id);
-CREATE INDEX idx_variants_product_order ON product_variants(product_id, sort_order);
+CREATE INDEX IF NOT EXISTS idx_users_org ON users(organization_id);
+CREATE INDEX IF NOT EXISTS idx_categories_org ON ingredient_categories(organization_id);
+CREATE INDEX IF NOT EXISTS idx_ingredients_org_name ON ingredients(organization_id, name);
+CREATE INDEX IF NOT EXISTS idx_ingredients_org_category ON ingredients(organization_id, category_id);
+CREATE INDEX IF NOT EXISTS idx_ingredients_org_stock ON ingredients(organization_id, current_stock);
+CREATE INDEX IF NOT EXISTS idx_suppliers_org_name ON suppliers(organization_id, name);
+CREATE INDEX IF NOT EXISTS idx_transactions_org_ingredient_date ON inventory_transactions(organization_id, ingredient_id, transaction_date);
+CREATE INDEX IF NOT EXISTS idx_transactions_org_supplier ON inventory_transactions(organization_id, supplier_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_org_created ON inventory_transactions(organization_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_transactions_org_batch ON inventory_transactions(organization_id, batch_id);
+CREATE INDEX IF NOT EXISTS idx_recipes_org_name ON recipes(organization_id, name);
+CREATE INDEX IF NOT EXISTS idx_recipe_items_recipe ON recipe_items(recipe_id);
+CREATE INDEX IF NOT EXISTS idx_recipe_items_recipe_ingredient ON recipe_items(recipe_id, ingredient_id);
+CREATE INDEX IF NOT EXISTS idx_products_org_name ON products(organization_id, name);
+CREATE INDEX IF NOT EXISTS idx_products_org_recipe ON products(organization_id, recipe_id);
+CREATE INDEX IF NOT EXISTS idx_sales_org_date ON sales(organization_id, sale_date DESC);
+CREATE INDEX IF NOT EXISTS idx_sales_org_product ON sales(organization_id, product_id);
+CREATE INDEX IF NOT EXISTS idx_audit_org_table ON audit_logs(organization_id, table_name, created_at);
+CREATE INDEX IF NOT EXISTS idx_audit_org_record ON audit_logs(organization_id, record_id);
+CREATE INDEX IF NOT EXISTS idx_batches_org_date ON production_batches(organization_id, production_date DESC);
+CREATE INDEX IF NOT EXISTS idx_batches_org_recipe ON production_batches(organization_id, recipe_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_batches_org_number ON production_batches(organization_id, batch_number);
+CREATE INDEX IF NOT EXISTS idx_variants_org_product ON product_variants(organization_id, product_id);
+CREATE INDEX IF NOT EXISTS idx_variants_product_order ON product_variants(product_id, sort_order);
 
 -- ============================================================
 -- RLS HELPER FUNCTION
@@ -257,7 +233,9 @@ $$;
 -- TRIGGERS
 -- ============================================================
 
--- Trigger: update ingredient stock on transaction
+DROP TRIGGER IF EXISTS trg_update_ingredient_on_transaction ON inventory_transactions;
+DROP TRIGGER IF EXISTS trg_audit_inventory_transaction ON inventory_transactions;
+
 CREATE OR REPLACE FUNCTION fn_update_ingredient_on_transaction()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -280,7 +258,6 @@ CREATE TRIGGER trg_update_ingredient_on_transaction
   FOR EACH ROW
   EXECUTE FUNCTION fn_update_ingredient_on_transaction();
 
--- Trigger: audit inventory transaction
 CREATE OR REPLACE FUNCTION fn_audit_inventory_transaction()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -306,30 +283,18 @@ CREATE TRIGGER trg_audit_inventory_transaction
 -- RLS POLICIES
 -- ============================================================
 
--- Helper: apply standard org isolation policies to a table
--- Usage: SELECT apply_org_policies('ingredients');
-
 CREATE OR REPLACE FUNCTION apply_org_policies(table_name text)
 RETURNS void AS $$
 BEGIN
   EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', table_name);
-
-  EXECUTE format(
-    'CREATE POLICY "org_isolation_select" ON %I FOR SELECT USING (organization_id = get_current_organization_id())',
-    table_name
-  );
-  EXECUTE format(
-    'CREATE POLICY "org_isolation_insert" ON %I FOR INSERT WITH CHECK (organization_id = get_current_organization_id())',
-    table_name
-  );
-  EXECUTE format(
-    'CREATE POLICY "org_isolation_update" ON %I FOR UPDATE USING (organization_id = get_current_organization_id())',
-    table_name
-  );
-  EXECUTE format(
-    'CREATE POLICY "org_isolation_delete" ON %I FOR DELETE USING (organization_id = get_current_organization_id())',
-    table_name
-  );
+  EXECUTE format('DROP POLICY IF EXISTS "org_isolation_select" ON %I', table_name);
+  EXECUTE format('DROP POLICY IF EXISTS "org_isolation_insert" ON %I', table_name);
+  EXECUTE format('DROP POLICY IF EXISTS "org_isolation_update" ON %I', table_name);
+  EXECUTE format('DROP POLICY IF EXISTS "org_isolation_delete" ON %I', table_name);
+  EXECUTE format('CREATE POLICY "org_isolation_select" ON %I FOR SELECT USING (organization_id = get_current_organization_id())', table_name);
+  EXECUTE format('CREATE POLICY "org_isolation_insert" ON %I FOR INSERT WITH CHECK (organization_id = get_current_organization_id())', table_name);
+  EXECUTE format('CREATE POLICY "org_isolation_update" ON %I FOR UPDATE USING (organization_id = get_current_organization_id())', table_name);
+  EXECUTE format('CREATE POLICY "org_isolation_delete" ON %I FOR DELETE USING (organization_id = get_current_organization_id())', table_name);
 END;
 $$ LANGUAGE plpgsql;
 
@@ -343,33 +308,21 @@ SELECT apply_org_policies('sales');
 SELECT apply_org_policies('audit_logs');
 SELECT apply_org_policies('production_batches');
 SELECT apply_org_policies('product_variants');
-
--- ingredient_categories: only accessible for users in the same org
 SELECT apply_org_policies('ingredient_categories');
 
--- users: special policies (row IS the user)
+-- users: special policies
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "users_select_own" ON users
-  FOR SELECT USING (id = auth.uid());
-
-CREATE POLICY "users_insert_own" ON users
-  FOR INSERT WITH CHECK (id = auth.uid());
+DROP POLICY IF EXISTS "users_select_own" ON users;
+DROP POLICY IF EXISTS "users_insert_own" ON users;
+CREATE POLICY "users_select_own" ON users FOR SELECT USING (id = auth.uid());
+CREATE POLICY "users_insert_own" ON users FOR INSERT WITH CHECK (id = auth.uid());
 
 -- organizations: users can read/create their own org
 ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "orgs_select_own" ON organizations;
+DROP POLICY IF EXISTS "orgs_insert" ON organizations;
+CREATE POLICY "orgs_select_own" ON organizations FOR SELECT USING (id = get_current_organization_id());
+CREATE POLICY "orgs_insert" ON organizations FOR INSERT WITH CHECK (true);
 
-CREATE POLICY "orgs_select_own" ON organizations
-  FOR SELECT USING (id = get_current_organization_id());
-
-CREATE POLICY "orgs_insert" ON organizations
-  FOR INSERT WITH CHECK (true);
-
--- ============================================================
--- SEED DATA
--- ============================================================
-
--- Note: ingredient_categories and default org are created by the app.
--- No seed data needed for now.
-
-DROP FUNCTION apply_org_policies;
+-- Cleanup helper
+DROP FUNCTION IF EXISTS apply_org_policies;
