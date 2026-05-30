@@ -174,6 +174,38 @@ Existing solutions fail because:
 - Banner on dashboard if any ingredient is below minimum stock
 - Low stock indicator on inventory list
 
+### F11: Production Batches
+- Record production batch: recipe used, planned quantity, actual quantity, production date
+- Batch number auto-generated: BCH-{YYYYMMDD}-{XXX} (sequential per day)
+- When batch is recorded, all recipe ingredients are auto-deducted from inventory (creates inventory_transactions with type='out', reason='produksi')
+- Batch detail shows: planned cost vs actual cost variance
+- List view: all batches, filterable by recipe and date range
+- Edit batch only within 24 hours (after that, immutable for audit)
+
+### F12: Data Export
+- Export inventory list as CSV: name, category, unit, current stock, latest price, total value
+- Export sales as CSV: date, product, quantity, unit price, revenue, HPP, profit
+- Export triggered from button on respective list pages
+- File generated client-side (no server processing needed for CSV)
+
+### F13: Supplier Price History
+- Supplier detail page shows price trend per ingredient over time
+- Display: line items showing ingredient, date, unit price, quantity purchased
+- Summary: total spent per ingredient from this supplier
+- No charts (text-first). Data displayed as sorted table.
+
+### F14: Custom Units
+- Free-text unit input alongside curated list
+- Custom units flagged with "(kustom)" suffix in dropdowns
+- Validated for consistency (same custom unit spelled same way)
+
+### F15: Product Variants
+- One product can have multiple variants (different packaging sizes)
+- Variants inherit recipe cost, have their own: name, SKU, packaging_cost, default_price
+- Variant HPP = (base HPP + variant packaging_cost) / 1 (same batch cost basis, added packaging)
+- Product detail page shows all variants with individual HPP and margin
+- Sales can record against specific variant
+
 ## 6. Non-Functional Requirements
 
 ### Performance
@@ -226,12 +258,9 @@ Existing solutions fail because:
 
 | Feature | Reason |
 |---------|--------|
-| Production batch tracking | Adds significant complexity. User story: "track this specific batch of 24 brownies made on Monday vs Tuesday." Requires batch-level yield, cost variance, expiry tracking. Phase 2. |
 | Purchase orders | POs are B2B workflow. Micro-businesses just "buy stuff." Stock-in is sufficient. |
-| Price history graphs | Nice-to-have analytics. Not operational. Phase 2. |
 | Multi-user / team | Adds org invite, role management, permission complexity. Phase 4. |
-| Offline mode | Requires Service Worker + IndexedDB sync engine. Significant engineering. Phase 2. |
-| Export (PDF/CSV) | Useful but not essential for daily ops. Phase 2. |
+| Export (PDF) | CSV is sufficient. PDF adds layout complexity. Post-MVP. |
 | Recurring costs (subscriptions, rent) | Too close to accounting software. Not in scope. |
 | Multi-outlet / multi-location | Phase 4. |
 | AI features | Phase 3. |
@@ -240,14 +269,19 @@ Existing solutions fail because:
 
 ## 8. Future Scope
 
-### Phase 2 (Month 4-6): Production & Data
-- Production batch tracking (batch ID, date, qty produced, actual yield, cost variance)
-- Automated stock deduction when production is recorded
-- Supplier price history view
-- CSV/PDF export for inventory and sales
-- Offline stock opname (PWA + IndexedDB)
-- Custom units support
-- Product variants (same recipe, different packaging)
+### Phase 2 (Month 4-6): Production, Export & Data
+
+**Goal**: Close the operational loop. Track every production run with automated inventory deduction. Enable data export. Support real-world needs (custom units, product variants, offline opname).
+
+| Feature | FRs | Sprint |
+|---------|-----|--------|
+| Production batches crud + auto stock deduction | FR-PRB-01 - FR-PRB-05 | Sprint 5 |
+| Batch cost variance analysis | FR-PRB-06 | Sprint 5 |
+| Supplier price history table view | FR-SUP-05 | Sprint 5 |
+| CSV export (inventory + sales) | FR-EXP-01 - FR-EXP-02 | Sprint 6 |
+| Offline stock opname (PWA + IndexedDB) | FR-OPN-02 | Sprint 6 |
+| Custom units support | FR-INV-08 | Sprint 6 |
+| Product variants (different packaging) | FR-PRD-03 - FR-PRD-04 | Sprint 6 |
 
 ### Phase 3 (Month 7-9): Intelligence
 - AI assistant: voice-input stock opname

@@ -161,6 +161,80 @@ Mobile-first web app. React + TypeScript + Vite. Supabase (PostgreSQL, Auth, RLS
 - Last 10 inventory_transactions or sales
 - Mixed feed
 
+### 2.8 Production Batch Module
+
+**FR-PRB-01**: Record production batch
+- Fields: id, organization_id, recipe_id, variant_id (nullable), batch_number, planned_qty, actual_qty, production_date, notes, created_at, updated_at
+- batch_number auto-generated: BCH-{YYYYMMDD}-{XXX} (sequential per day in org)
+
+**FR-PRB-02**: Batch number auto-generation
+- Format: BCH-{YYYYMMDD}-{001..999}
+- Counter resets daily
+- Generated server-side via a function or client-side with DB uniqueness check
+
+**FR-PRB-03**: Automated stock deduction on batch creation
+- When batch is recorded with actual_qty > 0:
+  - For each recipe_item in linked recipe:
+    - INSERT inventory_transaction (type='out', reason='produksi')
+    - quantity = -(recipe_item.quantity * batch.actual_qty / recipe.yield_amount) — scaled to batch size
+    - links to batch via notes or batch_id FK
+  - Trigger updates ingredient.current_stock as usual
+
+**FR-PRB-04**: Link batch to inventory transactions
+- inventory_transactions.batch_id (uuid, nullable, FK → production_batches(id))
+- Allows tracing: "this stock-out was caused by this batch"
+
+**FR-PRB-05**: Production batch list
+- Paginated, filterable by recipe and date range
+- Columns: batch number, recipe name, planned qty, actual qty, production date, cost variance
+- Sortable by production_date DESC
+
+**FR-PRB-06**: Batch cost variance
+- planned_cost = planned_qty * per_unit_hpp (from recipe snapshot)
+- actual_cost = actual_qty * per_unit_hpp (same snapshot)
+- planned_ingredient_cost = SUM(recipe_item.qty * cost_at_create / yield_amount) * planned_qty
+- actual_ingredient_cost = SUM(recipe_item.qty * cost_at_create / yield_amount) * actual_qty
+- variance = actual_cost - planned_cost
+- variance_pct = (variance / planned_cost) * 100
+
+### 2.9 Export Module
+
+**FR-EXP-01**: Export inventory to CSV
+- Columns: name, category, unit, current_stock, latest_price, total_value (= current_stock * latest_price)
+- Triggered from inventory page → "Ekspor CSV" button
+- Downloaded immediately (client-side generation)
+
+**FR-EXP-02**: Export sales to CSV
+- Columns: date, product, quantity, unit_price, revenue, hpp_per_unit, total_hpp, gross_profit, margin
+- Date range filterable before export
+- Triggered from sales page → "Ekspor CSV" button
+
+### 2.10 Product Variant Module
+
+**FR-PRD-03**: CRUD product variants
+- Fields: id, organization_id, product_id, name, sku, packaging_cost, default_price, created_at, updated_at
+- variant_hpp = (product.per_unit_hpp + variant.packaging_cost)
+- variant_margin = ((variant.default_price - variant_hpp) / variant.default_price) * 100
+
+**FR-PRD-04**: Product detail with variants
+- Product detail page shows all variants with individual HPP and margin
+- Variants can be selected when recording sales
+
+### 2.11 Enhanced Inventory
+
+**FR-INV-08**: Custom units
+- Unit dropdown includes curated list + free-text "Lainnya..."
+- Custom unit stored as-is on ingredient
+- Display "(kustom)" suffix in dropdowns and list views
+
+### 2.12 Offline Stock Opname
+
+**FR-OPN-02**: Offline stock opname
+- Service Worker caches ingredient list for offline access
+- Physical counts entered offline, stored in IndexedDB
+- When back online: sync adjustments → create inventory_transactions
+- Conflict detection: if stock changed while offline, warn user
+
 ---
 
 ## 3. Business Rules

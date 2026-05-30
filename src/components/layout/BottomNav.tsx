@@ -3,9 +3,9 @@ import { NavLink } from 'react-router-dom'
 const tabs = [
   { to: '/app', label: 'Dashboard' },
   { to: '/app/inventory', label: 'Stok' },
+  { to: '/app/production', label: 'Produksi' },
   { to: '/app/recipes', label: 'Resep' },
   { to: '/app/sales', label: 'Jual' },
-  { to: '/app/settings', label: 'Lainnya' },
 ]
 
 export default function BottomNav() {

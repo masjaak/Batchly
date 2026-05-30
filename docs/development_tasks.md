@@ -309,6 +309,153 @@ Key dependencies:
 
 ---
 
+## Sprint 5: Production Batches (Week 9-10)
+
+### Task 5.1: Database Migration (1 day)
+**Files**: docs/database_schema.md (Phase 2 migrations)
+- Run production_batches table creation
+- Run product_variants table creation
+- Add batch_id column to inventory_transactions
+- Apply RLS policies
+- Seed helper: generate_batch_number() function or client-side logic
+
+### Task 5.2: Production Batch Hooks (2 days)
+**Files**: src/hooks/useProductionBatches.ts, src/test/useProductionBatches.test.ts
+- `useProductionBatches()` — list all batches with recipe info (TanStack Query)
+- `useProductionBatch(id)` — single batch with recipe + items
+- `useCreateProductionBatch()` — insert batch + auto-create stock-out transactions
+- `useDeleteProductionBatch()` — soft constraint: only within 24h
+
+**Auto-deduction logic** (core complexity):
+```ts
+async function createProductionBatch(data: {
+  organization_id, recipe_id, planned_qty, actual_qty, production_date, notes
+}) {
+  // 1. Get recipe with items
+  const recipe = await getRecipeWithItems(data.recipe_id)
+
+  // 2. Generate batch number
+  const batchNumber = await generateBatchNumber(data.organization_id, data.production_date)
+
+  // 3. Insert production_batch
+  const batch = await supabase.from('production_batches').insert({
+    ...data, batch_number: batchNumber,
+  }).select().single()
+
+  // 4. For each recipe_item, create stock-out transaction
+  const scaleFactor = data.actual_qty / recipe.yield_amount
+  const transactions = recipe.recipe_items.map(item => ({
+    organization_id: data.organization_id,
+    ingredient_id: item.ingredient_id,
+    type: 'out',
+    quantity: -(item.quantity * scaleFactor),
+    reason: 'produksi',
+    notes: `Batch: ${batchNumber} - ${recipe.name}`,
+    batch_id: batch.id,
+    transaction_date: data.production_date,
+  }))
+  await supabase.from('inventory_transactions').insert(transactions)
+
+  return batch
+}
+```
+
+**Correctness tests for auto-deduction**:
+- Scale factor: actual_qty / yield_amount (e.g., yield=24 pcs, batch=48 → scale=2×)
+- Each ingredient deducted: item.quantity × scaleFactor
+- Total 0 → no deduction (edge case)
+- Batch 0 → blocked
+
+### Task 5.3: Batch Cost Variance Calculation (1 day)
+**Files**: src/lib/calculations.ts (extend), src/test/calculations.test.ts (add tests)
+- `calculateBatchCostVariance(batch, recipe)` → { plannedCost, actualCost, variance, variancePct, ingredientDetails[] }
+- Each ingredient detail: { name, plannedQty, actualQty, plannedCost, actualCost, costAtCreate }
+
+**Edge cases**:
+- planned_qty = 0 → division by zero guard
+- actual_qty differs from planned → proportional variance
+- Recipe has no items → zero cost, zero variance
+- Negative variance (over-produced) → show as favorable
+
+### Task 5.4: Production Batch List & Detail Pages (2 days)
+**Files**: src/pages/production/ProductionPage.tsx, src/pages/production/BatchDetailPage.tsx
+- List: batch_number, recipe name, planned vs actual qty, production date, cost variance
+- Detail: full batch info, ingredient deduction breakdown, cost variance table
+- New batch form: select recipe → auto-fills planned_qty from recipe.yield_amount, enter actual_qty
+- Show warning: "Stok akan otomatis dikurangi" with ingredient list preview
+
+**Edge cases**:
+- Recipe has no ingredients → allow batch (zero deduction)
+- Insufficient stock → warn but allow (over-deduction creates negative stock, user must fix)
+- Batch already exists for today → check batch number uniqueness
+
+### Task 5.5: Production Batch Tests (2 days)
+**Files**: src/test/useProductionBatches.test.ts, src/test/calculations.test.ts (extend)
+- Hook tests: list, create (with deduction), delete within 24h, delete after 24h
+- Calculation tests: cost variance with various planned vs actual ratios
+- Integration: creating a batch and verifying stock deduction
+
+### Task 5.6: Supplier Price History (1 day)
+**Files**: src/pages/suppliers/SupplierDetailPage.tsx (enhance)
+- Add "Riwayat Harga" section to supplier detail
+- For each ingredient purchased from this supplier, show time-series price data
+- Table: date, ingredient, quantity, unit_price, total
+- Summary: total spent, last purchase, ingredient count
+
+---
+
+## Sprint 6: Export + Product Variants + Polish (Week 11-12)
+
+### Task 6.1: CSV Export (2 days)
+**Files**: src/lib/export.ts, src/test/export.test.ts
+- `exportInventoryCSV(ingredients, categories)` → Blob, trigger download
+- `exportSalesCSV(sales, products, hppData)` → Blob, trigger download
+- "Ekspor CSV" buttons on inventory and sales pages
+- Client-side generation (no server). Uses Blob + URL.createObjectURL
+
+**Edge cases**:
+- Empty data → export headers only (valid CSV)
+- Large datasets → chunked or streaming (not needed for MVP, max ~5000 rows)
+- Special characters in names (Indonesian: é, ñ) → UTF-8 BOM for Excel compatibility
+- Number formatting → IDR locale format
+
+### Task 6.2: Product Variants (2 days)
+**Files**: src/hooks/useProductVariants.ts, src/test/useProductVariants.test.ts, src/pages/products/ProductsPage.tsx (enhance), src/pages/products/ProductDetailPage.tsx (new)
+- `useProductVariants(productId)` — list variants for a product
+- `useCreateProductVariant()` — create variant
+- `useDeleteProductVariant()` — delete variant
+- Product detail page with variant list
+- Variant HPP = per_unit_hpp + variant.packaging_cost
+- Sales page: variant selectable alongside product
+
+**Edge cases**:
+- Product with no variants → show base product only (backward compatible)
+- Delete variant with batch history → soft delete (deleted_at)
+- variant name + product_id unique constraint
+
+### Task 6.3: Custom Units Support (0.5 day)
+**Files**: src/pages/inventory/IngredientForm.tsx (enhance)
+- Unit dropdown: curated list + "Lainnya..." option
+- When "Lainnya" selected, free-text input appears
+- Custom unit saved as-is (no validation on custom units)
+- Display "(kustom)" suffix in lists
+
+### Task 6.4: Offline Stock Opname (3 days)
+**Files**: src/sw.ts, src/lib/offline.ts, src/hooks/useOfflineOpname.ts, src/pages/inventory/StockOpnamePage.tsx (enhance)
+- Service Worker: cache ingredient list on page load (Cache-first strategy for opname page)
+- IndexedDB: store physical counts when offline
+- When online: sync button → create inventory_transactions
+- Conflict detection: if current_stock != cached_stock → warn user
+
+### Task 6.5: Phase 2 Final QA (1.5 days)
+- Full regression test
+- Verify auto-deduction matches manual calculation
+- Test CSV exports in browser
+- Test offline opname flow (airplane mode → enter counts → sync)
+- Verify all 4 sprints still pass (regression on useRecipes, useSales, etc.)
+
+---
+
 ## Total Effort Summary
 
 | Sprint | Tasks | Days | Story Points |
@@ -317,7 +464,9 @@ Key dependencies:
 | Sprint 2: Inventory + Supplier | 6 tasks | 12.5 days | 25 |
 | Sprint 3: Recipe + Product + HPP | 5 tasks | 8.5 days | 17 |
 | Sprint 4: Sales + Dashboard + Polish | 6 tasks | 10.5 days | 21 |
-| **Total** | **22 tasks** | **42.5 days** | **85 SP** |
+| Sprint 5: Production Batches | 6 tasks | 9 days | 18 |
+| Sprint 6: Export + Variants + Polish | 5 tasks | 9 days | 18 |
+| **Total (Phase 1 + 2)** | **33 tasks** | **60.5 days** | **121 SP** |
 
 *(Based on 1 developer. With 2 developers: ~5 weeks.)*
 

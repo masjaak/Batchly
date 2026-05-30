@@ -264,6 +264,9 @@ export default function RecipeDetailPage() {
           <button onClick={handleCreateProduct} className="flex-1 h-12 rounded-lg border border-border bg-surface text-sm font-medium text-primary">
             Buat Produk
           </button>
+          <button onClick={() => navigate(`/app/production/new?recipe=${id}`)} className="flex-1 h-12 rounded-lg border border-border bg-surface text-sm font-medium text-primary">
+            Produksi
+          </button>
         </div>
       )}
     </div>

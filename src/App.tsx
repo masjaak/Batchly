@@ -14,6 +14,9 @@ import SuppliersPage from '@/pages/suppliers/SuppliersPage'
 import SupplierDetailPage from '@/pages/suppliers/SupplierDetailPage'
 import RecipesPage from '@/pages/recipes/RecipesPage'
 import RecipeDetailPage from '@/pages/recipes/RecipeDetailPage'
+import ProductionPage from '@/pages/production/ProductionPage'
+import NewBatchPage from '@/pages/production/NewBatchPage'
+import BatchDetailPage from '@/pages/production/BatchDetailPage'
 import ProductsPage from '@/pages/products/ProductsPage'
 import SalesPage from '@/pages/sales/SalesPage'
 
@@ -34,6 +37,9 @@ export default function App() {
           <Route path="/app/inventory/:id" element={<IngredientDetailPage />} />
           <Route path="/app/suppliers" element={<SuppliersPage />} />
           <Route path="/app/suppliers/:id" element={<SupplierDetailPage />} />
+          <Route path="/app/production" element={<ProductionPage />} />
+          <Route path="/app/production/new" element={<NewBatchPage />} />
+          <Route path="/app/production/:id" element={<BatchDetailPage />} />
           <Route path="/app/recipes" element={<RecipesPage />} />
           <Route path="/app/recipes/:id" element={<RecipeDetailPage />} />
           <Route path="/app/products" element={<ProductsPage />} />

@@ -344,6 +344,129 @@ Actions available from dashboard:
 
 ---
 
+## Flow 11: Record Production Batch
+
+**Goal**: Log a production run with automatic ingredient deduction. 3 taps.
+
+```
+Starting point: Production tab (new) or Recipe detail
+
+Tap 1: "Catat Produksi" button
+  → Opens form: /app/production/new
+
+Tap 2: Fill form
+  - Resep: dropdown (select from recipes)
+  - Jumlah Direncanakan: numeric (pre-filled from recipe.yield_amount)
+  - Jumlah Aktual: numeric (editable — actual yield produced)
+  - Tanggal Produksi: date picker (default: today)
+  - Catatan: optional text
+
+  Preview section (read-only):
+  - "Stok akan otomatis dikurangi:"
+  - Ingredient deductions list with quantities (recipe_item.qty × actual_qty / yield_amount)
+  - Warning if any ingredient is below required amount (non-blocking)
+
+Tap 3: "Simpan & Kurangi Stok"
+  → INSERT production_batch
+  → INSERT inventory_transactions (type='out', reason='produksi') for each ingredient
+  → Toast: "Produksi tercatat. Stok bahan berkurang."
+  → Navigate to batch detail
+
+Edge case: No ingredients in recipe?
+  → Allow batch but show "Tidak ada bahan yang dikurangi (resep kosong)"
+```
+
+**Total taps**: 3
+
+---
+
+## Flow 12: View Batch Cost Variance
+
+**Goal**: See if actual costs matched planned. 2 taps.
+
+```
+Starting point: Production list → tap a batch row
+
+Screen layout:
+  - Header: Batch #BCH-20260530-001
+  - Recipe details: name, planned_qty, actual_qty, date
+  - Cost variance card:
+    ┌──────────────────────────┐
+    │ Planned Cost: Rp 120.000 │
+    │ Actual Cost:  Rp 132.000 │ ← (higher because actual_qty > planned)
+    │ Variance:     +Rp 12.000 │
+    │ Variance %:   +10%       │
+    └──────────────────────────┘
+  - Ingredient deduction table:
+    | Bahan          | Rencana | Aktual  | Biaya Rencana | Biaya Aktual |
+    | Tepung Terigu  | 2 kg    | 2.4 kg  | Rp 20.000     | Rp 24.000    |
+    | Gula Pasir     | 1 kg    | 1.2 kg  | Rp 15.000     | Rp 18.000    |
+    | ...            | ...     | ...     | ...           | ...          |
+  - Close: "Tutup" button
+
+Interpretation:
+  - Variance > 0: "Biaya lebih besar dari rencana" (unfavorable)
+  - Variance < 0: "Biaya lebih kecil dari rencana" (favorable — overproduced)
+  - Variance = 0: "Sesuai rencana"
+```
+
+**Total taps**: 2
+
+---
+
+## Flow 13: Export Inventory CSV
+
+**Goal**: Download inventory data as spreadsheet. 2 taps.
+
+```
+Starting point: Inventory page
+
+Tap 1: "Ekspor CSV" button (top right)
+  → Immediately downloads file in browser
+
+File contents:
+  - Columns: Nama Bahan, Kategori, Satuan, Stok Saat Ini, Harga Satuan, Total Nilai
+  - UTF-8 BOM for Excel compatibility
+  - IDR format for prices
+
+Tap 2 (optional): Open file in Excel/Google Sheets
+```
+
+**Total taps**: 1
+
+---
+
+## Flow 14: Create Product Variant
+
+**Goal**: Add different packaging size for an existing product. 3 taps.
+
+```
+Starting point: Product detail page
+
+Tap 1: "Tambah Varian" button
+  → Opens form: /app/products/:id/variants/new
+
+Tap 2: Fill form
+  - Nama Varian*: text (e.g., "Kemasan 500g")
+  - SKU: auto-generated, editable
+  - Biaya Kemasan Tambahan: numeric (Rp per unit)
+  - Harga Jual*: numeric
+
+  Preview: "HPP Varian: Rp 25.000 (base HPP Rp 22.000 + kemasan Rp 3.000)"
+  Preview: "Margin: 35%"
+
+Tap 3: "Simpan Varian"
+  → INSERT product_variant
+  → Toast: "Varian berhasil ditambahkan"
+  → Return to product detail showing variant
+
+Edge case: Variant with same name → warn
+```
+
+**Total taps**: 3
+
+---
+
 ## Summary: Tap Counts
 
 | Flow | Taps | Frequency |
@@ -357,3 +480,7 @@ Actions available from dashboard:
 | Add supplier | 2-3 | Once per new supplier |
 | View dashboard | 0 | Daily (5-10x) |
 | View purchase history | 2 | Weekly |
+| Record production batch | 3 | Daily (1-3x) |
+| View batch variance | 2 | Per batch review |
+| Export CSV | 1 | Weekly |
+| Create product variant | 3 | Once per new variant |

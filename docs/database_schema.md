@@ -371,10 +371,150 @@ CREATE TRIGGER trg_audit_inventory_transaction
 
 ---
 
-## Out of MVP Scope (Future)
+## Table: production_batches
 
-- purchase_orders / purchase_order_items → Phase 2
-- production_batches → Phase 2
-- sale_items → Phase 2 (multi-item sales)
-- locations / warehouses → Phase 4
-- subscription_plans / subscriptions → Monetization (Supabase or Stripe)
+Production runs. Each batch records planned vs actual output and auto-deducts ingredients.
+
+| Column | Type | Constraints | Notes |
+|--------|------|------------|-------|
+| id | uuid | PK, default gen_random_uuid() | |
+| organization_id | uuid | NOT NULL, FK → organizations(id) | |
+| recipe_id | uuid | NOT NULL, FK → recipes(id) | Which recipe was produced |
+| variant_id | uuid | FK → product_variants(id) | Nullable — variant produced |
+| batch_number | text | NOT NULL | BCH-{YYYYMMDD}-{XXX} |
+| planned_qty | numeric | NOT NULL | Target yield |
+| actual_qty | numeric | NOT NULL | Actual yield produced |
+| production_date | date | NOT NULL, default current_date | |
+| notes | text | | |
+| created_at | timestamptz | NOT NULL, default now() | |
+| updated_at | timestamptz | NOT NULL, default now() | |
+
+**Indexes**: (organization_id, production_date DESC), (organization_id, recipe_id), (organization_id, batch_number)
+
+**Computed (not stored)**: planned_cost, actual_cost, variance, variance_pct
+
+---
+
+## Table: product_variants
+
+Different packaging/sizes for the same product.
+
+| Column | Type | Constraints | Notes |
+|--------|------|------------|-------|
+| id | uuid | PK, default gen_random_uuid() | |
+| organization_id | uuid | NOT NULL, FK → organizations(id) | |
+| product_id | uuid | NOT NULL, FK → products(id) ON DELETE CASCADE | |
+| name | text | NOT NULL | e.g., "Kemasan 250g", "Kemasan 500g" |
+| sku | text | | Variant-specific SKU |
+| packaging_cost | numeric | NOT NULL, default 0 | Additional packaging on top of base recipe |
+| default_price | numeric | NOT NULL | Selling price for this variant |
+| sort_order | integer | NOT NULL, default 0 | Display ordering |
+| created_at | timestamptz | NOT NULL, default now() | |
+| updated_at | timestamptz | NOT NULL, default now() | |
+
+**Indexes**: (organization_id, product_id), (product_id, sort_order)
+
+---
+
+## Table: inventory_transactions (modified)
+
+Add `batch_id` column.
+
+| Column | Type | Constraints | Notes |
+|--------|------|------------|-------|
+| ... | | | (existing columns) |
+| batch_id | uuid | FK → production_batches(id) | Nullable — links stock-out to production batch |
+
+---
+
+## RLS Policies (Production Batches)
+
+```sql
+ALTER TABLE production_batches ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "org_isolation_select" ON production_batches
+  FOR SELECT USING (
+    organization_id = (auth.jwt() ->> 'organization_id')::uuid
+  );
+
+CREATE POLICY "org_isolation_insert" ON production_batches
+  FOR INSERT WITH CHECK (
+    organization_id = (auth.jwt() ->> 'organization_id')::uuid
+  );
+
+CREATE POLICY "org_isolation_update" ON production_batches
+  FOR UPDATE USING (
+    organization_id = (auth.jwt() ->> 'organization_id')::uuid
+  );
+
+CREATE POLICY "org_isolation_delete" ON production_batches
+  FOR DELETE USING (
+    organization_id = (auth.jwt() ->> 'organization_id')::uuid
+  );
+```
+
+Same pattern applies to `product_variants`.
+
+---
+
+## Indexes Summary (Updated)
+
+| Table | Index |
+|-------|-------|
+| production_batches | (organization_id, production_date DESC), (organization_id, recipe_id), (organization_id, batch_number) |
+| product_variants | (organization_id, product_id), (product_id, sort_order) |
+| inventory_transactions | (organization_id, ingredient_id, transaction_date), (organization_id, supplier_id), (organization_id, created_at), (organization_id, batch_id) |
+
+---
+
+## Phase 2 Database Migrations
+
+### V2.1: Production Batches + Product Variants
+
+```sql
+-- 1. Production batches
+CREATE TABLE production_batches (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  organization_id uuid NOT NULL REFERENCES organizations(id),
+  recipe_id uuid NOT NULL REFERENCES recipes(id),
+  variant_id uuid REFERENCES product_variants(id),
+  batch_number text NOT NULL,
+  planned_qty numeric NOT NULL,
+  actual_qty numeric NOT NULL,
+  production_date date NOT NULL DEFAULT current_date,
+  notes text,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_batches_org_date ON production_batches(organization_id, production_date DESC);
+CREATE INDEX idx_batches_org_recipe ON production_batches(organization_id, recipe_id);
+CREATE UNIQUE INDEX idx_batches_org_number ON production_batches(organization_id, batch_number);
+
+-- 2. Product variants
+CREATE TABLE product_variants (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  organization_id uuid NOT NULL REFERENCES organizations(id),
+  product_id uuid NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  name text NOT NULL,
+  sku text,
+  packaging_cost numeric NOT NULL DEFAULT 0,
+  default_price numeric NOT NULL,
+  sort_order integer NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_variants_org_product ON product_variants(organization_id, product_id);
+CREATE INDEX idx_variants_product_order ON product_variants(product_id, sort_order);
+
+-- 3. Add batch_id to inventory_transactions
+ALTER TABLE inventory_transactions ADD COLUMN batch_id uuid REFERENCES production_batches(id);
+CREATE INDEX idx_transactions_batch ON inventory_transactions(organization_id, batch_id);
+```
+
+### V2.2: Offline Opname (IndexedDB) — No DB migration needed
+
+Offline data stored in client-side IndexedDB only. When synced, creates standard inventory_transactions.
+
+---
