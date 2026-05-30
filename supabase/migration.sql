@@ -3,6 +3,25 @@
 -- Paste this entire file into Supabase SQL Editor and run
 -- ============================================================
 
+-- Cleanup any existing objects (safe to re-run)
+DROP TABLE IF EXISTS audit_logs CASCADE;
+DROP TABLE IF EXISTS sales CASCADE;
+DROP TABLE IF EXISTS product_variants CASCADE;
+DROP TABLE IF EXISTS production_batches CASCADE;
+DROP TABLE IF EXISTS inventory_transactions CASCADE;
+DROP TABLE IF EXISTS recipe_items CASCADE;
+DROP TABLE IF EXISTS products CASCADE;
+DROP TABLE IF EXISTS recipes CASCADE;
+DROP TABLE IF EXISTS ingredients CASCADE;
+DROP TABLE IF EXISTS suppliers CASCADE;
+DROP TABLE IF EXISTS ingredient_categories CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS organizations CASCADE;
+DROP FUNCTION IF EXISTS get_current_organization_id CASCADE;
+DROP FUNCTION IF EXISTS fn_update_ingredient_on_transaction CASCADE;
+DROP FUNCTION IF EXISTS fn_audit_inventory_transaction CASCADE;
+DROP FUNCTION IF EXISTS apply_org_policies CASCADE;
+
 -- 0. Extensions
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
