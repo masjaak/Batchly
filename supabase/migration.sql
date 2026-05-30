@@ -103,6 +103,7 @@ CREATE TABLE recipes (
 -- 8. recipe_items
 CREATE TABLE recipe_items (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  organization_id uuid NOT NULL REFERENCES organizations(id),
   recipe_id uuid NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
   ingredient_id uuid NOT NULL REFERENCES ingredients(id),
   quantity numeric NOT NULL,
