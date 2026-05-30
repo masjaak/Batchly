@@ -5,6 +5,7 @@ import { useIngredients } from '@/hooks/useIngredients'
 import { useSuppliers } from '@/hooks/useSuppliers'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
+import { Select } from '@/components/ui/Select'
 
 export default function StockInPage() {
   const navigate = useNavigate()
@@ -46,25 +47,18 @@ export default function StockInPage() {
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
         <label className="mb-1 block text-sm font-medium text-secondary">Bahan</label>
-        <select
+        <Select
           value={ingredientId}
-          onChange={(e) => {
-            setIngredientId(e.target.value)
-            const ing = ingredients?.find((i) => i.id === e.target.value)
+          onValueChange={(v) => {
+            setIngredientId(v)
+            const ing = ingredients?.find((i) => i.id === v)
             if (ing && ing.latest_price > 0 && !unitPrice) {
               setUnitPrice(String(ing.latest_price))
             }
           }}
-          required
-          className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
-        >
-          <option value="">Pilih bahan...</option>
-          {ingredients?.map((ing) => (
-            <option key={ing.id} value={ing.id}>
-              {ing.name} ({ing.current_stock} {ing.unit})
-            </option>
-          ))}
-        </select>
+          placeholder="Pilih bahan..."
+          options={(ingredients ?? []).map((ing) => ({ value: ing.id, label: `${ing.name} (${ing.current_stock} ${ing.unit})` }))}
+        />
       </div>
 
       <div>
@@ -97,18 +91,12 @@ export default function StockInPage() {
 
       <div>
         <label className="mb-1 block text-sm font-medium text-secondary">Pemasok (opsional)</label>
-        <select
+        <Select
           value={supplierId}
-          onChange={(e) => setSupplierId(e.target.value)}
-          className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
-        >
-          <option value="">Pilih pemasok...</option>
-          {suppliers?.map((sup) => (
-            <option key={sup.id} value={sup.id}>
-              {sup.name}
-            </option>
-          ))}
-        </select>
+          onValueChange={setSupplierId}
+          placeholder="Pilih pemasok..."
+          options={(suppliers ?? []).map((sup) => ({ value: sup.id, label: sup.name }))}
+        />
       </div>
 
       <div>

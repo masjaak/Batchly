@@ -4,6 +4,7 @@ import { useRecipes } from '@/hooks/useRecipes'
 import { useCreateProductionBatch } from '@/hooks/useProductionBatches'
 import { calculateBatchCostVariance } from '@/lib/calculations'
 import { toast } from 'sonner'
+import { Select } from '@/components/ui/Select'
 
 export default function NewBatchPage() {
   const navigate = useNavigate()
@@ -49,23 +50,16 @@ export default function NewBatchPage() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <select
+      <Select
         value={recipeId}
-        onChange={(e) => {
-          setRecipeId(e.target.value)
-          const r = recipes?.find((rec: any) => rec.id === e.target.value)
+        onValueChange={(v) => {
+          setRecipeId(v)
+          const r = recipes?.find((rec: any) => rec.id === v)
           if (r) setPlannedQty(String(r.yield_amount))
         }}
-        required
-        className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
-      >
-        <option value="">Pilih resep...</option>
-        {recipes?.map((r: any) => (
-          <option key={r.id} value={r.id}>
-            {r.name} ({r.yield_amount} {r.yield_unit})
-          </option>
-        ))}
-      </select>
+        placeholder="Pilih resep..."
+        options={(recipes ?? []).map((r: any) => ({ value: r.id, label: `${r.name} (${r.yield_amount} ${r.yield_unit})` }))}
+      />
 
       <div className="flex gap-2">
         <input

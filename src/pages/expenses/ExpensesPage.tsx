@@ -6,6 +6,7 @@ import { useExpenses, useCreateExpense, useDeleteExpense, EXPENSE_CATEGORIES } f
 import { formatCurrency } from '@/lib/calculations'
 import { Card, CardHeader } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { Select } from '@/components/ui/Select'
 
 export default function ExpensesPage() {
   const { organization } = useAuth()
@@ -55,11 +56,11 @@ export default function ExpensesPage() {
         <form onSubmit={handleSubmit} className="mt-4 space-y-3">
           <div>
             <label className="mb-1 block text-xs font-medium text-secondary">Kategori</label>
-            <select value={category} onChange={(e) => setCategory(e.target.value)} className="h-11 w-full px-3 text-sm">
-              {EXPENSE_CATEGORIES.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
+            <Select
+              value={category}
+              onValueChange={setCategory}
+              options={EXPENSE_CATEGORIES.map((c) => ({ value: c, label: c }))}
+            />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-secondary">Jumlah (Rp)</label>
@@ -96,7 +97,7 @@ export default function ExpensesPage() {
       {/* Summary + list */}
       <div className="space-y-5 lg:col-span-2">
         <div className="grid grid-cols-2 gap-4">
-          <div className="rounded-2xl bg-forest p-5 text-white shadow-card">
+          <div className="rounded-2xl bg-ink p-5 text-white shadow-card">
             <div className="flex items-center justify-between">
               <p className="text-sm opacity-80">Biaya Bulan Ini</p>
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15">

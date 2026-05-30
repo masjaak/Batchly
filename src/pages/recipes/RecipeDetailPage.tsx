@@ -6,6 +6,7 @@ import { useCreateProduct } from '@/hooks/useProducts'
 import { useAuth } from '@/hooks/useAuth'
 import { calculateRecipeCost, findCheaperAlternatives } from '@/lib/calculations'
 import { toast } from 'sonner'
+import { Select } from '@/components/ui/Select'
 
 export default function RecipeDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -137,17 +138,18 @@ export default function RecipeDetailPage() {
             onChange={(e) => setYieldAmt(e.target.value)}
             className="h-12 flex-1 rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
           />
-          <select
+          <Select
             value={yieldUnit}
-            onChange={(e) => setYieldUnit(e.target.value)}
-            className="h-12 w-24 rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
-          >
-            <option value="pcs">pcs</option>
-            <option value="box">box</option>
-            <option value="jar">jar</option>
-            <option value="kg">kg</option>
-            <option value="liter">liter</option>
-          </select>
+            onValueChange={setYieldUnit}
+            className="h-12 w-24"
+            options={[
+              { value: 'pcs', label: 'pcs' },
+              { value: 'box', label: 'box' },
+              { value: 'jar', label: 'jar' },
+              { value: 'kg', label: 'kg' },
+              { value: 'liter', label: 'liter' },
+            ]}
+          />
         </div>
       </div>
 
@@ -175,18 +177,13 @@ export default function RecipeDetailPage() {
         )}
 
         <div className="flex gap-2">
-          <select
+          <Select
             value={selIngredient}
-            onChange={(e) => setSelIngredient(e.target.value)}
-            className="h-12 flex-1 rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
-          >
-            <option value="">Pilih bahan...</option>
-            {allIngredients?.map((ing) => (
-              <option key={ing.id} value={ing.id}>
-                {ing.name} (Rp {ing.latest_price.toLocaleString('id-ID')}/{ing.unit})
-              </option>
-            ))}
-          </select>
+            onValueChange={setSelIngredient}
+            className="flex-1"
+            placeholder="Pilih bahan..."
+            options={(allIngredients ?? []).map((ing) => ({ value: ing.id, label: `${ing.name} (Rp ${ing.latest_price.toLocaleString('id-ID')}/${ing.unit})` }))}
+          />
           <input
             type="number"
             placeholder="Jml"

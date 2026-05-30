@@ -7,6 +7,7 @@ import { exportCSV, downloadCSV } from '@/lib/export'
 import { toast } from 'sonner'
 import { Card, CardHeader } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { Select } from '@/components/ui/Select'
 
 export default function SalesPage() {
   const { organization } = useAuth()
@@ -62,21 +63,16 @@ export default function SalesPage() {
         <form onSubmit={handleSubmit} className="mt-4 space-y-3">
           <div>
             <label className="mb-1 block text-xs font-medium text-secondary">Produk</label>
-            <select
+            <Select
               value={productId}
-              onChange={(e) => {
-                setProductId(e.target.value)
-                const p = products?.find((pr: any) => pr.id === e.target.value)
+              onValueChange={(v) => {
+                setProductId(v)
+                const p = products?.find((pr: any) => pr.id === v)
                 if (p) setUnitPrice(String(p.default_price))
               }}
-              required
-              className="h-11 w-full px-3 text-sm"
-            >
-              <option value="">Pilih produk...</option>
-              {products?.map((p: any) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
+              placeholder="Pilih produk..."
+              options={(products ?? []).map((p: any) => ({ value: p.id, label: p.name }))}
+            />
           </div>
           <div className="flex gap-2">
             <div className="flex-1">
@@ -97,7 +93,7 @@ export default function SalesPage() {
       <div className="space-y-5 lg:col-span-2">
         {/* Revenue + export */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="rounded-2xl bg-lime p-5 text-forest shadow-card">
+          <div className="rounded-2xl bg-highlight p-5 text-ink shadow-card">
             <p className="text-sm font-medium">Total Pendapatan</p>
             <p className="mt-2 text-2xl font-bold">{formatCurrency(totalRevenue)}</p>
           </div>

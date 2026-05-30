@@ -4,10 +4,10 @@ type Variant = 'primary' | 'lime' | 'outline' | 'ghost' | 'danger'
 type Size = 'sm' | 'md'
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-primary text-white hover:bg-primary/90',
-  lime: 'bg-lime text-forest hover:brightness-95',
-  outline: 'border border-border bg-surface text-primary hover:bg-surface-muted',
-  ghost: 'text-secondary hover:bg-surface-muted hover:text-primary',
+  primary: 'bg-ink text-white hover:bg-ink/90',
+  lime: 'bg-highlight text-ink hover:brightness-95',
+  outline: 'border border-border bg-surface text-ink hover:bg-surface-muted',
+  ghost: 'text-secondary hover:bg-surface-muted hover:text-ink',
   danger: 'bg-danger text-white hover:bg-danger/90',
 }
 

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useIngredients, useCreateIngredient, useUpdateIngredient } from '@/hooks/useIngredients'
 import { useIngredientCategories } from '@/hooks/useIngredientCategories'
 import { toast } from 'sonner'
+import { Select } from '@/components/ui/Select'
 
 const CURATED_UNITS = ['g', 'kg', 'ml', 'L', 'pcs', 'sdt', 'sdm', 'cup']
 
@@ -81,16 +82,12 @@ export default function IngredientFormPage() {
 
       <div>
         <label className="mb-1 block text-sm font-medium text-secondary">Kategori (opsional)</label>
-        <select
+        <Select
           value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
-          className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
-        >
-          <option value="">Pilih kategori...</option>
-          {categories?.map((cat: any) => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
-          ))}
-        </select>
+          onValueChange={setCategoryId}
+          placeholder="Pilih kategori..."
+          options={(categories ?? []).map((cat: any) => ({ value: cat.id, label: cat.name }))}
+        />
       </div>
 
       <div>
@@ -106,15 +103,11 @@ export default function IngredientFormPage() {
             Pilihan satuan
           </label>
           {unitType === 'curated' && (
-            <select
+            <Select
               value={curatedUnit}
-              onChange={(e) => setCuratedUnit(e.target.value)}
-              className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
-            >
-              {CURATED_UNITS.map((u) => (
-                <option key={u} value={u}>{u}</option>
-              ))}
-            </select>
+              onValueChange={setCuratedUnit}
+              options={CURATED_UNITS.map((u) => ({ value: u, label: u }))}
+            />
           )}
 
           <label className="flex items-center gap-2 text-sm">

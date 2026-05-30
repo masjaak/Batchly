@@ -4,6 +4,7 @@ import { useStockOut } from '@/hooks/useInventoryTransactions'
 import { useIngredients } from '@/hooks/useIngredients'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
+import { Select } from '@/components/ui/Select'
 
 const reasons = [
   { value: 'used', label: 'Terpakai' },
@@ -49,19 +50,12 @@ export default function StockOutPage() {
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
         <label className="mb-1 block text-sm font-medium text-secondary">Bahan</label>
-        <select
+        <Select
           value={ingredientId}
-          onChange={(e) => setIngredientId(e.target.value)}
-          required
-          className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
-        >
-          <option value="">Pilih bahan...</option>
-          {ingredients?.map((ing) => (
-            <option key={ing.id} value={ing.id}>
-              {ing.name} ({ing.current_stock} {ing.unit})
-            </option>
-          ))}
-        </select>
+          onValueChange={setIngredientId}
+          placeholder="Pilih bahan..."
+          options={(ingredients ?? []).map((ing) => ({ value: ing.id, label: `${ing.name} (${ing.current_stock} ${ing.unit})` }))}
+        />
       </div>
 
       <div>
