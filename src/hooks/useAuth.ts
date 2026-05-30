@@ -53,6 +53,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (authError) return authError.message
     if (!authData.user) return 'Gagal mendaftar'
 
+    // If email confirmation is ON, no session is returned yet. Creating the
+    // organization/user row now would fail (needs auth.uid()) and leave an
+    // orphan org. Stop here with a clear message instead.
+    if (!authData.session) {
+      return 'Akun dibuat. Cek email untuk konfirmasi, lalu login. (Atau matikan "Confirm email" di Supabase untuk langsung masuk.)'
+    }
+
     const slug = businessName
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
