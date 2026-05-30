@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useStockIn } from '@/hooks/useInventoryTransactions'
 import { useIngredients } from '@/hooks/useIngredients'
 import { useSuppliers } from '@/hooks/useSuppliers'
@@ -59,6 +59,14 @@ export default function StockInPage() {
           placeholder="Pilih bahan..."
           options={(ingredients ?? []).map((ing) => ({ value: ing.id, label: `${ing.name} (${ing.current_stock} ${ing.unit})` }))}
         />
+        {ingredients && ingredients.length === 0 ? (
+          <p className="mt-1.5 text-xs text-secondary">
+            Belum ada bahan.{' '}
+            <Link to="/app/inventory/new" className="font-medium text-accent underline">Tambah bahan baru</Link> dulu.
+          </p>
+        ) : (
+          <Link to="/app/inventory/new" className="mt-1.5 inline-block text-xs font-medium text-accent">+ Bahan baru</Link>
+        )}
       </div>
 
       <div>

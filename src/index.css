@@ -4,7 +4,7 @@
 
 @layer base {
   * {
-    border-color: #ECECEC;
+    border-color: #ECE9E3;
   }
   body {
     @apply bg-background text-ink;
@@ -12,16 +12,13 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-}
-
-@layer components {
   input[type='text'],
   input[type='email'],
   input[type='password'],
   input[type='number'],
   input[type='date'],
   textarea {
-    @apply rounded-xl border border-border bg-surface text-ink outline-none transition-colors;
+    @apply rounded-xl border border-border bg-surface text-ink outline-none transition-all duration-200;
   }
   input:focus,
   textarea:focus {
@@ -29,8 +26,29 @@
   }
 }
 
-@layer utilities {
+@layer components {
   .card {
     @apply rounded-2xl border border-border bg-surface shadow-card;
+  }
+  /* Subtle lift on interactive cards/links */
+  .lift {
+    @apply transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-card-hover;
+  }
+}
+
+@layer utilities {
+  /* Page entrance: children fade-up with a gentle stagger */
+  .stagger > * {
+    animation: fade-up 0.45s ease-out both;
+  }
+  .stagger > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger > *:nth-child(2) { animation-delay: 60ms; }
+  .stagger > *:nth-child(3) { animation-delay: 120ms; }
+  .stagger > *:nth-child(4) { animation-delay: 180ms; }
+  .stagger > *:nth-child(5) { animation-delay: 240ms; }
+  .stagger > *:nth-child(6) { animation-delay: 300ms; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stagger > *, .lift { animation: none !important; transition: none !important; }
   }
 }

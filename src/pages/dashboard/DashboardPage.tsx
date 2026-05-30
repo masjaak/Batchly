@@ -63,7 +63,7 @@ export default function DashboardPage() {
     <div className="space-y-5">
       {/* Margin Guard teaser — USP hook */}
       <Link to="/app/margin-guard" className="block">
-        <div className="flex items-center justify-between gap-4 rounded-2xl bg-ink p-4 text-white shadow-card">
+        <div className="lift flex items-center justify-between gap-4 rounded-2xl bg-ink p-4 text-white shadow-card">
           <div className="flex items-center gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent">
               <ShieldCheck className="h-5 w-5 text-white" />
@@ -113,9 +113,9 @@ export default function DashboardPage() {
       {/* 2x2 stat grid */}
       <div className="grid grid-cols-2 gap-4 lg:col-span-4">
         <StatCard label="Laba Kotor" value={formatCurrency(grossProfit)} delta={revDelta} deltaLabel="bln ini" tone="dark" icon={<Coins className="h-4 w-4" />} />
-        <StatCard label="Biaya" value={formatCurrency(totalExpenses)} delta={expDelta} deltaLabel="bln ini" icon={<Wallet className="h-4 w-4 text-secondary" />} />
-        <StatCard label="Total HPP" value={formatCurrency(totalHpp)} icon={<Receipt className="h-4 w-4 text-secondary" />} />
-        <StatCard label="Pendapatan" value={formatCurrency(totalRevenue)} icon={<ShoppingBag className="h-4 w-4 text-secondary" />} />
+        <StatCard label="Biaya" value={formatCurrency(totalExpenses)} delta={expDelta} deltaLabel="bln ini" tone="berry" icon={<Wallet className="h-4 w-4" />} />
+        <StatCard label="Total HPP" value={formatCurrency(totalHpp)} tone="grape" icon={<Receipt className="h-4 w-4" />} />
+        <StatCard label="Pendapatan" value={formatCurrency(totalRevenue)} tone="mint" icon={<ShoppingBag className="h-4 w-4" />} />
       </div>
 
       {/* Profit/Loss chart */}

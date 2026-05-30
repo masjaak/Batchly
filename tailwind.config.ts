@@ -6,34 +6,50 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Neutral, screenshot-like shell
-        border: '#ECECEC',
-        background: '#E9E9EB', // gray backdrop behind the app shell
-        shell: '#FFFFFF', // the rounded white app shell
+        border: '#ECE9E3',
+        background: '#F6F1EA', // warm cream backdrop — friendlier than cold gray
+        shell: '#FFFFFF',
         surface: '#FFFFFF',
-        'surface-muted': '#F4F4F5',
-        ink: '#1A1A1A', // near-black headings / dark highlight card
-        primary: '#1A1A1A',
-        secondary: '#8A8A8E', // muted text
-        // Warm amber accent (NOT green) — fits a food/bakery brand
-        accent: '#E8943A',
-        'accent-soft': '#FBEEDD',
-        highlight: '#F4C04E', // bright honey highlight for hero/earnings
-        success: '#2E9E5B',
-        warning: '#B45309',
-        danger: '#DC2626',
+        'surface-muted': '#F7F3EC',
+        ink: '#24201B', // warm near-black
+        primary: '#24201B',
+        secondary: '#8A8276', // warm muted text
+        accent: '#F2782C', // lively orange — playful primary accent
+        'accent-soft': '#FDEBDC',
+        highlight: '#FFD24A', // sunny yellow highlight
+        berry: '#E85D75', // playful pink/berry secondary accent
+        grape: '#7C6BD6', // soft purple tertiary
+        mint: '#2FB59A', // fresh teal
+        success: '#1FA463',
+        warning: '#E08600',
+        danger: '#E5484D',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
-        xl: '16px',
-        '2xl': '20px',
-        '3xl': '28px',
+        xl: '18px',
+        '2xl': '24px',
+        '3xl': '32px',
       },
       boxShadow: {
-        card: '0 1px 2px rgba(0,0,0,0.03), 0 6px 20px rgba(0,0,0,0.04)',
-        shell: '0 12px 40px rgba(0,0,0,0.06)',
+        card: '0 2px 4px rgba(36,32,27,0.04), 0 10px 30px rgba(36,32,27,0.06)',
+        'card-hover': '0 8px 16px rgba(36,32,27,0.06), 0 20px 50px rgba(36,32,27,0.10)',
+        shell: '0 16px 50px rgba(36,32,27,0.08)',
+      },
+      keyframes: {
+        'fade-up': {
+          '0%': { opacity: '0', transform: 'translateY(8px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'pop-in': {
+          '0%': { opacity: '0', transform: 'scale(0.96)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+      },
+      animation: {
+        'fade-up': 'fade-up 0.4s ease-out both',
+        'pop-in': 'pop-in 0.25s ease-out both',
       },
     },
   },

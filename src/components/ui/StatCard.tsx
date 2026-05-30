@@ -13,19 +13,25 @@ export function StatCard({
   delta?: number
   deltaLabel?: string
   icon?: React.ReactNode
-  tone?: 'plain' | 'dark' | 'highlight'
+  tone?: 'plain' | 'dark' | 'highlight' | 'berry' | 'grape' | 'mint'
 }) {
   const toneClass =
     tone === 'dark'
       ? 'bg-ink text-white'
       : tone === 'highlight'
         ? 'bg-highlight text-ink'
-        : 'bg-surface text-ink border border-border'
+        : tone === 'berry'
+          ? 'bg-berry text-white'
+          : tone === 'grape'
+            ? 'bg-grape text-white'
+            : tone === 'mint'
+              ? 'bg-mint text-white'
+              : 'bg-surface text-ink border border-border'
 
   const up = (delta ?? 0) >= 0
 
   return (
-    <div className={cn('rounded-2xl p-4 shadow-card', toneClass)}>
+    <div className={cn('lift rounded-2xl p-4 shadow-card', toneClass)}>
       <div className="flex items-center justify-between">
         <p className={cn('text-sm', tone === 'plain' ? 'text-secondary' : 'opacity-80')}>{label}</p>
         {icon && (

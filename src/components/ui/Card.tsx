@@ -1,7 +1,12 @@
 import { cn } from '@/lib/utils'
 
-export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('rounded-2xl border border-border bg-surface shadow-card', className)} {...props} />
+export function Card({ hover, className, ...props }: React.HTMLAttributes<HTMLDivElement> & { hover?: boolean }) {
+  return (
+    <div
+      className={cn('rounded-2xl border border-border bg-surface shadow-card', hover && 'lift', className)}
+      {...props}
+    />
+  )
 }
 
 export function CardHeader({
