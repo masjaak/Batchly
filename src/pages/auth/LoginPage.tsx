@@ -1,4 +1,5 @@
 import { useNavigate, Link } from 'react-router-dom'
+import { toast } from 'sonner'
 import { useAuth } from '@/hooks/useAuth'
 
 export default function LoginPage() {
@@ -12,7 +13,11 @@ export default function LoginPage() {
       form.get('email') as string,
       form.get('password') as string,
     )
-    if (!error) navigate('/app')
+    if (error) {
+      toast.error(error)
+      return
+    }
+    navigate('/app')
   }
 
   return (

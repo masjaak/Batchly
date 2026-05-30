@@ -1,4 +1,5 @@
 import { useNavigate, Link } from 'react-router-dom'
+import { toast } from 'sonner'
 import { useAuth } from '@/hooks/useAuth'
 
 export default function SignupPage() {
@@ -13,7 +14,11 @@ export default function SignupPage() {
       form.get('password') as string,
       form.get('businessName') as string,
     )
-    if (!error) navigate('/app')
+    if (error) {
+      toast.error(error)
+      return
+    }
+    navigate('/app')
   }
 
   return (
