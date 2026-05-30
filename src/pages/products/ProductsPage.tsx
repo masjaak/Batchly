@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
+import { Boxes } from 'lucide-react'
 import { useProducts } from '@/hooks/useProducts'
 import { calculateRecipeCost } from '@/lib/calculations'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 export default function ProductsPage() {
   const { data: products, isLoading } = useProducts()
@@ -14,12 +16,13 @@ export default function ProductsPage() {
           ))}
         </div>
       ) : !products || products.length === 0 ? (
-        <div className="rounded-xl border border-border bg-surface p-8 text-center">
-          <p className="text-sm text-secondary">Belum ada produk</p>
-          <Link to="/app/recipes" className="mt-4 inline-block text-sm font-medium text-primary underline">
-            Buat resep terlebih dahulu
-          </Link>
-        </div>
+        <EmptyState
+          icon={Boxes}
+          title="Belum ada produk"
+          description="Produk dibuat dari resep. Buat resep dulu, lalu jadikan produk untuk mulai mencatat penjualan."
+          ctaLabel="Buat Resep"
+          ctaTo="/app/recipes"
+        />
       ) : (
         <div className="space-y-2">
           {products.map((product: any) => {

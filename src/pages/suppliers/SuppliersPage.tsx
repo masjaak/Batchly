@@ -4,6 +4,8 @@ import { useAuth } from '@/hooks/useAuth'
 import { useCreateSupplier } from '@/hooks/useSuppliers'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { Truck } from 'lucide-react'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 export default function SuppliersPage() {
   const { data: suppliers, isLoading } = useSuppliers()
@@ -39,7 +41,7 @@ export default function SuppliersPage() {
       {!showForm && (
         <button
           onClick={() => setShowForm(true)}
-          className="h-12 w-full rounded-lg bg-primary text-sm font-medium text-white"
+          className="h-11 w-full rounded-xl bg-ink text-sm font-medium text-white"
         >
           Tambah Pemasok
         </button>
@@ -52,25 +54,25 @@ export default function SuppliersPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
+            className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
           />
           <input
             placeholder="Kontak Person"
             value={contact}
             onChange={(e) => setContact(e.target.value)}
-            className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
+            className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
           />
           <input
             placeholder="No. Telepon"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
+            className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
           />
           <div className="flex gap-2">
-            <button type="submit" className="flex-1 h-12 rounded-lg bg-primary text-sm font-medium text-white">
+            <button type="submit" className="flex-1 h-12 rounded-xl bg-ink text-sm font-medium text-white">
               Simpan
             </button>
-            <button type="button" onClick={() => setShowForm(false)} className="h-12 rounded-lg border border-border bg-surface px-6 text-sm font-medium text-secondary">
+            <button type="button" onClick={() => setShowForm(false)} className="h-12 rounded-xl border border-border bg-surface px-6 text-sm font-medium text-secondary">
               Batal
             </button>
           </div>
@@ -84,9 +86,11 @@ export default function SuppliersPage() {
           ))}
         </div>
       ) : !suppliers || suppliers.length === 0 ? (
-        <div className="rounded-xl border border-border bg-surface p-8 text-center">
-          <p className="text-sm text-secondary">Belum ada pemasok</p>
-        </div>
+        <EmptyState
+          icon={Truck}
+          title="Belum ada pemasok"
+          description="Tambahkan pemasok untuk melacak riwayat harga bahan dan mempercepat pencatatan stok masuk."
+        />
       ) : (
         <div className="space-y-2">
           {suppliers.map((sup) => (

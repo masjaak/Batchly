@@ -49,13 +49,13 @@ export default function IngredientDetailPage() {
       <div className="flex gap-2">
         <Link
           to="/app/inventory/stock-in"
-          className="flex-1 rounded-lg border border-border bg-surface py-3 text-center text-sm font-medium text-primary"
+          className="flex-1 rounded-xl border border-border bg-surface py-3 text-center text-sm font-medium text-primary"
         >
           Stok Masuk
         </Link>
         <Link
           to="/app/inventory/stock-out"
-          className="flex-1 rounded-lg border border-border bg-surface py-3 text-center text-sm font-medium text-primary"
+          className="flex-1 rounded-xl border border-border bg-surface py-3 text-center text-sm font-medium text-primary"
         >
           Stok Keluar
         </Link>

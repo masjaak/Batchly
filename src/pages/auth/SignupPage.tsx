@@ -42,7 +42,7 @@ export default function SignupPage() {
             name="businessName"
             type="text"
             required
-            className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
+            className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
           />
         </div>
         <div>
@@ -54,7 +54,7 @@ export default function SignupPage() {
             name="email"
             type="email"
             required
-            className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
+            className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
           />
         </div>
         <div>
@@ -67,13 +67,13 @@ export default function SignupPage() {
             type="password"
             required
             minLength={6}
-            className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
+            className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
           />
         </div>
         <button
           type="submit"
           disabled={submitting}
-          className="h-12 w-full rounded-lg bg-primary text-base font-medium text-white disabled:opacity-60"
+          className="h-11 w-full rounded-xl bg-ink text-base font-medium text-white disabled:opacity-60"
         >
           {submitting ? 'Memproses…' : 'Daftar'}
         </button>

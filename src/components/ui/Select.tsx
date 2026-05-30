@@ -42,18 +42,22 @@ export function Select({
           className="z-50 max-h-72 w-[var(--radix-select-trigger-width)] overflow-hidden rounded-xl border border-border bg-surface shadow-card"
         >
           <RS.Viewport className="p-1">
-            {options.map((o) => (
-              <RS.Item
-                key={o.value}
-                value={o.value}
-                className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-sm text-ink outline-none data-[highlighted]:bg-surface-muted data-[state=checked]:font-medium"
-              >
-                <RS.ItemText>{o.label}</RS.ItemText>
-                <RS.ItemIndicator>
-                  <Check className="h-4 w-4 text-accent" />
-                </RS.ItemIndicator>
-              </RS.Item>
-            ))}
+            {options.length === 0 ? (
+              <div className="px-3 py-6 text-center text-sm text-secondary">Belum ada data</div>
+            ) : (
+              options.map((o) => (
+                <RS.Item
+                  key={o.value}
+                  value={o.value}
+                  className="flex cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-sm text-ink outline-none data-[highlighted]:bg-surface-muted data-[state=checked]:font-medium"
+                >
+                  <RS.ItemText>{o.label}</RS.ItemText>
+                  <RS.ItemIndicator>
+                    <Check className="h-4 w-4 text-accent" />
+                  </RS.ItemIndicator>
+                </RS.Item>
+              ))
+            )}
           </RS.Viewport>
         </RS.Content>
       </RS.Portal>

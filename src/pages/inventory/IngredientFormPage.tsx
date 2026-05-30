@@ -76,7 +76,7 @@ export default function IngredientFormPage() {
           onChange={(e) => setName(e.target.value)}
           required
           placeholder="Contoh: Tepung Terigu"
-          className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
+          className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
         />
       </div>
 
@@ -125,7 +125,7 @@ export default function IngredientFormPage() {
               value={customUnit}
               onChange={(e) => setCustomUnit(e.target.value)}
               placeholder="Contoh: bungkus, ikat, pack"
-              className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
+              className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
             />
           )}
         </div>
@@ -141,14 +141,14 @@ export default function IngredientFormPage() {
           min="0"
           value={minStock}
           onChange={(e) => setMinStock(e.target.value)}
-          className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
+          className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
         />
         <p className="mt-1 text-xs text-secondary">Peringatan stok menipis jika stok di bawah nilai ini</p>
       </div>
 
       <button
         type="submit"
-        className="h-12 w-full rounded-lg bg-primary text-base font-medium text-white"
+        className="h-11 w-full rounded-xl bg-ink text-base font-medium text-white"
       >
         {isEditing ? 'Simpan Perubahan' : 'Tambah Bahan'}
       </button>

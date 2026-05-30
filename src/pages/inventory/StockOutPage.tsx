@@ -67,7 +67,7 @@ export default function StockOutPage() {
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
           required
-          className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
+          className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
         />
         {selectedIngredient && (
           <p className="mt-1 text-xs text-secondary">Stok saat ini: {selectedIngredient.current_stock} {selectedIngredient.unit}</p>
@@ -99,14 +99,14 @@ export default function StockOutPage() {
           type="text"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
+          className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
         />
       </div>
 
       <button
         type="submit"
         disabled={isPending}
-        className="h-12 w-full rounded-lg bg-primary text-base font-medium text-white disabled:opacity-50"
+        className="h-11 w-full rounded-xl bg-ink text-base font-medium text-white disabled:opacity-50"
       >
         {isPending ? 'Menyimpan...' : 'Simpan Stok Keluar'}
       </button>

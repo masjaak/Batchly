@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
+import { Factory } from 'lucide-react'
 import { useProductionBatches } from '@/hooks/useProductionBatches'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 export default function ProductionPage() {
   const { data: batches, isLoading } = useProductionBatches()
@@ -13,12 +15,13 @@ export default function ProductionPage() {
           ))}
         </div>
       ) : !batches || batches.length === 0 ? (
-        <div className="rounded-xl border border-border bg-surface p-8 text-center">
-          <p className="text-sm text-secondary">Belum ada produksi tercatat</p>
-          <Link to="/app/production/new" className="mt-4 inline-block text-sm font-medium text-primary underline">
-            Catat produksi pertama
-          </Link>
-        </div>
+        <EmptyState
+          icon={Factory}
+          title="Belum ada produksi"
+          description="Catat batch produksi untuk memotong stok bahan otomatis dan melacak selisih biaya (variance)."
+          ctaLabel="Catat Produksi"
+          ctaTo="/app/production/new"
+        />
       ) : (
         <div className="space-y-2">
           {batches.map((batch: any) => (
@@ -41,7 +44,7 @@ export default function ProductionPage() {
 
       <Link
         to="/app/production/new"
-        className="fixed bottom-20 left-4 right-4 z-10 h-12 rounded-lg bg-primary text-sm font-medium text-white flex items-center justify-center"
+        className="fixed bottom-20 left-4 right-4 z-10 h-12 rounded-xl bg-ink text-sm font-medium text-white flex items-center justify-center"
       >
         Catat Produksi
       </Link>

@@ -50,12 +50,12 @@ export default function SettingsPage() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Nama bisnis"
-          className="mb-3 h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
+          className="mb-3 h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
         />
         <button
           onClick={handleSaveOrg}
           disabled={savingOrg}
-          className="h-10 rounded-lg bg-primary px-6 text-sm font-medium text-white disabled:opacity-50"
+          className="h-10 rounded-xl bg-ink px-6 text-sm font-medium text-white disabled:opacity-50"
         >
           {savingOrg ? 'Menyimpan...' : 'Simpan'}
         </button>
@@ -68,7 +68,7 @@ export default function SettingsPage() {
         <button
           onClick={handleSaveUser}
           disabled={savingUser}
-          className="h-10 rounded-lg border border-border bg-surface px-6 text-sm font-medium text-primary disabled:opacity-50"
+          className="h-10 rounded-xl border border-border bg-surface px-6 text-sm font-medium text-primary disabled:opacity-50"
         >
           Perbarui Profil
         </button>
@@ -82,7 +82,7 @@ export default function SettingsPage() {
 
       <button
         onClick={signOut}
-        className="h-12 w-full rounded-lg border border-danger text-sm font-medium text-danger"
+        className="h-11 w-full rounded-xl border border-danger text-sm font-medium text-danger"
       >
         Keluar
       </button>

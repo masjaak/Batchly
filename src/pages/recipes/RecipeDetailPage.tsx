@@ -128,7 +128,7 @@ export default function RecipeDetailPage() {
           placeholder="Nama Resep"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
+          className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
         />
         <div className="flex gap-2">
           <input
@@ -136,7 +136,7 @@ export default function RecipeDetailPage() {
             placeholder="Hasil"
             value={yieldAmt}
             onChange={(e) => setYieldAmt(e.target.value)}
-            className="h-12 flex-1 rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
+            className="h-11 flex-1 rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
           />
           <Select
             value={yieldUnit}
@@ -160,7 +160,7 @@ export default function RecipeDetailPage() {
         ) : (
           <div className="mb-3 space-y-2">
             {items.map((item, i) => (
-              <div key={i} className="flex items-center justify-between rounded-lg border border-border bg-surface p-3">
+              <div key={i} className="flex items-center justify-between rounded-xl border border-border bg-surface p-3">
                 <div>
                   <p className="text-sm font-medium text-primary">{item.name}</p>
                   <p className="text-xs text-secondary">{item.quantity} {item.unit} — Rp {item.cost_at_create.toLocaleString('id-ID')}</p>
@@ -189,11 +189,11 @@ export default function RecipeDetailPage() {
             placeholder="Jml"
             value={selQty}
             onChange={(e) => setSelQty(e.target.value)}
-            className="h-12 w-20 rounded-lg border border-border bg-surface px-3 text-base outline-none focus:border-primary"
+            className="h-11 w-20 rounded-xl border border-border bg-surface px-3 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
           />
           <button
             onClick={handleAddIngredient}
-            className="h-12 rounded-lg bg-primary px-4 text-sm font-medium text-white"
+            className="h-12 rounded-xl bg-ink px-4 text-sm font-medium text-white"
           >
             +
           </button>
@@ -209,7 +209,7 @@ export default function RecipeDetailPage() {
               type="number"
               value={overhead}
               onChange={(e) => setOverhead(e.target.value)}
-              className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
+              className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
             />
           </div>
           <div>
@@ -218,7 +218,7 @@ export default function RecipeDetailPage() {
               type="number"
               value={packaging}
               onChange={(e) => setPackaging(e.target.value)}
-              className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
+              className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
             />
           </div>
           <div>
@@ -227,12 +227,12 @@ export default function RecipeDetailPage() {
               type="number"
               value={selling}
               onChange={(e) => setSelling(e.target.value)}
-              className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
+              className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
             />
           </div>
         </div>
 
-        <div className="mt-4 space-y-1 rounded-lg bg-background p-3">
+        <div className="mt-4 space-y-1 rounded-xl bg-background p-3">
           <div className="flex justify-between text-sm"><span className="text-secondary">Biaya Bahan</span><span className="font-medium">Rp {cost.productionCost.toLocaleString('id-ID')}</span></div>
           <div className="flex justify-between text-sm"><span className="text-secondary">Overhead</span><span className="font-medium">Rp {cost.overheadCost.toLocaleString('id-ID')}</span></div>
           <div className="flex justify-between text-sm"><span className="text-secondary">Kemasan</span><span className="font-medium">Rp {cost.packagingCost.toLocaleString('id-ID')}</span></div>
@@ -265,7 +265,7 @@ export default function RecipeDetailPage() {
               if (alternatives.length === 0) return null
               const savings = (item.cost_at_create - alternatives[0].price) * item.quantity
               return (
-                <div key={item.id ?? item.ingredient_id} className="rounded-lg border border-border bg-background p-3">
+                <div key={item.id ?? item.ingredient_id} className="rounded-xl border border-border bg-background p-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-primary">{ing.name}</p>
@@ -306,19 +306,19 @@ export default function RecipeDetailPage() {
         </div>
       )}
 
-      <button onClick={handleSave} className="h-12 w-full rounded-lg bg-primary text-base font-medium text-white">
+      <button onClick={handleSave} className="h-11 w-full rounded-xl bg-ink text-base font-medium text-white">
         Simpan Resep
       </button>
 
       {id && id !== 'new' && (
         <div className="flex gap-2">
-          <button onClick={handleDuplicate} className="flex-1 h-12 rounded-lg border border-border bg-surface text-sm font-medium text-primary">
+          <button onClick={handleDuplicate} className="flex-1 h-12 rounded-xl border border-border bg-surface text-sm font-medium text-primary">
             Duplikat
           </button>
-          <button onClick={handleCreateProduct} className="flex-1 h-12 rounded-lg border border-border bg-surface text-sm font-medium text-primary">
+          <button onClick={handleCreateProduct} className="flex-1 h-12 rounded-xl border border-border bg-surface text-sm font-medium text-primary">
             Buat Produk
           </button>
-          <button onClick={() => navigate(`/app/production/new?recipe=${id}`)} className="flex-1 h-12 rounded-lg border border-border bg-surface text-sm font-medium text-primary">
+          <button onClick={() => navigate(`/app/production/new?recipe=${id}`)} className="flex-1 h-12 rounded-xl border border-border bg-surface text-sm font-medium text-primary">
             Produksi
           </button>
         </div>

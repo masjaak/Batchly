@@ -92,7 +92,7 @@ export default function ProductDetailPage() {
               value={vName}
               onChange={(e) => setVName(e.target.value)}
               required
-              className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-primary"
+              className="h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
             />
             <div className="flex gap-2">
               <input
@@ -100,7 +100,7 @@ export default function ProductDetailPage() {
                 placeholder="Biaya kemasan"
                 value={vPackaging}
                 onChange={(e) => setVPackaging(e.target.value)}
-                className="h-10 flex-1 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-primary"
+                className="h-10 flex-1 rounded-xl border border-border bg-surface px-3 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
               />
               <input
                 type="number"
@@ -108,10 +108,10 @@ export default function ProductDetailPage() {
                 value={vPrice}
                 onChange={(e) => setVPrice(e.target.value)}
                 required
-                className="h-10 flex-1 rounded-lg border border-border bg-surface px-3 text-sm outline-none focus:border-primary"
+                className="h-10 flex-1 rounded-xl border border-border bg-surface px-3 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
               />
             </div>
-            <button type="submit" className="h-10 w-full rounded-lg bg-primary text-sm font-medium text-white">
+            <button type="submit" className="h-10 w-full rounded-xl bg-ink text-sm font-medium text-white">
               Simpan Varian
             </button>
           </form>
@@ -125,7 +125,7 @@ export default function ProductDetailPage() {
               const vHpp = cost.perUnitHpp + v.packaging_cost
               const vMargin = v.default_price > 0 ? ((v.default_price - vHpp) / v.default_price) * 100 : 0
               return (
-                <div key={v.id} className="flex items-center justify-between rounded-lg border border-border bg-surface p-3">
+                <div key={v.id} className="flex items-center justify-between rounded-xl border border-border bg-surface p-3">
                   <div>
                     <p className="text-sm font-medium text-primary">{v.name}</p>
                     <p className="text-xs text-secondary">HPP: {formatCurrency(vHpp)} · {vMargin.toFixed(0)}%</p>

@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
+import { BookOpen } from 'lucide-react'
 import { useRecipes } from '@/hooks/useRecipes'
 import { calculateRecipeCost } from '@/lib/calculations'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 export default function RecipesPage() {
   const { data: recipes, isLoading } = useRecipes()
@@ -9,7 +11,7 @@ export default function RecipesPage() {
     <div className="space-y-4">
       <Link
         to="/app/recipes/new"
-        className="flex h-12 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium text-white"
+        className="flex h-12 w-full items-center justify-center rounded-xl bg-ink text-sm font-medium text-white"
       >
         Buat Resep Baru
       </Link>
@@ -21,15 +23,13 @@ export default function RecipesPage() {
           ))}
         </div>
       ) : !recipes || recipes.length === 0 ? (
-        <div className="rounded-xl border border-border bg-surface p-8 text-center">
-          <p className="text-sm text-secondary">Belum ada resep</p>
-          <Link
-            to="/app/recipes/new"
-            className="mt-4 inline-block text-sm font-medium text-primary underline"
-          >
-            Buat resep pertama
-          </Link>
-        </div>
+        <EmptyState
+          icon={BookOpen}
+          title="Belum ada resep"
+          description="Resep adalah inti Batchly — dari sini HPP, margin, dan harga jual dihitung otomatis."
+          ctaLabel="Buat Resep Pertama"
+          ctaTo="/app/recipes/new"
+        />
       ) : (
         <div className="space-y-2">
           {recipes.map((recipe) => {

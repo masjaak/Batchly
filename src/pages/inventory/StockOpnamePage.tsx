@@ -146,7 +146,7 @@ export default function StockOpnamePage() {
                   type="number"
                   value={entry.physicalQty}
                   onChange={(e) => updatePhysical(entry.ingredientId, Number(e.target.value))}
-                  className="h-10 w-24 rounded-lg border border-border bg-surface px-3 text-right text-base outline-none focus:border-primary"
+                  className="h-10 w-24 rounded-xl border border-border bg-surface px-3 text-right text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                   disabled={confirmed}
                 />
               </div>
@@ -178,7 +178,7 @@ export default function StockOpnamePage() {
       <button
         onClick={handleConfirm}
         disabled={confirmed || differences.length === 0}
-        className="h-12 w-full rounded-lg bg-primary text-base font-medium text-white disabled:opacity-50"
+        className="h-11 w-full rounded-xl bg-ink text-base font-medium text-white disabled:opacity-50"
       >
         {confirmed
           ? (isOnline ? 'Tersimpan' : 'Tersimpan (offline)')

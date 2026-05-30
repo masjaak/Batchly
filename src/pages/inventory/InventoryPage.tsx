@@ -1,7 +1,9 @@
 import { useIngredients } from '@/hooks/useIngredients'
 import { Link } from 'react-router-dom'
+import { Package } from 'lucide-react'
 import { exportCSV, downloadCSV } from '@/lib/export'
 import { useAuth } from '@/hooks/useAuth'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 const CURATED_UNITS = ['g', 'kg', 'ml', 'L', 'pcs', 'sdt', 'sdm', 'cup']
 
@@ -45,15 +47,13 @@ export default function InventoryPage() {
 
   if (!ingredients || ingredients.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-surface p-8 text-center">
-        <p className="text-sm text-secondary">Belum ada bahan baku</p>
-        <Link
-          to="/app/inventory/stock-in"
-          className="mt-4 inline-flex h-12 items-center rounded-lg bg-primary px-6 text-sm font-medium text-white"
-        >
-          Tambah Stok Masuk
-        </Link>
-      </div>
+      <EmptyState
+        icon={Package}
+        title="Belum ada bahan baku"
+        description="Tambahkan bahan dan catat stok masuk. Harga bahan dipakai untuk menghitung HPP resep secara otomatis."
+        ctaLabel="Tambah Stok Masuk"
+        ctaTo="/app/inventory/stock-in"
+      />
     )
   }
 
@@ -64,19 +64,19 @@ export default function InventoryPage() {
       <div className="flex gap-2">
         <Link
           to="/app/inventory/stock-in"
-          className="flex h-12 flex-1 items-center justify-center rounded-lg bg-primary text-sm font-medium text-white"
+          className="flex h-12 flex-1 items-center justify-center rounded-xl bg-ink text-sm font-medium text-white"
         >
           Stok Masuk
         </Link>
         <Link
           to="/app/inventory/new"
-          className="flex h-12 items-center justify-center rounded-lg border border-border bg-surface px-4 text-sm font-medium text-primary"
+          className="flex h-12 items-center justify-center rounded-xl border border-border bg-surface px-4 text-sm font-medium text-primary"
         >
           + Bahan
         </Link>
         <button
           onClick={handleExport}
-          className="flex h-12 items-center justify-center rounded-lg border border-border bg-surface px-4 text-sm font-medium text-primary"
+          className="flex h-12 items-center justify-center rounded-xl border border-border bg-surface px-4 text-sm font-medium text-primary"
         >
           CSV
         </button>

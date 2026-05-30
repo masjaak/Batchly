@@ -67,7 +67,7 @@ export default function NewBatchPage() {
           placeholder="Jumlah direncanakan"
           value={plannedQty}
           onChange={(e) => setPlannedQty(e.target.value)}
-          className="h-12 flex-1 rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
+          className="h-11 flex-1 rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
         />
         <input
           type="number"
@@ -76,7 +76,7 @@ export default function NewBatchPage() {
           onChange={(e) => setActualQty(e.target.value)}
           required
           min="1"
-          className="h-12 flex-1 rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
+          className="h-11 flex-1 rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
         />
       </div>
 
@@ -84,7 +84,7 @@ export default function NewBatchPage() {
         type="date"
         value={productionDate}
         onChange={(e) => setProductionDate(e.target.value)}
-        className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-base outline-none focus:border-primary"
+        className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
       />
 
       <textarea
@@ -92,7 +92,7 @@ export default function NewBatchPage() {
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         rows={2}
-        className="w-full rounded-lg border border-border bg-surface px-4 py-3 text-base outline-none focus:border-primary"
+        className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
       />
 
       {selectedRecipe && Number(actualQty) > 0 && (
@@ -121,7 +121,7 @@ export default function NewBatchPage() {
       <button
         type="submit"
         disabled={isPending}
-        className="h-12 w-full rounded-lg bg-primary text-sm font-medium text-white disabled:opacity-50"
+        className="h-11 w-full rounded-xl bg-ink text-sm font-medium text-white disabled:opacity-50"
       >
         {isPending ? 'Menyimpan...' : 'Simpan & Kurangi Stok'}
       </button>
