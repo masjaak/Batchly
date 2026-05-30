@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useAuth } from '@/hooks/useAuth'
@@ -5,15 +6,19 @@ import { useAuth } from '@/hooks/useAuth'
 export default function SignupPage() {
   const navigate = useNavigate()
   const { signUp } = useAuth()
+  const [submitting, setSubmitting] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (submitting) return
+    setSubmitting(true)
     const form = new FormData(e.currentTarget)
     const error = await signUp(
       form.get('email') as string,
       form.get('password') as string,
       form.get('businessName') as string,
     )
+    setSubmitting(false)
     if (error) {
       toast.error(error)
       return
@@ -67,9 +72,10 @@ export default function SignupPage() {
         </div>
         <button
           type="submit"
-          className="h-12 w-full rounded-lg bg-primary text-base font-medium text-white"
+          disabled={submitting}
+          className="h-12 w-full rounded-lg bg-primary text-base font-medium text-white disabled:opacity-60"
         >
-          Daftar
+          {submitting ? 'Memproses…' : 'Daftar'}
         </button>
       </form>
       <p className="mt-6 text-center text-sm text-secondary">
