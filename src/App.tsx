@@ -22,6 +22,7 @@ import BatchDetailPage from '@/pages/production/BatchDetailPage'
 import ProductsPage from '@/pages/products/ProductsPage'
 import ProductDetailPage from '@/pages/products/ProductDetailPage'
 import SalesPage from '@/pages/sales/SalesPage'
+import ExpensesPage from '@/pages/expenses/ExpensesPage'
 import SettingsPage from '@/pages/settings/SettingsPage'
 
 export default function App() {
@@ -51,6 +52,7 @@ export default function App() {
           <Route path="/app/products" element={<ProductsPage />} />
           <Route path="/app/products/:id" element={<ProductDetailPage />} />
           <Route path="/app/sales" element={<SalesPage />} />
+          <Route path="/app/expenses" element={<ExpensesPage />} />
           <Route path="/app/settings" element={<SettingsPage />} />
         </Route>
       </Route>
@@ -72,7 +74,7 @@ function ProtectedRoute() {
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
-        <div className="h-8 w-8 animate-pulse rounded-full bg-gray-200" />
+        <div className="h-8 w-8 animate-pulse rounded-full bg-surface-muted border border-border" />
       </div>
     )
   }

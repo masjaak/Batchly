@@ -7,7 +7,7 @@ export default function BatchDetailPage() {
   const { data: batch, isLoading } = useProductionBatch(id!)
 
   if (isLoading) {
-    return <div className="h-20 animate-pulse rounded-xl bg-gray-100" />
+    return <div className="h-20 animate-pulse rounded-xl bg-surface-muted border border-border" />
   }
 
   if (!batch) {

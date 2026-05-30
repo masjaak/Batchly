@@ -318,6 +318,35 @@ export interface Database {
           created_at?: string
         }
       }
+      expenses: {
+        Row: {
+          id: string
+          organization_id: string
+          category: string
+          description: string | null
+          amount: number
+          expense_date: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          organization_id: string
+          category: string
+          description?: string | null
+          amount: number
+          expense_date?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          organization_id?: string
+          category?: string
+          description?: string | null
+          amount?: number
+          expense_date?: string
+          created_at?: string
+        }
+      }
       audit_logs: {
         Row: {
           id: string

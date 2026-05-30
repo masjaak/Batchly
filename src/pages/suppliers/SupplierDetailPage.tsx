@@ -7,7 +7,7 @@ export default function SupplierDetailPage() {
   const { data: transactions } = useSupplierTransactions(id ?? '')
 
   if (isLoading) {
-    return <div className="h-32 animate-pulse rounded-xl bg-gray-100" />
+    return <div className="h-32 animate-pulse rounded-xl bg-surface-muted border border-border" />
   }
 
   if (!supplier) {

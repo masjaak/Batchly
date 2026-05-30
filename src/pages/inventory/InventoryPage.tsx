@@ -29,7 +29,7 @@ export default function InventoryPage() {
     return (
       <div className="space-y-3">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="h-16 animate-pulse rounded-xl bg-gray-100" />
+          <div key={i} className="h-16 animate-pulse rounded-xl bg-surface-muted border border-border" />
         ))}
       </div>
     )

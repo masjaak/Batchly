@@ -117,7 +117,7 @@ export default function RecipeDetailPage() {
   }
 
   if (!isNew && isLoading) {
-    return <div className="h-32 animate-pulse rounded-xl bg-gray-100" />
+    return <div className="h-32 animate-pulse rounded-xl bg-surface-muted border border-border" />
   }
 
   return (

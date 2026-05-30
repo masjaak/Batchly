@@ -72,7 +72,7 @@ export default function VoiceInput({ onResult, disabled }: VoiceInputProps) {
         className={`flex h-8 w-8 items-center justify-center rounded-full text-xs transition-colors ${
           listening
             ? 'bg-danger text-white animate-pulse'
-            : 'bg-gray-100 text-secondary hover:bg-gray-200'
+            : 'bg-surface-muted text-secondary hover:bg-border'
         }`}
         title={listening ? 'Mendengarkan...' : 'Input suara'}
       >
