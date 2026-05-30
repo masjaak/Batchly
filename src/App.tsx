@@ -12,6 +12,10 @@ import StockOutPage from '@/pages/inventory/StockOutPage'
 import StockOpnamePage from '@/pages/inventory/StockOpnamePage'
 import SuppliersPage from '@/pages/suppliers/SuppliersPage'
 import SupplierDetailPage from '@/pages/suppliers/SupplierDetailPage'
+import RecipesPage from '@/pages/recipes/RecipesPage'
+import RecipeDetailPage from '@/pages/recipes/RecipeDetailPage'
+import ProductsPage from '@/pages/products/ProductsPage'
+import SalesPage from '@/pages/sales/SalesPage'
 
 export default function App() {
   return (
@@ -30,6 +34,10 @@ export default function App() {
           <Route path="/app/inventory/:id" element={<IngredientDetailPage />} />
           <Route path="/app/suppliers" element={<SuppliersPage />} />
           <Route path="/app/suppliers/:id" element={<SupplierDetailPage />} />
+          <Route path="/app/recipes" element={<RecipesPage />} />
+          <Route path="/app/recipes/:id" element={<RecipeDetailPage />} />
+          <Route path="/app/products" element={<ProductsPage />} />
+          <Route path="/app/sales" element={<SalesPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/app" replace />} />
