@@ -4,6 +4,7 @@ import { useSales, useCreateSale } from '@/hooks/useSales'
 import { useProducts } from '@/hooks/useProducts'
 import { useAuth } from '@/hooks/useAuth'
 import { calculateRecipeCost, calculateSaleProfit } from '@/lib/calculations'
+import { exportCSV, downloadCSV } from '@/lib/export'
 import { toast } from 'sonner'
 
 export default function SalesPage() {
@@ -41,6 +42,20 @@ export default function SalesPage() {
   }
 
   const totalRevenue = sales?.reduce((sum: number, s: any) => sum + s.quantity * s.unit_price, 0) ?? 0
+
+  const handleExport = () => {
+    if (!sales) return
+    const headers = ['Tanggal', 'Produk', 'Jumlah', 'Harga Satuan', 'Pendapatan']
+    const rows = sales.map((s: any) => [
+      s.sale_date,
+      s.product?.name ?? '',
+      String(s.quantity),
+      String(s.unit_price),
+      String(s.quantity * s.unit_price),
+    ])
+    const csv = exportCSV(headers, rows)
+    downloadCSV(csv, `${organization?.slug ?? 'sales'}-penjualan-${new Date().toISOString().split('T')[0]}.csv`)
+  }
 
   return (
     <div className="space-y-6">
@@ -93,10 +108,13 @@ export default function SalesPage() {
       </form>
 
       <div className="rounded-xl border border-border bg-surface p-4">
-        <div className="flex justify-between">
+        <div className="flex items-center justify-between">
           <span className="text-sm text-secondary">Total Pendapatan</span>
           <span className="text-lg font-semibold text-primary">Rp {totalRevenue.toLocaleString('id-ID')}</span>
         </div>
+        <button type="button" onClick={handleExport} className="mt-2 text-xs font-medium text-primary underline">
+          Ekspor CSV
+        </button>
       </div>
 
       {sales && sales.length > 0 && (

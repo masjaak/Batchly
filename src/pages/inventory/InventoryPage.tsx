@@ -1,8 +1,29 @@
 import { useIngredients } from '@/hooks/useIngredients'
 import { Link } from 'react-router-dom'
+import { exportCSV, downloadCSV } from '@/lib/export'
+import { useAuth } from '@/hooks/useAuth'
+
+const CURATED_UNITS = ['g', 'kg', 'ml', 'L', 'pcs', 'sdt', 'sdm', 'cup']
 
 export default function InventoryPage() {
   const { data: ingredients, isLoading, error } = useIngredients()
+  const { organization } = useAuth()
+
+  const handleExport = () => {
+    if (!ingredients) return
+    const headers = ['Nama Bahan', 'Kategori', 'Satuan', 'Stok Saat Ini', 'Stok Minimal', 'Harga Satuan', 'Total Nilai']
+    const rows = ingredients.map((i: any) => [
+      i.name,
+      i.category?.name ?? '',
+      i.unit + (!CURATED_UNITS.includes(i.unit) ? ' (kustom)' : ''),
+      String(i.current_stock),
+      String(i.min_stock_level),
+      String(i.latest_price),
+      String(i.current_stock * i.latest_price),
+    ])
+    const csv = exportCSV(headers, rows)
+    downloadCSV(csv, `${organization?.slug ?? 'inventory'}-stok-${new Date().toISOString().split('T')[0]}.csv`)
+  }
 
   if (isLoading) {
     return (
@@ -40,12 +61,26 @@ export default function InventoryPage() {
 
   return (
     <div className="space-y-6">
-      <Link
-        to="/app/inventory/stock-in"
-        className="flex h-12 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium text-white"
-      >
-        Stok Masuk
-      </Link>
+      <div className="flex gap-2">
+        <Link
+          to="/app/inventory/stock-in"
+          className="flex h-12 flex-1 items-center justify-center rounded-lg bg-primary text-sm font-medium text-white"
+        >
+          Stok Masuk
+        </Link>
+        <Link
+          to="/app/inventory/new"
+          className="flex h-12 items-center justify-center rounded-lg border border-border bg-surface px-4 text-sm font-medium text-primary"
+        >
+          + Bahan
+        </Link>
+        <button
+          onClick={handleExport}
+          className="flex h-12 items-center justify-center rounded-lg border border-border bg-surface px-4 text-sm font-medium text-primary"
+        >
+          CSV
+        </button>
+      </div>
 
       {Object.entries(grouped).map(([category, items]) => (
         <section key={category}>
@@ -62,6 +97,7 @@ export default function InventoryPage() {
                     <p className="text-sm font-medium text-primary">{ingredient.name}</p>
                     <p className="mt-0.5 text-xs text-secondary">
                       Rp {ingredient.latest_price.toLocaleString('id-ID')}/{ingredient.unit}
+                      {!CURATED_UNITS.includes(ingredient.unit) && <span className="text-secondary"> (kustom)</span>}
                     </p>
                   </div>
                   <div className="text-right">

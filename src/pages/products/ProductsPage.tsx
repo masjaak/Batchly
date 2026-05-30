@@ -27,27 +27,29 @@ export default function ProductsPage() {
               ? calculateRecipeCost(product.recipe, product.recipe.recipe_items ?? [])
               : { perUnitHpp: 0, totalHpp: 0, margin: 0 }
             return (
-              <div key={product.id} className="rounded-xl border border-border bg-surface p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-primary">{product.name}</p>
-                    <p className="text-xs text-secondary">SKU: {product.sku ?? '-'} · {product.recipe?.name}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-semibold text-primary">
-                      Rp {product.default_price.toLocaleString('id-ID')}
-                    </p>
-                    <p className="text-xs text-secondary">
-                      HPP: Rp {cost.perUnitHpp.toLocaleString('id-ID')}
-                    </p>
-                    <p className={`text-xs font-medium ${
-                      cost.margin >= 30 ? 'text-success' : cost.margin >= 10 ? 'text-warning' : 'text-danger'
-                    }`}>
-                      {cost.margin.toFixed(0)}%
-                    </p>
+              <Link key={product.id} to={`/app/products/${product.id}`}>
+                <div className="rounded-xl border border-border bg-surface p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-primary">{product.name}</p>
+                      <p className="text-xs text-secondary">SKU: {product.sku ?? '-'} · {product.recipe?.name}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-primary">
+                        Rp {product.default_price.toLocaleString('id-ID')}
+                      </p>
+                      <p className="text-xs text-secondary">
+                        HPP: Rp {cost.perUnitHpp.toLocaleString('id-ID')}
+                      </p>
+                      <p className={`text-xs font-medium ${
+                        cost.margin >= 30 ? 'text-success' : cost.margin >= 10 ? 'text-warning' : 'text-danger'
+                      }`}>
+                        {cost.margin.toFixed(0)}%
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             )
           })}
         </div>

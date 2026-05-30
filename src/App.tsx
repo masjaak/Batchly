@@ -7,6 +7,7 @@ import SignupPage from '@/pages/auth/SignupPage'
 import DashboardPage from '@/pages/dashboard/DashboardPage'
 import InventoryPage from '@/pages/inventory/InventoryPage'
 import IngredientDetailPage from '@/pages/inventory/IngredientDetailPage'
+import IngredientFormPage from '@/pages/inventory/IngredientFormPage'
 import StockInPage from '@/pages/inventory/StockInPage'
 import StockOutPage from '@/pages/inventory/StockOutPage'
 import StockOpnamePage from '@/pages/inventory/StockOpnamePage'
@@ -18,6 +19,7 @@ import ProductionPage from '@/pages/production/ProductionPage'
 import NewBatchPage from '@/pages/production/NewBatchPage'
 import BatchDetailPage from '@/pages/production/BatchDetailPage'
 import ProductsPage from '@/pages/products/ProductsPage'
+import ProductDetailPage from '@/pages/products/ProductDetailPage'
 import SalesPage from '@/pages/sales/SalesPage'
 
 export default function App() {
@@ -35,6 +37,8 @@ export default function App() {
           <Route path="/app/inventory/stock-out" element={<StockOutPage />} />
           <Route path="/app/inventory/opname" element={<StockOpnamePage />} />
           <Route path="/app/inventory/:id" element={<IngredientDetailPage />} />
+          <Route path="/app/inventory/:id/edit" element={<IngredientFormPage />} />
+          <Route path="/app/inventory/new" element={<IngredientFormPage />} />
           <Route path="/app/suppliers" element={<SuppliersPage />} />
           <Route path="/app/suppliers/:id" element={<SupplierDetailPage />} />
           <Route path="/app/production" element={<ProductionPage />} />
@@ -43,6 +47,7 @@ export default function App() {
           <Route path="/app/recipes" element={<RecipesPage />} />
           <Route path="/app/recipes/:id" element={<RecipeDetailPage />} />
           <Route path="/app/products" element={<ProductsPage />} />
+          <Route path="/app/products/:id" element={<ProductDetailPage />} />
           <Route path="/app/sales" element={<SalesPage />} />
         </Route>
       </Route>
