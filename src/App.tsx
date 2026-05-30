@@ -66,6 +66,9 @@ function ProtectedRoute() {
     useAuthStore.getState().initialize()
   }, [])
 
+  // TEMP: auth bypass for previewing post-login UI. Remove to restore login gate.
+  return <Outlet />
+
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
