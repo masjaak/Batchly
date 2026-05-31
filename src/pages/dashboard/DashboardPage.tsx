@@ -139,21 +139,8 @@ export default function DashboardPage() {
             <span className="flex items-center gap-1"><i className="h-2 w-2 rounded-full bg-ink" />Biaya</span>
           </div>
         } />
-        <div className="mt-5 flex gap-2">
-          <div className="flex flex-col justify-between py-1 text-[10px] text-secondary" style={{ height: '160px' }}>
-            {[4, 3, 2, 1, 0].map((i) => <span key={i}>{Math.round((axisTop / 4) * i / 1000)}k</span>)}
-          </div>
-          <div className="flex flex-1 items-end justify-between gap-1.5" style={{ height: '160px' }}>
-            {monthly.map((d) => (
-              <div key={d.m} className="flex flex-1 flex-col items-center gap-1">
-                <div className="flex w-full flex-1 flex-col justify-end overflow-hidden rounded-md">
-                  <div className="w-full bg-highlight" style={{ height: `${(d.profit / axisTop) * 100}%` }} />
-                  <div className="w-full bg-ink" style={{ height: `${(d.loss / axisTop) * 100}%` }} />
-                </div>
-                <span className="text-[10px] text-secondary">{d.m}</span>
-              </div>
-            ))}
-          </div>
+        <div className="mt-5">
+          <Curve data={monthly} axisTop={axisTop} />
         </div>
       </Card>
 
@@ -226,5 +213,40 @@ export default function DashboardPage() {
       </Card>
       </div>
     </div>
+  )
+}
+
+function Curve({ data, axisTop }: { data: { m: string; profit: number; loss: number }[]; axisTop: number }) {
+  const W = 720, H = 180, PAD = 8
+  const n = data.length
+  const x = (i: number) => PAD + (i * (W - PAD * 2)) / (n - 1)
+  const y = (v: number) => H - PAD - (Math.max(0, v) / axisTop) * (H - PAD * 2)
+  const path = (key: 'profit' | 'loss') =>
+    data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${x(i).toFixed(1)} ${y(d[key]).toFixed(1)}`).join(' ')
+  const area = (key: 'profit' | 'loss') =>
+    `${path(key)} L ${x(n - 1).toFixed(1)} ${H - PAD} L ${x(0).toFixed(1)} ${H - PAD} Z`
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H + 16}`} className="w-full" preserveAspectRatio="none" style={{ height: 196 }}>
+      {[0, 1, 2, 3, 4].map((i) => {
+        const gy = PAD + (i * (H - PAD * 2)) / 4
+        return <line key={i} x1={PAD} y1={gy} x2={W - PAD} y2={gy} stroke="#ECE9E3" strokeWidth="1" />
+      })}
+      <defs>
+        <linearGradient id="gProfit" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#FFD24A" stopOpacity="0.45" />
+          <stop offset="100%" stopColor="#FFD24A" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={area('profit')} fill="url(#gProfit)" />
+      <path d={path('profit')} fill="none" stroke="#F2782C" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+      <path d={path('loss')} fill="none" stroke="#24201B" strokeWidth="2" strokeDasharray="4 4" strokeLinejoin="round" strokeLinecap="round" />
+      {data.map((d, i) => (
+        <g key={d.m}>
+          {d.profit > 0 && <circle cx={x(i)} cy={y(d.profit)} r="3" fill="#F2782C" />}
+          <text x={x(i)} y={H + 12} textAnchor="middle" fontSize="9" fill="#8A8276">{d.m}</text>
+        </g>
+      ))}
+    </svg>
   )
 }
