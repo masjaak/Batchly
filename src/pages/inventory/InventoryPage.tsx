@@ -1,6 +1,5 @@
 import { useIngredients } from '@/hooks/useIngredients'
 import { Link } from 'react-router-dom'
-import { Package } from 'lucide-react'
 import { exportCSV, downloadCSV } from '@/lib/export'
 import { useAuth } from '@/hooks/useAuth'
 import { EmptyState, PageHeader } from '@/components/ui/EmptyState'
@@ -50,7 +49,6 @@ export default function InventoryPage() {
   if (!ingredients || ingredients.length === 0) {
     return (
       <EmptyState
-        icon={Package}
         title="Belum ada bahan baku"
         description="Tambahkan bahan dan catat stok masuk. Harga bahan dipakai untuk menghitung HPP resep secara otomatis."
         ctaLabel="Tambah Stok Masuk"
@@ -68,9 +66,9 @@ export default function InventoryPage() {
         subtitle="Kelola bahan baku dan pantau stok menipis."
         action={
           <div className="flex gap-2">
-            <Link to="/app/inventory/new"><Button variant="outline" size="sm">+ Bahan</Button></Link>
-            <button onClick={handleExport} className="h-9 rounded-xl border border-border bg-surface px-3 text-sm font-medium text-ink hover:bg-surface-muted">CSV</button>
-            <Link to="/app/inventory/stock-in"><Button size="sm">Stok Masuk</Button></Link>
+            <Link to="/app/inventory/new"><Button variant="secondary">+ Bahan</Button></Link>
+            <button onClick={handleExport} className="h-10 rounded-xl border border-border bg-surface px-3 text-sm font-medium text-ink hover:bg-surface-muted">CSV</button>
+            <Link to="/app/inventory/stock-in"><Button>Stok Masuk</Button></Link>
           </div>
         }
       />

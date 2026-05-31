@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { Boxes } from 'lucide-react'
 import { useProducts } from '@/hooks/useProducts'
 import { calculateRecipeCost, formatCurrency } from '@/lib/calculations'
 import { EmptyState, PageHeader } from '@/components/ui/EmptyState'
@@ -43,7 +42,6 @@ export default function ProductsPage() {
         </div>
       ) : !products || products.length === 0 ? (
         <EmptyState
-          icon={Boxes}
           title="Belum ada produk"
           description="Produk dibuat dari resep. Buat resep dulu, lalu jadikan produk untuk mulai mencatat penjualan."
           ctaLabel="Buat Resep"

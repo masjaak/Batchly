@@ -1,14 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   * {
-    border-color: #ECE9E3;
+    border-color: #E4E4E4;
   }
   body {
     @apply bg-background text-ink;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Poppins', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -18,35 +19,39 @@
   input[type='number'],
   input[type='date'],
   textarea {
-    @apply rounded-xl border border-border bg-surface text-ink outline-none transition-all duration-200;
+    @apply rounded-xl border border-border bg-surface text-ink outline-none transition-colors duration-150;
   }
   input:focus,
   textarea:focus {
-    @apply border-accent ring-2 ring-accent/20;
+    @apply border-ink ring-1 ring-ink/15;
   }
 }
 
 @layer components {
   .card {
-    @apply rounded-2xl border border-border bg-surface shadow-card;
+    @apply rounded-2xl border border-border bg-surface;
   }
-  /* Subtle lift on interactive cards/links */
+  /* Subtle background shift on interactive cards/links (no lift/shadow). */
   .lift {
-    @apply transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-card-hover;
+    @apply transition-colors duration-150 ease-out hover:bg-surface-muted;
   }
 }
 
 @layer utilities {
-  /* Page entrance: children fade-up with a gentle stagger */
+  /* Tabular figures for aligned numeric columns (HPP, prices). */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+  /* Page entrance: gentle, quick fade-up. */
   .stagger > * {
-    animation: fade-up 0.45s ease-out both;
+    animation: fade-up 0.18s ease-out both;
   }
   .stagger > *:nth-child(1) { animation-delay: 0ms; }
-  .stagger > *:nth-child(2) { animation-delay: 60ms; }
-  .stagger > *:nth-child(3) { animation-delay: 120ms; }
-  .stagger > *:nth-child(4) { animation-delay: 180ms; }
-  .stagger > *:nth-child(5) { animation-delay: 240ms; }
-  .stagger > *:nth-child(6) { animation-delay: 300ms; }
+  .stagger > *:nth-child(2) { animation-delay: 30ms; }
+  .stagger > *:nth-child(3) { animation-delay: 60ms; }
+  .stagger > *:nth-child(4) { animation-delay: 90ms; }
+  .stagger > *:nth-child(5) { animation-delay: 120ms; }
+  .stagger > *:nth-child(6) { animation-delay: 150ms; }
 
   @media (prefers-reduced-motion: reduce) {
     .stagger > *, .lift { animation: none !important; transition: none !important; }

@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { Factory, Plus } from 'lucide-react'
 import { useProductionBatches } from '@/hooks/useProductionBatches'
 import { EmptyState, PageHeader } from '@/components/ui/EmptyState'
 import { Button } from '@/components/ui/Button'
@@ -14,7 +13,7 @@ export default function ProductionPage() {
         subtitle="Catat batch produksi dan pantau selisih biaya."
         action={
           <Link to="/app/production/new">
-            <Button size="sm"><Plus className="h-4 w-4" /> Catat Produksi</Button>
+            <Button>+ Catat Produksi</Button>
           </Link>
         }
       />
@@ -26,7 +25,6 @@ export default function ProductionPage() {
         </div>
       ) : !batches || batches.length === 0 ? (
         <EmptyState
-          icon={Factory}
           title="Belum ada produksi"
           description="Catat batch produksi untuk memotong stok bahan otomatis dan melacak selisih biaya (variance)."
           ctaLabel="Catat Produksi"

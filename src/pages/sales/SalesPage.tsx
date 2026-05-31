@@ -102,7 +102,7 @@ export default function SalesPage() {
           </div>
           <div className="flex flex-col justify-between rounded-2xl border border-border bg-surface p-5 shadow-card">
             <p className="text-sm text-secondary">Ekspor data penjualan</p>
-            <Button variant="outline" size="sm" onClick={handleExport} className="mt-2 self-start">Ekspor CSV</Button>
+            <Button variant="secondary" onClick={handleExport} className="mt-2 self-start">Ekspor CSV</Button>
           </div>
         </div>
 

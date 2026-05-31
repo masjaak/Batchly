@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeftRight, Send, Wallet, Receipt, Coins, PiggyBank, ShoppingBag } from 'lucide-react'
 import { useRecipes } from '@/hooks/useRecipes'
 import { useIngredients } from '@/hooks/useIngredients'
 import { useSales } from '@/hooks/useSales'
@@ -12,7 +11,6 @@ import { Card, CardHeader } from '@/components/ui/Card'
 import { StatCard } from '@/components/ui/StatCard'
 import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
-import { ShieldCheck, ArrowRight } from 'lucide-react'
 import OnboardingChecklist from '@/components/dashboard/OnboardingChecklist'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
@@ -76,25 +74,18 @@ export default function DashboardPage() {
     <div className="space-y-5">
       {/* Margin Guard teaser — USP hook */}
       <Link to="/app/margin-guard" className="block">
-        <div className="lift flex items-center justify-between gap-4 rounded-2xl bg-ink p-4 text-white shadow-card">
-          <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent">
-              <ShieldCheck className="h-5 w-5 text-white" />
-            </span>
-            <div>
-              <p className="text-sm font-semibold">Margin Guard · Skor {margin.score}/100</p>
-              <p className="text-xs text-white/70">
-                {margin.lossCount > 0
-                  ? `${margin.lossCount} produk dijual RUGI karena harga bahan naik. Cek sekarang.`
-                  : margin.riskCount > 0
-                    ? `${margin.riskCount} produk margin tipis. Lihat saran harga.`
-                    : 'Semua produk margin sehat. Pantau terus keuntunganmu.'}
-              </p>
-            </div>
+        <div className="lift flex items-center justify-between gap-4 rounded-2xl bg-ink p-4 text-white">
+          <div>
+            <p className="text-sm font-semibold">Margin Guard · Skor {margin.score}/100</p>
+            <p className="text-xs text-white/70">
+              {margin.lossCount > 0
+                ? `${margin.lossCount} produk dijual RUGI karena harga bahan naik. Cek sekarang.`
+                : margin.riskCount > 0
+                  ? `${margin.riskCount} produk margin tipis. Lihat saran harga.`
+                  : 'Semua produk margin sehat. Pantau terus keuntunganmu.'}
+            </p>
           </div>
-          <span className="hidden items-center gap-1 text-sm font-medium text-accent sm:flex">
-            Buka <ArrowRight className="h-4 w-4" />
-          </span>
+          <span className="hidden text-sm font-medium text-white/90 sm:block">Buka →</span>
         </div>
       </Link>
 
@@ -106,37 +97,37 @@ export default function DashboardPage() {
           <Select value={period} onValueChange={setPeriod} className="h-8 w-28 text-xs"
             options={[{ value: 'month', label: 'Bulan Ini' }, { value: 'year', label: 'Tahun Ini' }]} />
         </div>
-        <p className="mt-3 text-3xl font-bold text-ink">{formatCurrency(totalRevenue)}</p>
-        <p className="mt-1 text-xs text-secondary">
-          <span className={revDelta >= 0 ? 'text-success' : 'text-danger'}>{revDelta >= 0 ? '↑' : '↓'} {Math.abs(revDelta).toFixed(0)}%</span> dari bulan lalu
+        <p className="mt-3 text-3xl font-semibold text-ink tnum">{formatCurrency(totalRevenue)}</p>
+        <p className="mt-1 text-xs text-secondary tnum">
+          {revDelta >= 0 ? '+' : '−'}{Math.abs(revDelta).toFixed(0)}% dari bulan lalu
         </p>
         <div className="mt-4 flex gap-2">
-          <Link to="/app/sales" className="flex-1"><Button variant="lime" className="w-full"><ArrowLeftRight className="h-4 w-4" /> Catat Jual</Button></Link>
-          <Link to="/app/expenses" className="flex-1"><Button variant="outline" className="w-full"><Send className="h-4 w-4" /> Catat Biaya</Button></Link>
+          <Link to="/app/sales" className="flex-1"><Button className="w-full">Catat Jual</Button></Link>
+          <Link to="/app/expenses" className="flex-1"><Button variant="secondary" className="w-full">Catat Biaya</Button></Link>
         </div>
         {/* mini net-profit strip */}
         <div className="mt-4 rounded-xl border border-border p-3">
           <div className="flex items-center justify-between">
-            <span className="flex items-center gap-2 text-sm text-secondary"><PiggyBank className="h-4 w-4" /> Laba Bersih</span>
-            <span className={`text-sm font-semibold ${netProfit >= 0 ? 'text-ink' : 'text-danger'}`}>{formatCurrency(netProfit)}</span>
+            <span className="text-sm text-secondary">Laba Bersih</span>
+            <span className="text-sm font-semibold text-ink tnum">{formatCurrency(netProfit)}</span>
           </div>
         </div>
       </Card>
 
       {/* 2x2 stat grid */}
       <div className="grid grid-cols-2 gap-4 lg:col-span-4">
-        <StatCard label="Laba Kotor" value={formatCurrency(grossProfit)} delta={revDelta} deltaLabel="bln ini" tone="dark" icon={<Coins className="h-4 w-4" />} />
-        <StatCard label="Biaya" value={formatCurrency(totalExpenses)} delta={expDelta} deltaLabel="bln ini" tone="berry" icon={<Wallet className="h-4 w-4" />} />
-        <StatCard label="Total HPP" value={formatCurrency(totalHpp)} tone="grape" icon={<Receipt className="h-4 w-4" />} />
-        <StatCard label="Pendapatan" value={formatCurrency(totalRevenue)} tone="mint" icon={<ShoppingBag className="h-4 w-4" />} />
+        <StatCard label="Laba Kotor" value={formatCurrency(grossProfit)} delta={revDelta} deltaLabel="bln ini" tone="dark" />
+        <StatCard label="Biaya" value={formatCurrency(totalExpenses)} delta={expDelta} deltaLabel="bln ini" />
+        <StatCard label="Total HPP" value={formatCurrency(totalHpp)} />
+        <StatCard label="Pendapatan" value={formatCurrency(totalRevenue)} />
       </div>
 
       {/* Profit/Loss chart */}
       <Card className="p-5 lg:col-span-4">
         <CardHeader title="Laba & Biaya" subtitle="Periode berjalan" action={
           <div className="flex items-center gap-3 text-xs text-secondary">
-            <span className="flex items-center gap-1"><i className="h-2 w-2 rounded-full bg-highlight" />Laba</span>
-            <span className="flex items-center gap-1"><i className="h-2 w-2 rounded-full bg-ink" />Biaya</span>
+            <span className="flex items-center gap-1"><i className="h-2 w-2 rounded-full bg-ink" />Laba</span>
+            <span className="flex items-center gap-1"><i className="h-2 w-2 rounded-full bg-secondary" />Biaya</span>
           </div>
         } />
         <div className="mt-5">
@@ -171,8 +162,8 @@ export default function DashboardPage() {
       <Card className="p-5 lg:col-span-8">
         <div className="flex items-center justify-between">
           <CardHeader title="Aktivitas Terbaru" />
-          <span className={`text-xs font-medium ${weekly.changePct >= 0 ? 'text-success' : 'text-danger'}`}>
-            {weekly.changePct >= 0 ? '↑' : '↓'} {Math.abs(weekly.changePct).toFixed(1)}% vs minggu lalu
+          <span className="text-xs font-medium text-secondary tnum">
+            {weekly.changePct >= 0 ? '+' : '−'}{Math.abs(weekly.changePct).toFixed(1)}% vs minggu lalu
           </span>
         </div>
         {recent.length === 0 ? (
@@ -201,7 +192,7 @@ export default function DashboardPage() {
                       </span>
                     </td>
                     <td className="py-3 text-secondary">{String(a.date).slice(0, 10)}</td>
-                    <td className={`py-3 text-right font-semibold ${a.amount >= 0 ? 'text-ink' : 'text-danger'}`}>
+                    <td className="py-3 text-right font-semibold text-ink tnum">
                       {a.amount >= 0 ? '+' : '−'}{formatCurrency(Math.abs(a.amount))}
                     </td>
                   </tr>
@@ -246,21 +237,21 @@ function Curve({ data, axisTop }: { data: { m: string; profit: number; loss: num
     <svg viewBox={`0 0 ${W} ${H + 16}`} className="w-full" preserveAspectRatio="none" style={{ height: 196 }}>
       {[0, 1, 2, 3, 4].map((i) => {
         const gy = PAD + (i * (H - PAD * 2)) / 4
-        return <line key={i} x1={PAD} y1={gy} x2={W - PAD} y2={gy} stroke="#ECE9E3" strokeWidth="1" />
+        return <line key={i} x1={PAD} y1={gy} x2={W - PAD} y2={gy} stroke="#E4E4E4" strokeWidth="1" />
       })}
       <defs>
         <linearGradient id="gProfit" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#FFD24A" stopOpacity="0.45" />
-          <stop offset="100%" stopColor="#FFD24A" stopOpacity="0" />
+          <stop offset="0%" stopColor="#141414" stopOpacity="0.10" />
+          <stop offset="100%" stopColor="#141414" stopOpacity="0" />
         </linearGradient>
       </defs>
       <path d={area('profit')} fill="url(#gProfit)" />
-      <path d={spline('profit')} fill="none" stroke="#F2782C" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-      <path d={spline('loss')} fill="none" stroke="#24201B" strokeWidth="2" strokeDasharray="4 4" strokeLinejoin="round" strokeLinecap="round" />
+      <path d={spline('profit')} fill="none" stroke="#141414" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+      <path d={spline('loss')} fill="none" stroke="#6B6B6B" strokeWidth="1.5" strokeDasharray="4 4" strokeLinejoin="round" strokeLinecap="round" />
       {data.map((d, i) => (
         <g key={d.m}>
-          {d.profit > 0 && <circle cx={x(i)} cy={y(d.profit)} r="3" fill="#F2782C" />}
-          <text x={x(i)} y={H + 12} textAnchor="middle" fontSize="9" fill="#8A8276">{d.m}</text>
+          {d.profit > 0 && <circle cx={x(i)} cy={y(d.profit)} r="3" fill="#141414" />}
+          <text x={x(i)} y={H + 12} textAnchor="middle" fontSize="9" fill="#6B6B6B">{d.m}</text>
         </g>
       ))}
     </svg>

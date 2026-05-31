@@ -4,9 +4,9 @@ import { useAuth } from '@/hooks/useAuth'
 import { useCreateSupplier } from '@/hooks/useSuppliers'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Truck } from 'lucide-react'
 import { EmptyState, PageHeader } from '@/components/ui/EmptyState'
 import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
 
 export default function SuppliersPage() {
   const { data: suppliers, isLoading } = useSuppliers()
@@ -42,37 +42,17 @@ export default function SuppliersPage() {
       <PageHeader
         title="Pemasok"
         subtitle="Kelola pemasok dan riwayat harga bahan."
-        action={!showForm ? <Button size="sm" onClick={() => setShowForm(true)}>+ Pemasok</Button> : undefined}
+        action={!showForm ? <Button onClick={() => setShowForm(true)}>+ Pemasok</Button> : undefined}
       />
 
       {showForm && (
-        <form onSubmit={handleAdd} className="space-y-3 rounded-xl border border-border bg-surface p-4">
-          <input
-            placeholder="Nama Pemasok*"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
-          />
-          <input
-            placeholder="Kontak Person"
-            value={contact}
-            onChange={(e) => setContact(e.target.value)}
-            className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
-          />
-          <input
-            placeholder="No. Telepon"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
-          />
+        <form onSubmit={handleAdd} className="space-y-3 rounded-2xl border border-border bg-surface p-4">
+          <Input placeholder="Nama Pemasok*" value={name} onChange={(e) => setName(e.target.value)} required />
+          <Input placeholder="Kontak Person" value={contact} onChange={(e) => setContact(e.target.value)} />
+          <Input placeholder="No. Telepon" value={phone} onChange={(e) => setPhone(e.target.value)} />
           <div className="flex gap-2">
-            <button type="submit" className="flex-1 h-12 rounded-xl bg-ink text-sm font-medium text-white">
-              Simpan
-            </button>
-            <button type="button" onClick={() => setShowForm(false)} className="h-12 rounded-xl border border-border bg-surface px-6 text-sm font-medium text-secondary">
-              Batal
-            </button>
+            <Button type="submit" className="flex-1">Simpan</Button>
+            <Button type="button" variant="secondary" onClick={() => setShowForm(false)}>Batal</Button>
           </div>
         </form>
       )}
@@ -85,7 +65,6 @@ export default function SuppliersPage() {
         </div>
       ) : !suppliers || suppliers.length === 0 ? (
         <EmptyState
-          icon={Truck}
           title="Belum ada pemasok"
           description="Tambahkan pemasok untuk melacak riwayat harga bahan dan mempercepat pencatatan stok masuk."
         />

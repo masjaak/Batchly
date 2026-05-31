@@ -6,7 +6,6 @@ import { Card, CardHeader } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input, FormField } from '@/components/ui/Input'
 import { PageHeader } from '@/components/ui/EmptyState'
-import { Building2, LogOut } from 'lucide-react'
 
 export default function SettingsPage() {
   const { user, organization, signOut } = useAuth()
@@ -39,7 +38,7 @@ export default function SettingsPage() {
         <div>
           <p className="text-lg font-bold text-ink">{organization?.name ?? 'Batchly'}</p>
           <p className="text-sm text-secondary">{user?.email ?? 'Belum login'}</p>
-          <span className="mt-1 inline-block rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-medium text-accent">Akun Bisnis</span>
+          <span className="mt-1 inline-block rounded-full border border-border px-2.5 py-0.5 text-xs font-medium text-secondary">Akun Bisnis</span>
         </div>
       </Card>
 
@@ -52,7 +51,7 @@ export default function SettingsPage() {
               <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="cth. Roti Bahagia" />
             </FormField>
             <Button onClick={handleSaveOrg} disabled={savingOrg}>
-              <Building2 className="h-4 w-4" /> {savingOrg ? 'Menyimpan…' : 'Simpan Perubahan'}
+              {savingOrg ? 'Menyimpan…' : 'Simpan Perubahan'}
             </Button>
           </div>
         </Card>
@@ -69,8 +68,8 @@ export default function SettingsPage() {
               <p className="text-xs text-secondary">Versi Aplikasi</p>
               <p className="text-sm font-medium text-ink">Batchly v2.0.0</p>
             </div>
-            <Button variant="outline" onClick={signOut} className="w-full border-danger/30 text-danger hover:bg-red-50">
-              <LogOut className="h-4 w-4" /> Keluar
+            <Button variant="danger" onClick={signOut} className="w-full">
+              Keluar
             </Button>
           </div>
         </Card>
