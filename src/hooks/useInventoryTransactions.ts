@@ -22,6 +22,9 @@ export function useStockIn() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ingredients'] })
       queryClient.invalidateQueries({ queryKey: ['inventory_transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+      queryClient.invalidateQueries({ queryKey: ['recipes'] })
+      queryClient.invalidateQueries({ queryKey: ['reorder_suggestions'] })
     },
   })
 }
@@ -43,6 +46,7 @@ export function useStockOut() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ingredients'] })
       queryClient.invalidateQueries({ queryKey: ['inventory_transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['reorder_suggestions'] })
     },
   })
 }

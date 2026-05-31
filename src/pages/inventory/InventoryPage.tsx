@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom'
 import { Package } from 'lucide-react'
 import { exportCSV, downloadCSV } from '@/lib/export'
 import { useAuth } from '@/hooks/useAuth'
-import { EmptyState } from '@/components/ui/EmptyState'
+import { EmptyState, PageHeader } from '@/components/ui/EmptyState'
+import { Button } from '@/components/ui/Button'
+import { formatCurrency } from '@/lib/calculations'
 
 const CURATED_UNITS = ['g', 'kg', 'ml', 'L', 'pcs', 'sdt', 'sdm', 'cup']
 
@@ -60,27 +62,39 @@ export default function InventoryPage() {
   const grouped = groupBy(ingredients, 'category?.name' as any)
 
   return (
-    <div className="space-y-6">
-      <div className="flex gap-2">
-        <Link
-          to="/app/inventory/stock-in"
-          className="flex h-12 flex-1 items-center justify-center rounded-xl bg-ink text-sm font-medium text-white"
-        >
-          Stok Masuk
-        </Link>
-        <Link
-          to="/app/inventory/new"
-          className="flex h-12 items-center justify-center rounded-xl border border-border bg-surface px-4 text-sm font-medium text-primary"
-        >
-          + Bahan
-        </Link>
-        <button
-          onClick={handleExport}
-          className="flex h-12 items-center justify-center rounded-xl border border-border bg-surface px-4 text-sm font-medium text-primary"
-        >
-          CSV
-        </button>
-      </div>
+    <div className="space-y-5">
+      <PageHeader
+        title="Stok Bahan"
+        subtitle="Kelola bahan baku dan pantau stok menipis."
+        action={
+          <div className="flex gap-2">
+            <Link to="/app/inventory/new"><Button variant="outline" size="sm">+ Bahan</Button></Link>
+            <button onClick={handleExport} className="h-9 rounded-xl border border-border bg-surface px-3 text-sm font-medium text-ink hover:bg-surface-muted">CSV</button>
+            <Link to="/app/inventory/stock-in"><Button size="sm">Stok Masuk</Button></Link>
+          </div>
+        }
+      />
+
+      {(() => {
+        const low = ingredients.filter((i) => i.current_stock <= i.min_stock_level).length
+        const totalValue = ingredients.reduce((s, i) => s + i.current_stock * i.latest_price, 0)
+        return (
+          <div className="grid grid-cols-3 gap-3">
+            <div className="rounded-2xl border border-border bg-surface p-4 shadow-card">
+              <p className="text-xs text-secondary">Total Bahan</p>
+              <p className="mt-1 text-xl font-bold text-ink">{ingredients.length}</p>
+            </div>
+            <div className="rounded-2xl border border-border bg-surface p-4 shadow-card">
+              <p className="text-xs text-secondary">Stok Menipis</p>
+              <p className={`mt-1 text-xl font-bold ${low > 0 ? 'text-warning' : 'text-success'}`}>{low}</p>
+            </div>
+            <div className="rounded-2xl border border-border bg-surface p-4 shadow-card">
+              <p className="text-xs text-secondary">Nilai Stok</p>
+              <p className="mt-1 text-xl font-bold text-ink">{formatCurrency(totalValue)}</p>
+            </div>
+          </div>
+        )
+      })()}
 
       {Object.entries(grouped).map(([category, items]) => (
         <section key={category}>

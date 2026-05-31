@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { Card, CardHeader } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
+import { PageHeader } from '@/components/ui/EmptyState'
 
 export default function SalesPage() {
   const { organization } = useAuth()
@@ -56,7 +57,9 @@ export default function SalesPage() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+    <div className="space-y-5">
+      <PageHeader title="Penjualan" subtitle="Catat penjualan dan pantau margin per transaksi." />
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
       {/* Form */}
       <Card className="p-5 lg:col-span-1">
         <CardHeader title="Catat Penjualan" subtitle="Tambahkan transaksi penjualan baru." />
@@ -153,6 +156,7 @@ export default function SalesPage() {
           </Card>
         )}
       </div>
+    </div>
     </div>
   )
 }

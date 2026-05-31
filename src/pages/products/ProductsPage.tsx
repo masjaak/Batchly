@@ -1,14 +1,40 @@
 import { Link } from 'react-router-dom'
 import { Boxes } from 'lucide-react'
 import { useProducts } from '@/hooks/useProducts'
-import { calculateRecipeCost } from '@/lib/calculations'
-import { EmptyState } from '@/components/ui/EmptyState'
+import { calculateRecipeCost, formatCurrency } from '@/lib/calculations'
+import { EmptyState, PageHeader } from '@/components/ui/EmptyState'
 
 export default function ProductsPage() {
   const { data: products, isLoading } = useProducts()
 
+  const withCost = (products ?? []).map((p: any) => ({
+    p,
+    cost: p.recipe ? calculateRecipeCost(p.recipe, p.recipe.recipe_items ?? []) : { perUnitHpp: 0, margin: 0 },
+  }))
+  const avgMargin = withCost.length ? withCost.reduce((s, x) => s + x.cost.margin, 0) / withCost.length : 0
+  const atRisk = withCost.filter((x) => x.cost.margin < 30).length
+
   return (
     <div className="space-y-4">
+      <PageHeader title="Produk" subtitle="Daftar produk jadi beserta HPP dan margin terkini." />
+
+      {products && products.length > 0 && (
+        <div className="grid grid-cols-3 gap-3">
+          <div className="rounded-2xl border border-border bg-surface p-4 shadow-card">
+            <p className="text-xs text-secondary">Total Produk</p>
+            <p className="mt-1 text-xl font-bold text-ink">{products.length}</p>
+          </div>
+          <div className="rounded-2xl border border-border bg-surface p-4 shadow-card">
+            <p className="text-xs text-secondary">Rata-rata Margin</p>
+            <p className={`mt-1 text-xl font-bold ${avgMargin >= 30 ? 'text-success' : 'text-warning'}`}>{avgMargin.toFixed(0)}%</p>
+          </div>
+          <div className="rounded-2xl border border-border bg-surface p-4 shadow-card">
+            <p className="text-xs text-secondary">Margin Tipis</p>
+            <p className={`mt-1 text-xl font-bold ${atRisk > 0 ? 'text-danger' : 'text-success'}`}>{atRisk}</p>
+          </div>
+        </div>
+      )}
+
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (

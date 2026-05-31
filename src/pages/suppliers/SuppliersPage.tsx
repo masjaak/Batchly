@@ -5,7 +5,8 @@ import { useCreateSupplier } from '@/hooks/useSuppliers'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { Truck } from 'lucide-react'
-import { EmptyState } from '@/components/ui/EmptyState'
+import { EmptyState, PageHeader } from '@/components/ui/EmptyState'
+import { Button } from '@/components/ui/Button'
 
 export default function SuppliersPage() {
   const { data: suppliers, isLoading } = useSuppliers()
@@ -38,14 +39,11 @@ export default function SuppliersPage() {
 
   return (
     <div className="space-y-4">
-      {!showForm && (
-        <button
-          onClick={() => setShowForm(true)}
-          className="h-11 w-full rounded-xl bg-ink text-sm font-medium text-white"
-        >
-          Tambah Pemasok
-        </button>
-      )}
+      <PageHeader
+        title="Pemasok"
+        subtitle="Kelola pemasok dan riwayat harga bahan."
+        action={!showForm ? <Button size="sm" onClick={() => setShowForm(true)}>+ Pemasok</Button> : undefined}
+      />
 
       {showForm && (
         <form onSubmit={handleAdd} className="space-y-3 rounded-xl border border-border bg-surface p-4">
