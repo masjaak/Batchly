@@ -71,137 +71,125 @@ export default function DashboardPage() {
   ].sort((a, b) => String(b.date).localeCompare(String(a.date))).slice(0, 6)
 
   return (
-    <div className="space-y-5">
-      {/* Margin Guard teaser — USP hook */}
-      <Link to="/app/margin-guard" className="block">
-        <div className="lift flex items-center justify-between gap-4 rounded-2xl bg-ink p-4 text-white">
-          <div>
-            <p className="text-sm font-semibold">Margin Guard · Skor {margin.score}/100</p>
-            <p className="text-xs text-white/70">
-              {margin.lossCount > 0
-                ? `${margin.lossCount} produk dijual RUGI karena harga bahan naik. Cek sekarang.`
-                : margin.riskCount > 0
-                  ? `${margin.riskCount} produk margin tipis. Lihat saran harga.`
-                  : 'Semua produk margin sehat. Pantau terus keuntunganmu.'}
-            </p>
-          </div>
-          <span className="hidden text-sm font-medium text-white/90 sm:block">Buka →</span>
+    <div className="space-y-6">
+      {/* Page header */}
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold text-ink">Dashboard</h1>
+          <p className="mt-0.5 text-sm text-secondary">Ringkasan kinerja usaha kamu.</p>
         </div>
-      </Link>
-
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
-      {/* Hero balance */}
-      <Card className="p-5 lg:col-span-4">
-        <div className="flex items-start justify-between">
-          <p className="text-sm text-secondary">Total Pendapatan</p>
-          <Select value={period} onValueChange={setPeriod} className="h-8 w-28 text-xs"
+        <div className="flex items-center gap-2">
+          <Select value={period} onValueChange={setPeriod} className="w-32"
             options={[{ value: 'month', label: 'Bulan Ini' }, { value: 'year', label: 'Tahun Ini' }]} />
+          <Link to="/app/sales"><Button>Catat Jual</Button></Link>
+          <Link to="/app/expenses"><Button variant="secondary">Catat Biaya</Button></Link>
         </div>
-        <p className="mt-3 text-3xl font-semibold text-ink tnum">{formatCurrency(totalRevenue)}</p>
-        <p className="mt-1 text-xs text-secondary tnum">
-          {revDelta >= 0 ? '+' : '−'}{Math.abs(revDelta).toFixed(0)}% dari bulan lalu
-        </p>
-        <div className="mt-4 flex gap-2">
-          <Link to="/app/sales" className="flex-1"><Button className="w-full">Catat Jual</Button></Link>
-          <Link to="/app/expenses" className="flex-1"><Button variant="secondary" className="w-full">Catat Biaya</Button></Link>
-        </div>
-        {/* mini net-profit strip */}
-        <div className="mt-4 rounded-xl border border-border p-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-secondary">Laba Bersih</span>
-            <span className="text-sm font-semibold text-ink tnum">{formatCurrency(netProfit)}</span>
-          </div>
-        </div>
-      </Card>
-
-      {/* 2x2 stat grid */}
-      <div className="grid grid-cols-2 gap-4 lg:col-span-4">
-        <StatCard label="Laba Kotor" value={formatCurrency(grossProfit)} delta={revDelta} deltaLabel="bln ini" tone="dark" />
-        <StatCard label="Biaya" value={formatCurrency(totalExpenses)} delta={expDelta} deltaLabel="bln ini" />
-        <StatCard label="Total HPP" value={formatCurrency(totalHpp)} />
-        <StatCard label="Pendapatan" value={formatCurrency(totalRevenue)} />
       </div>
 
-      {/* Profit/Loss chart */}
-      <Card className="p-5 lg:col-span-4">
-        <CardHeader title="Laba & Biaya" subtitle="Periode berjalan" action={
-          <div className="flex items-center gap-3 text-xs text-secondary">
-            <span className="flex items-center gap-1"><i className="h-2 w-2 rounded-full bg-ink" />Laba</span>
-            <span className="flex items-center gap-1"><i className="h-2 w-2 rounded-full bg-secondary" />Biaya</span>
-          </div>
-        } />
-        <div className="mt-5">
-          <Curve data={monthly} axisTop={axisTop} />
-        </div>
-      </Card>
+      {/* KPI band */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard label="Pendapatan" value={formatCurrency(totalRevenue)} delta={revDelta} deltaLabel="vs bln lalu" />
+        <StatCard label="Laba Kotor" value={formatCurrency(grossProfit)} />
+        <StatCard label="Biaya" value={formatCurrency(totalExpenses)} delta={expDelta} deltaLabel="vs bln lalu" />
+        <StatCard label="Laba Bersih" value={formatCurrency(netProfit)} tone="dark" />
+      </div>
 
-      {/* Stock panel */}
-      <Card className="p-5 lg:col-span-4">
-        <CardHeader title="Stok & Saran Pesan" action={<Link to="/app/inventory" className="text-xs font-medium text-accent">Semua</Link>} />
-        {lowStock.length === 0 && (!reorder || reorder.length === 0) ? (
-          <p className="mt-8 text-center text-sm text-secondary">Semua stok aman</p>
-        ) : (
-          <div className="mt-4 space-y-2">
-            {lowStock.slice(0, 3).map((ing) => (
-              <Link key={ing.id} to={`/app/inventory/${ing.id}`} className="flex items-center justify-between rounded-xl bg-accent-soft px-3 py-2.5">
-                <span className="text-sm text-ink">{ing.name}</span>
-                <span className="text-xs font-medium text-accent">{ing.current_stock} {ing.unit}</span>
-              </Link>
-            ))}
-            {reorder?.slice(0, 3).map((s) => (
-              <Link key={s.ingredientId} to={`/app/inventory/stock-in?ingredient=${s.ingredientId}&supplier=${s.lastSupplierId ?? ''}`} className="flex items-center justify-between rounded-xl border border-border px-3 py-2.5">
-                <div className="min-w-0"><p className="truncate text-sm text-ink">{s.name}</p><p className="text-xs text-secondary">min {s.minStockLevel} {s.unit}</p></div>
-                <span className="text-xs font-medium text-accent">+ Pesan</span>
-              </Link>
-            ))}
-          </div>
-        )}
-      </Card>
+      {/* Main grid: content + side rail */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+          {/* Profit/Loss chart */}
+          <Card className="p-5">
+            <CardHeader title="Laba & Biaya" subtitle="Periode berjalan" action={
+              <div className="flex items-center gap-3 text-xs text-secondary">
+                <span className="flex items-center gap-1"><i className="h-2 w-2 rounded-full bg-ink" />Laba</span>
+                <span className="flex items-center gap-1"><i className="h-2 w-2 rounded-full bg-secondary" />Biaya</span>
+              </div>
+            } />
+            <div className="mt-5">
+              <Curve data={monthly} axisTop={axisTop} />
+            </div>
+          </Card>
 
-      {/* Recent activities */}
-      <Card className="p-5 lg:col-span-8">
-        <div className="flex items-center justify-between">
-          <CardHeader title="Aktivitas Terbaru" />
-          <span className="text-xs font-medium text-secondary tnum">
-            {weekly.changePct >= 0 ? '+' : '−'}{Math.abs(weekly.changePct).toFixed(1)}% vs minggu lalu
-          </span>
+          {/* Recent activities */}
+          <Card className="p-5">
+            <div className="flex items-center justify-between">
+              <CardHeader title="Aktivitas Terbaru" />
+              <span className="text-xs font-medium text-secondary tnum">
+                {weekly.changePct >= 0 ? '+' : '−'}{Math.abs(weekly.changePct).toFixed(1)}% vs minggu lalu
+              </span>
+            </div>
+            {recent.length === 0 ? (
+              <p className="mt-6 text-sm text-secondary">Belum ada aktivitas. Mulai dengan mencatat penjualan atau biaya.</p>
+            ) : (
+              <div className="mt-4 overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border text-left text-xs text-secondary">
+                      <th className="pb-2 font-medium">Jenis</th>
+                      <th className="pb-2 font-medium">Keterangan</th>
+                      <th className="pb-2 font-medium">Tanggal</th>
+                      <th className="pb-2 text-right font-medium">Nilai</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recent.map((a, i) => (
+                      <tr key={i} className="border-b border-border last:border-0">
+                        <td className="py-3 font-medium text-ink">{a.kind}</td>
+                        <td className="py-3 text-secondary">{a.name}</td>
+                        <td className="py-3 text-secondary tnum">{String(a.date).slice(0, 10)}</td>
+                        <td className="py-3 text-right font-semibold text-ink tnum">
+                          {a.amount >= 0 ? '+' : '−'}{formatCurrency(Math.abs(a.amount))}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
         </div>
-        {recent.length === 0 ? (
-          <p className="mt-6 text-sm text-secondary">Belum ada aktivitas. Mulai dengan mencatat penjualan atau biaya.</p>
-        ) : (
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border text-left text-xs text-secondary">
-                  <th className="pb-2 font-medium">Jenis</th>
-                  <th className="pb-2 font-medium">Keterangan</th>
-                  <th className="pb-2 font-medium">Status</th>
-                  <th className="pb-2 font-medium">Tanggal</th>
-                  <th className="pb-2 text-right font-medium">Nilai</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recent.map((a, i) => (
-                  <tr key={i} className="border-b border-border last:border-0">
-                    <td className="py-3 font-medium text-ink">{a.kind}</td>
-                    <td className="py-3 text-secondary">{a.name}</td>
-                    <td className="py-3">
-                      <span className={`inline-flex items-center gap-1.5 text-xs ${a.status === 'success' ? 'text-success' : 'text-secondary'}`}>
-                        <i className={`h-1.5 w-1.5 rounded-full ${a.status === 'success' ? 'bg-success' : 'bg-secondary'}`} />
-                        {a.statusLabel}
-                      </span>
-                    </td>
-                    <td className="py-3 text-secondary">{String(a.date).slice(0, 10)}</td>
-                    <td className="py-3 text-right font-semibold text-ink tnum">
-                      {a.amount >= 0 ? '+' : '−'}{formatCurrency(Math.abs(a.amount))}
-                    </td>
-                  </tr>
+
+        {/* Side rail */}
+        <div className="space-y-6">
+          {/* Margin Guard teaser — USP hook */}
+          <Link to="/app/margin-guard" className="block">
+            <div className="rounded-2xl bg-ink p-5 text-white">
+              <p className="text-xs uppercase tracking-wider text-white/60">Margin Guard</p>
+              <p className="mt-2 text-3xl font-semibold tnum">{margin.score}<span className="text-base font-normal text-white/60">/100</span></p>
+              <p className="mt-2 text-xs text-white/70">
+                {margin.lossCount > 0
+                  ? `${margin.lossCount} produk dijual RUGI. Cek sekarang.`
+                  : margin.riskCount > 0
+                    ? `${margin.riskCount} produk margin tipis. Lihat saran harga.`
+                    : 'Semua produk margin sehat.'}
+              </p>
+              <span className="mt-3 inline-block text-sm font-medium text-white/90">Buka →</span>
+            </div>
+          </Link>
+
+          {/* Stock panel */}
+          <Card className="p-5">
+            <CardHeader title="Stok & Saran Pesan" action={<Link to="/app/inventory" className="text-xs font-medium text-ink underline">Semua</Link>} />
+            {lowStock.length === 0 && (!reorder || reorder.length === 0) ? (
+              <p className="mt-8 text-center text-sm text-secondary">Semua stok aman</p>
+            ) : (
+              <div className="mt-4 space-y-2">
+                {lowStock.slice(0, 3).map((ing) => (
+                  <Link key={ing.id} to={`/app/inventory/${ing.id}`} className="flex items-center justify-between rounded-xl border-l-2 border-ink bg-surface-muted px-3 py-2.5">
+                    <span className="text-sm text-ink">{ing.name}</span>
+                    <span className="text-xs font-medium text-ink tnum">{ing.current_stock} {ing.unit}</span>
+                  </Link>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
+                {reorder?.slice(0, 3).map((s) => (
+                  <Link key={s.ingredientId} to={`/app/inventory/stock-in?ingredient=${s.ingredientId}&supplier=${s.lastSupplierId ?? ''}`} className="flex items-center justify-between rounded-xl border border-border px-3 py-2.5">
+                    <div className="min-w-0"><p className="truncate text-sm text-ink">{s.name}</p><p className="text-xs text-secondary tnum">min {s.minStockLevel} {s.unit}</p></div>
+                    <span className="text-xs font-medium text-ink">+ Pesan</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </Card>
+        </div>
       </div>
     </div>
   )

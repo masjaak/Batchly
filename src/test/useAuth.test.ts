@@ -20,6 +20,7 @@ vi.mock('@/lib/supabase', () => ({
         data: { subscription: { unsubscribe: vi.fn() } },
       })),
     },
+    rpc: vi.fn(() => Promise.resolve({ data: [], error: null })),
     from: vi.fn(() => ({
       select: vi.fn(() => ({
         limit: vi.fn(() => ({
@@ -42,6 +43,7 @@ describe('useAuthStore', () => {
     useAuthStore.setState({
       user: null,
       organization: null,
+      organizations: [],
       isLoading: false,
     })
     mockGetSession.mockResolvedValue({ data: { session: null }, error: null })

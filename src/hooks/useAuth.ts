@@ -11,6 +11,7 @@ export interface Organization {
 interface AuthState {
   user: User | null
   organization: Organization | null
+  organizations: Organization[]
   isLoading: boolean
   signIn: (email: string, password: string) => Promise<string | null>
   signUp: (email: string, password: string, businessName: string) => Promise<string | null>
@@ -18,15 +19,23 @@ interface AuthState {
   signOut: () => Promise<void>
   initialize: () => Promise<void>
   setOrganization: (org: Organization) => void
+  loadOrganizations: () => Promise<void>
+  switchOrganization: (orgId: string) => Promise<string | null>
+  createBusiness: (name: string) => Promise<string | null>
 }
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 }
 
+function slugify(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+}
+
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   organization: null,
+  organizations: [],
   isLoading: true,
 
   signIn: async (email, password) => {
@@ -60,10 +69,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return 'Akun dibuat. Cek email untuk konfirmasi, lalu login. (Atau matikan "Confirm email" di Supabase untuk langsung masuk.)'
     }
 
-    const slug = businessName
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '')
+    const slug = slugify(businessName)
 
     const { data: orgData, error: orgError } = await supabase.rpc('create_org_for_current_user', {
       org_name: businessName.trim(),
@@ -72,7 +78,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (orgError) return orgError.message
     if (!orgData) return 'Gagal membuat organisasi'
 
-    set({ user: authData.user, organization: { id: orgData.id, name: orgData.name, slug: orgData.slug } })
+    const org = { id: orgData.id, name: orgData.name, slug: orgData.slug }
+    set({ user: authData.user, organization: org, organizations: [org] })
     return null
   },
 
@@ -84,7 +91,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   signOut: async () => {
     await supabase.auth.signOut()
-    set({ user: null, organization: null })
+    set({ user: null, organization: null, organizations: [] })
   },
 
   initialize: async () => {
@@ -92,19 +99,44 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const { data } = await supabase.auth.getSession()
     if (data.session?.user) {
       set({ user: data.session.user })
-      const { data: orgData } = await supabase
-        .from('organizations')
-        .select('id, name, slug')
-        .limit(1)
-        .single()
-      if (orgData) {
-        set({ organization: orgData as Organization })
-      }
+      await get().loadOrganizations()
     }
     set({ isLoading: false })
   },
 
   setOrganization: (org) => set({ organization: org }),
+
+  loadOrganizations: async () => {
+    const { data, error } = await supabase.rpc('list_my_organizations')
+    if (error || !data) return
+    const orgs: Organization[] = data.map((o: { id: string; name: string; slug: string }) => ({ id: o.id, name: o.name, slug: o.slug }))
+    const active = data.find((o: { is_active: boolean }) => o.is_active)
+    set({
+      organizations: orgs,
+      ...(active ? { organization: { id: active.id, name: active.name, slug: active.slug } } : {}),
+    })
+  },
+
+  switchOrganization: async (orgId) => {
+    const { data, error } = await supabase.rpc('set_active_organization', { org_id: orgId })
+    if (error) return error.message
+    if (data) set({ organization: { id: data.id, name: data.name, slug: data.slug } })
+    return null
+  },
+
+  createBusiness: async (name) => {
+    if (!name.trim()) return 'Nama usaha wajib diisi'
+    const { data, error } = await supabase.rpc('create_additional_business', {
+      org_name: name.trim(),
+      org_slug: slugify(name),
+    })
+    if (error) return error.message
+    if (data) {
+      set({ organization: { id: data.id, name: data.name, slug: data.slug } })
+      await get().loadOrganizations()
+    }
+    return null
+  },
 }))
 
 export function useAuth() {
