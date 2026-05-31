@@ -76,6 +76,51 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
+      {product.recipe?.recipe_items?.length > 0 && (() => {
+        const items = product.recipe.recipe_items
+        const yield_ = product.recipe.yield_amount || 1
+        const rows = items.map((it: any) => ({
+          name: it.ingredient?.name ?? 'Bahan',
+          perUnit: (it.quantity * it.cost_at_create) / yield_,
+          qty: it.quantity,
+          unit: it.unit,
+        }))
+        const overheadPer = (rows.reduce((s: number, r: any) => s + r.perUnit, 0) * (product.recipe.overhead_pct / 100))
+        const pkgPer = (product.recipe.packaging_cost || 0) / yield_
+        const maxRow = Math.max(...rows.map((r: any) => r.perUnit), overheadPer, pkgPer, 1)
+        return (
+          <div className="rounded-xl border border-border bg-surface p-4">
+            <h2 className="mb-1 text-sm font-medium text-primary">Rincian HPP per {product.unit}</h2>
+            <p className="mb-3 text-xs text-secondary">Dari resep "{product.recipe.name}" (hasil {yield_} {product.recipe.yield_unit})</p>
+            <div className="space-y-2.5">
+              {rows.map((r: any, i: number) => (
+                <div key={i}>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-ink">{r.name} <span className="text-secondary">({r.qty} {r.unit})</span></span>
+                    <span className="font-medium text-ink">{formatCurrency(r.perUnit)}</span>
+                  </div>
+                  <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-surface-muted">
+                    <div className="h-full rounded-full bg-grape" style={{ width: `${(r.perUnit / maxRow) * 100}%` }} />
+                  </div>
+                </div>
+              ))}
+              <div className="flex justify-between border-t border-border pt-2 text-xs">
+                <span className="text-secondary">Overhead ({product.recipe.overhead_pct}%)</span>
+                <span className="font-medium text-ink">{formatCurrency(overheadPer)}</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-secondary">Kemasan</span>
+                <span className="font-medium text-ink">{formatCurrency(pkgPer)}</span>
+              </div>
+              <div className="flex justify-between border-t border-border pt-2 text-sm">
+                <span className="font-semibold text-ink">Total HPP</span>
+                <span className="font-bold text-ink">{formatCurrency(cost.perUnitHpp)}</span>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
       <div className="rounded-xl border border-border bg-surface p-4">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-medium text-primary">Varian</h2>

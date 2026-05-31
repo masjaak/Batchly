@@ -1,0 +1,70 @@
+import { Link } from 'react-router-dom'
+import { Check, Package, BookOpen, ShoppingCart, ArrowRight } from 'lucide-react'
+
+interface Step {
+  done: boolean
+  label: string
+  desc: string
+  to: string
+  cta: string
+  icon: typeof Package
+}
+
+export default function OnboardingChecklist({
+  hasIngredients,
+  hasRecipes,
+  hasSales,
+}: {
+  hasIngredients: boolean
+  hasRecipes: boolean
+  hasSales: boolean
+}) {
+  const steps: Step[] = [
+    { done: hasIngredients, label: 'Tambah bahan baku', desc: 'Catat bahan & harganya untuk hitung HPP.', to: '/app/inventory/new', cta: 'Tambah Bahan', icon: Package },
+    { done: hasRecipes, label: 'Buat resep pertama', desc: 'Batchly hitung HPP & margin otomatis.', to: '/app/recipes/new', cta: 'Buat Resep', icon: BookOpen },
+    { done: hasSales, label: 'Catat penjualan', desc: 'Lihat laba & produk terlaris langsung.', to: '/app/sales', cta: 'Catat Jual', icon: ShoppingCart },
+  ]
+  const doneCount = steps.filter((s) => s.done).length
+  const next = steps.find((s) => !s.done)
+
+  return (
+    <div className="rounded-2xl border border-border bg-surface p-6 shadow-card">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-ink">Mulai pakai Batchly 🚀</h2>
+          <p className="mt-0.5 text-sm text-secondary">Selesaikan 3 langkah ini agar dashboard hidup dengan data.</p>
+        </div>
+        <span className="text-sm font-semibold text-accent">{doneCount}/3</span>
+      </div>
+
+      <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-surface-muted">
+        <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${(doneCount / 3) * 100}%` }} />
+      </div>
+
+      <div className="mt-5 space-y-3">
+        {steps.map((s) => {
+          const Icon = s.icon
+          const isNext = next === s
+          return (
+            <div key={s.label} className={`flex items-center gap-3 rounded-xl border p-3 ${isNext ? 'border-accent bg-accent-soft' : 'border-border'}`}>
+              <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${s.done ? 'bg-success text-white' : isNext ? 'bg-accent text-white' : 'bg-surface-muted text-secondary'}`}>
+                {s.done ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className={`text-sm font-medium ${s.done ? 'text-secondary line-through' : 'text-ink'}`}>{s.label}</p>
+                {!s.done && <p className="text-xs text-secondary">{s.desc}</p>}
+              </div>
+              {!s.done && (
+                <Link to={s.to}>
+                  <span className="inline-flex items-center gap-1 rounded-lg bg-ink px-3 py-1.5 text-xs font-medium text-white">
+                    {s.cta} <ArrowRight className="h-3 w-3" />
+                  </span>
+                </Link>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}

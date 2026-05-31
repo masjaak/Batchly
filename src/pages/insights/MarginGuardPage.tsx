@@ -54,6 +54,41 @@ export default function MarginGuardPage() {
         </Card>
       </div>
 
+      {/* Top-profit ranking + insight */}
+      {insights.length > 0 && (() => {
+        const top = [...insights].sort((a, b) => b.currentMargin - a.currentMargin).slice(0, 3)
+        const best = top[0]
+        const worst = insights[0] // sorted ascending in hook
+        const driftHigh = insights.filter((i) => i.costDriftPct > 10)
+        return (
+          <Card className="p-5">
+            <CardHeader title="Produk Paling Cuan" subtitle="Ranking berdasarkan margin terkini." />
+            <div className="mt-4 space-y-2">
+              {top.map((p, i) => (
+                <div key={p.productId} className="flex items-center justify-between rounded-xl border border-border px-3 py-2.5">
+                  <span className="flex items-center gap-2">
+                    <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${i === 0 ? 'bg-highlight text-ink' : 'bg-surface-muted text-secondary'}`}>{i + 1}</span>
+                    <span className="text-sm font-medium text-ink">{p.name}</span>
+                  </span>
+                  <span className={`text-sm font-semibold ${p.currentMargin >= TARGET ? 'text-success' : 'text-warning'}`}>{p.currentMargin.toFixed(0)}%</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 rounded-xl bg-accent-soft p-3">
+              <p className="text-xs font-medium text-accent">💡 Insight</p>
+              <p className="mt-1 text-sm text-ink">
+                {best && `"${best.name}" produk paling menguntungkan (margin ${best.currentMargin.toFixed(0)}%). `}
+                {driftHigh.length > 0
+                  ? `${driftHigh.length} produk HPP-nya naik >10% sejak resep dibuat — pertimbangkan naikkan harga.`
+                  : worst && worst.currentMargin < TARGET
+                    ? `Margin "${worst.name}" paling tipis (${worst.currentMargin.toFixed(0)}%) — cek saran harga di bawah.`
+                    : 'Semua produk margin sehat. Pertahankan! 🎉'}
+              </p>
+            </div>
+          </Card>
+        )
+      })()}
+
       {/* Product table */}
       <Card className="p-5">
         <CardHeader title="Analisis Margin per Produk" subtitle={`Target margin ${TARGET}% · HPP dihitung ulang dari harga bahan terkini`} />

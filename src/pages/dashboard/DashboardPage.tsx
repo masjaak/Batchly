@@ -13,6 +13,7 @@ import { StatCard } from '@/components/ui/StatCard'
 import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
 import { ShieldCheck, ArrowRight } from 'lucide-react'
+import OnboardingChecklist from '@/components/dashboard/OnboardingChecklist'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
 
@@ -24,7 +25,7 @@ const monthKey = (d: Date) => d.getFullYear() * 12 + d.getMonth()
 export default function DashboardPage() {
   const { data: sales } = useSales()
   const { data: ingredients } = useIngredients()
-  useRecipes()
+  const { data: recipes } = useRecipes()
   const { data: expenses } = useExpenses()
   const { data: reorder } = useReorderSuggestions()
   const margin = useMarginGuard(30)
@@ -33,6 +34,18 @@ export default function DashboardPage() {
   const salesList: any[] = sales ?? []
   const expenseList = expenses ?? []
   const lowStock = ingredients?.filter((i) => i.current_stock <= i.min_stock_level) ?? []
+
+  // Onboarding gate: show checklist until the core setup is done.
+  const setupDone = (ingredients?.length ?? 0) > 0 && (recipes?.length ?? 0) > 0 && salesList.length > 0
+  if (!setupDone) {
+    return (
+      <OnboardingChecklist
+        hasIngredients={(ingredients?.length ?? 0) > 0}
+        hasRecipes={(recipes?.length ?? 0) > 0}
+        hasSales={salesList.length > 0}
+      />
+    )
+  }
 
   const totalRevenue = salesList.reduce((s, x) => s + x.quantity * x.unit_price, 0)
   const totalHpp = salesList.reduce((s, x) => s + hppPerUnit(x) * x.quantity, 0)
