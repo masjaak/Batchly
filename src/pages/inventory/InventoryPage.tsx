@@ -1,10 +1,10 @@
 import { useIngredients } from '@/hooks/useIngredients'
 import { Link } from 'react-router-dom'
-import { Package } from 'lucide-react'
 import { exportCSV, downloadCSV } from '@/lib/export'
 import { useAuth } from '@/hooks/useAuth'
 import { EmptyState, PageHeader } from '@/components/ui/EmptyState'
 import { Button } from '@/components/ui/Button'
+import { StatCard } from '@/components/ui/StatCard'
 import { formatCurrency } from '@/lib/calculations'
 
 const CURATED_UNITS = ['g', 'kg', 'ml', 'L', 'pcs', 'sdt', 'sdm', 'cup']
@@ -50,7 +50,6 @@ export default function InventoryPage() {
   if (!ingredients || ingredients.length === 0) {
     return (
       <EmptyState
-        icon={Package}
         title="Belum ada bahan baku"
         description="Tambahkan bahan dan catat stok masuk. Harga bahan dipakai untuk menghitung HPP resep secara otomatis."
         ctaLabel="Tambah Stok Masuk"
@@ -68,9 +67,9 @@ export default function InventoryPage() {
         subtitle="Kelola bahan baku dan pantau stok menipis."
         action={
           <div className="flex gap-2">
-            <Link to="/app/inventory/new"><Button variant="outline" size="sm">+ Bahan</Button></Link>
-            <button onClick={handleExport} className="h-9 rounded-xl border border-border bg-surface px-3 text-sm font-medium text-ink hover:bg-surface-muted">CSV</button>
-            <Link to="/app/inventory/stock-in"><Button size="sm">Stok Masuk</Button></Link>
+            <Link to="/app/inventory/new"><Button variant="secondary">+ Bahan</Button></Link>
+            <button onClick={handleExport} className="h-10 rounded-xl border border-border bg-surface px-3 text-sm font-medium text-ink hover:bg-surface-muted">CSV</button>
+            <Link to="/app/inventory/stock-in"><Button>Stok Masuk</Button></Link>
           </div>
         }
       />
@@ -79,19 +78,10 @@ export default function InventoryPage() {
         const low = ingredients.filter((i) => i.current_stock <= i.min_stock_level).length
         const totalValue = ingredients.reduce((s, i) => s + i.current_stock * i.latest_price, 0)
         return (
-          <div className="grid grid-cols-3 gap-3">
-            <div className="rounded-2xl border border-border bg-surface p-4 shadow-card">
-              <p className="text-xs text-secondary">Total Bahan</p>
-              <p className="mt-1 text-xl font-bold text-ink">{ingredients.length}</p>
-            </div>
-            <div className="rounded-2xl border border-border bg-surface p-4 shadow-card">
-              <p className="text-xs text-secondary">Stok Menipis</p>
-              <p className={`mt-1 text-xl font-bold ${low > 0 ? 'text-warning' : 'text-success'}`}>{low}</p>
-            </div>
-            <div className="rounded-2xl border border-border bg-surface p-4 shadow-card">
-              <p className="text-xs text-secondary">Nilai Stok</p>
-              <p className="mt-1 text-xl font-bold text-ink">{formatCurrency(totalValue)}</p>
-            </div>
+          <div className="grid grid-cols-3 gap-4">
+            <StatCard label="Total Bahan" value={String(ingredients.length)} />
+            <StatCard label="Stok Menipis" value={String(low)} tone={low > 0 ? 'dark' : 'plain'} />
+            <StatCard label="Nilai Stok" value={formatCurrency(totalValue)} />
           </div>
         )
       })()}

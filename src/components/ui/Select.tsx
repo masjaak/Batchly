@@ -1,5 +1,4 @@
 import * as RS from '@radix-ui/react-select'
-import { Check, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export interface SelectOption {
@@ -26,20 +25,18 @@ export function Select({
     <RS.Root value={value || undefined} onValueChange={onValueChange} required={required}>
       <RS.Trigger
         className={cn(
-          'flex h-11 w-full items-center justify-between gap-2 rounded-xl border border-border bg-surface px-3 text-sm text-ink outline-none transition-colors data-[placeholder]:text-secondary focus:border-accent focus:ring-2 focus:ring-accent/20',
+          'flex h-10 w-full items-center justify-between gap-2 rounded-xl border border-border bg-surface px-3 text-sm text-ink outline-none transition-colors data-[placeholder]:text-secondary focus:border-ink focus:ring-1 focus:ring-ink/15',
           className,
         )}
       >
         <RS.Value placeholder={placeholder} />
-        <RS.Icon>
-          <ChevronDown className="h-4 w-4 text-secondary" />
-        </RS.Icon>
+        <RS.Icon className="text-secondary">▾</RS.Icon>
       </RS.Trigger>
       <RS.Portal>
         <RS.Content
           position="popper"
           sideOffset={6}
-          className="z-50 max-h-72 w-[var(--radix-select-trigger-width)] overflow-hidden rounded-xl border border-border bg-surface shadow-card"
+          className="z-50 max-h-72 w-[var(--radix-select-trigger-width)] overflow-hidden rounded-2xl border border-border bg-surface shadow-card"
         >
           <RS.Viewport className="p-1">
             {options.length === 0 ? (
@@ -49,12 +46,10 @@ export function Select({
                 <RS.Item
                   key={o.value}
                   value={o.value}
-                  className="flex cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-sm text-ink outline-none data-[highlighted]:bg-surface-muted data-[state=checked]:font-medium"
+                  className="flex cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-sm text-ink outline-none data-[highlighted]:bg-surface-muted data-[state=checked]:font-semibold"
                 >
                   <RS.ItemText>{o.label}</RS.ItemText>
-                  <RS.ItemIndicator>
-                    <Check className="h-4 w-4 text-accent" />
-                  </RS.ItemIndicator>
+                  <RS.ItemIndicator className="text-ink">✓</RS.ItemIndicator>
                 </RS.Item>
               ))
             )}

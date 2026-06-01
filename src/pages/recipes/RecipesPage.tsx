@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { BookOpen, Plus } from 'lucide-react'
 import { useRecipes } from '@/hooks/useRecipes'
 import { calculateRecipeCost } from '@/lib/calculations'
 import { EmptyState, PageHeader } from '@/components/ui/EmptyState'
@@ -15,7 +14,7 @@ export default function RecipesPage() {
         subtitle="Kelola resep dan hitung HPP otomatis."
         action={
           <Link to="/app/recipes/new">
-            <Button size="sm"><Plus className="h-4 w-4" /> Resep Baru</Button>
+            <Button>+ Resep Baru</Button>
           </Link>
         }
       />
@@ -28,7 +27,6 @@ export default function RecipesPage() {
         </div>
       ) : !recipes || recipes.length === 0 ? (
         <EmptyState
-          icon={BookOpen}
           title="Belum ada resep"
           description="Resep adalah inti Batchly — dari sini HPP, margin, dan harga jual dihitung otomatis."
           ctaLabel="Buat Resep Pertama"

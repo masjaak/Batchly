@@ -1,27 +1,45 @@
+import { useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
-import TopNav from './TopNav'
+import Sidebar from './Sidebar'
+import Topbar from './Topbar'
 import BottomNav from './BottomNav'
-import GreetingHeader from './GreetingHeader'
 
-// Routes that are forms/detail/settings read better in a narrower centered column.
+// Forms/detail/settings read better in a narrower centered column.
 const NARROW = ['/stock-in', '/stock-out', '/opname', '/new', '/edit', '/settings']
 
 export default function AppLayout() {
   const { pathname } = useLocation()
-  const isDashboard = pathname === '/app'
   const isNarrow = NARROW.some((p) => pathname.includes(p))
+  const [drawer, setDrawer] = useState(false)
 
   return (
-    <div className="min-h-screen bg-background p-0 lg:p-4">
-      <div className="mx-auto min-h-screen max-w-[1400px] bg-shell lg:min-h-[calc(100vh-2rem)] lg:rounded-3xl lg:shadow-shell">
-        <TopNav />
-        <main className="px-4 pb-24 pt-2 lg:px-10 lg:pb-12">
-          {isDashboard && <GreetingHeader />}
-          <div key={pathname} className={`stagger ${isNarrow ? 'mx-auto max-w-2xl' : ''}`}>
+    <div className="flex h-screen bg-background">
+      {/* Desktop sidebar */}
+      <div className="hidden lg:block">
+        <Sidebar />
+      </div>
+
+      {/* Mobile drawer */}
+      {drawer && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <div className="absolute inset-0 bg-ink/30" onClick={() => setDrawer(false)} />
+          <div className="absolute left-0 top-0 h-full">
+            <Sidebar />
+          </div>
+        </div>
+      )}
+
+      {/* Main column */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <Topbar onMenu={() => setDrawer(true)} />
+        <main className="flex-1 overflow-y-auto px-4 pb-24 pt-5 lg:px-8 lg:pb-10">
+          <div key={pathname} className={`stagger ${isNarrow ? 'mx-auto max-w-2xl' : 'mx-auto max-w-[1200px]'}`}>
             <Outlet />
           </div>
         </main>
       </div>
+
+      {/* Mobile bottom nav */}
       <div className="lg:hidden">
         <BottomNav />
       </div>

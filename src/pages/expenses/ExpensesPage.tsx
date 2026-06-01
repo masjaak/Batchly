@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Trash2, Wallet } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useExpenses, useCreateExpense, useDeleteExpense, EXPENSE_CATEGORIES } from '@/hooks/useExpenses'
 import { formatCurrency } from '@/lib/calculations'
@@ -97,18 +96,13 @@ export default function ExpensesPage() {
       {/* Summary + list */}
       <div className="space-y-5 lg:col-span-2">
         <div className="grid grid-cols-2 gap-4">
-          <div className="rounded-2xl bg-ink p-5 text-white shadow-card">
-            <div className="flex items-center justify-between">
-              <p className="text-sm opacity-80">Biaya Bulan Ini</p>
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15">
-                <Wallet className="h-4 w-4" />
-              </span>
-            </div>
-            <p className="mt-2 text-2xl font-bold">{formatCurrency(monthTotal)}</p>
+          <div className="rounded-2xl bg-ink p-5 text-white">
+            <p className="text-sm opacity-80">Biaya Bulan Ini</p>
+            <p className="mt-2 text-2xl font-semibold tnum">{formatCurrency(monthTotal)}</p>
           </div>
-          <div className="rounded-2xl border border-border bg-surface p-5 shadow-card">
+          <div className="rounded-2xl border border-border bg-surface p-5">
             <p className="text-sm text-secondary">Total Tercatat</p>
-            <p className="mt-2 text-2xl font-bold text-primary">{formatCurrency(total)}</p>
+            <p className="mt-2 text-2xl font-semibold text-primary tnum">{formatCurrency(total)}</p>
             <p className="mt-1 text-xs text-secondary">{list.length} transaksi</p>
           </div>
         </div>
@@ -146,10 +140,10 @@ export default function ExpensesPage() {
                               toast.error('Gagal menghapus')
                             }
                           }}
-                          className="text-secondary hover:text-danger"
+                          className="text-sm text-secondary hover:text-ink"
                           aria-label="Hapus"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          Hapus
                         </button>
                       </td>
                     </tr>
