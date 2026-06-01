@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { useProducts } from '@/hooks/useProducts'
 import { calculateRecipeCost, formatCurrency } from '@/lib/calculations'
 import { EmptyState, PageHeader } from '@/components/ui/EmptyState'
+import { StatCard } from '@/components/ui/StatCard'
 
 export default function ProductsPage() {
   const { data: products, isLoading } = useProducts()
@@ -18,19 +19,10 @@ export default function ProductsPage() {
       <PageHeader title="Produk" subtitle="Daftar produk jadi beserta HPP dan margin terkini." />
 
       {products && products.length > 0 && (
-        <div className="grid grid-cols-3 gap-3">
-          <div className="rounded-2xl border border-border bg-surface p-4 shadow-card">
-            <p className="text-xs text-secondary">Total Produk</p>
-            <p className="mt-1 text-xl font-bold text-ink">{products.length}</p>
-          </div>
-          <div className="rounded-2xl border border-border bg-surface p-4 shadow-card">
-            <p className="text-xs text-secondary">Rata-rata Margin</p>
-            <p className={`mt-1 text-xl font-bold ${avgMargin >= 30 ? 'text-success' : 'text-warning'}`}>{avgMargin.toFixed(0)}%</p>
-          </div>
-          <div className="rounded-2xl border border-border bg-surface p-4 shadow-card">
-            <p className="text-xs text-secondary">Margin Tipis</p>
-            <p className={`mt-1 text-xl font-bold ${atRisk > 0 ? 'text-danger' : 'text-success'}`}>{atRisk}</p>
-          </div>
+        <div className="grid grid-cols-3 gap-4">
+          <StatCard label="Total Produk" value={String(products.length)} />
+          <StatCard label="Rata-rata Margin" value={`${avgMargin.toFixed(0)}%`} />
+          <StatCard label="Margin Tipis" value={String(atRisk)} tone={atRisk > 0 ? 'dark' : 'plain'} />
         </div>
       )}
 

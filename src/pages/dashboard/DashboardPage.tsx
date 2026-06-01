@@ -11,6 +11,7 @@ import { Card, CardHeader } from '@/components/ui/Card'
 import { StatCard } from '@/components/ui/StatCard'
 import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
+import { PageHeader } from '@/components/ui/EmptyState'
 import OnboardingChecklist from '@/components/dashboard/OnboardingChecklist'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
@@ -73,18 +74,18 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Page header */}
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold text-ink">Dashboard</h1>
-          <p className="mt-0.5 text-sm text-secondary">Ringkasan kinerja usaha kamu.</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Select value={period} onValueChange={setPeriod} className="w-32"
-            options={[{ value: 'month', label: 'Bulan Ini' }, { value: 'year', label: 'Tahun Ini' }]} />
-          <Link to="/app/sales"><Button>Catat Jual</Button></Link>
-          <Link to="/app/expenses"><Button variant="secondary">Catat Biaya</Button></Link>
-        </div>
-      </div>
+      <PageHeader
+        title="Dashboard"
+        subtitle="Ringkasan kinerja usaha kamu."
+        action={
+          <>
+            <Select value={period} onValueChange={setPeriod} className="w-32"
+              options={[{ value: 'month', label: 'Bulan Ini' }, { value: 'year', label: 'Tahun Ini' }]} />
+            <Link to="/app/sales"><Button>Catat Jual</Button></Link>
+            <Link to="/app/expenses"><Button variant="secondary">Catat Biaya</Button></Link>
+          </>
+        }
+      />
 
       {/* KPI band */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
