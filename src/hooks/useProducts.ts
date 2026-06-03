@@ -40,3 +40,32 @@ export function useCreateProduct() {
     },
   })
 }
+
+export function useDeleteProduct() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data: salesUsing, error: checkError } = await supabase
+        .from('sales')
+        .select('id')
+        .eq('product_id', id)
+        .limit(1)
+
+      if (checkError) throw checkError
+      if (salesUsing && salesUsing.length > 0) {
+        throw new Error('Produk sudah dipakai di penjualan. Hapus penjualan terkait dulu.')
+      }
+
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+    },
+  })
+}

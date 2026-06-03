@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useRecipe, useCreateRecipe, useUpdateRecipe, useAddRecipeItem, useRemoveRecipeItem, useDuplicateRecipe } from '@/hooks/useRecipes'
+import { useRecipe, useCreateRecipe, useUpdateRecipe, useAddRecipeItem, useRemoveRecipeItem, useDuplicateRecipe, useDeleteRecipe } from '@/hooks/useRecipes'
 import { useIngredients } from '@/hooks/useIngredients'
 import { useCreateProduct } from '@/hooks/useProducts'
 import { useAuth } from '@/hooks/useAuth'
@@ -21,6 +21,7 @@ export default function RecipeDetailPage() {
   const { mutateAsync: addItem } = useAddRecipeItem()
   const { mutateAsync: removeItem } = useRemoveRecipeItem()
   const { mutateAsync: duplicate } = useDuplicateRecipe()
+  const { mutateAsync: deleteRecipe } = useDeleteRecipe()
   const { mutateAsync: createProduct } = useCreateProduct()
 
   const [name, setName] = useState('')
@@ -324,6 +325,24 @@ export default function RecipeDetailPage() {
             Produksi
           </button>
         </div>
+      )}
+
+      {id && id !== 'new' && (
+        <button
+          onClick={async () => {
+            if (!window.confirm(`Hapus resep "${recipe?.name}"? Bahan resep juga akan terhapus.`)) return
+            try {
+              await deleteRecipe(id!)
+              toast.success('Resep dihapus')
+              navigate('/app/recipes')
+            } catch (err) {
+              toast.error(err instanceof Error ? err.message : 'Gagal menghapus resep')
+            }
+          }}
+          className="h-11 w-full rounded-xl border border-border bg-surface text-sm font-medium text-primary"
+        >
+          Hapus Resep
+        </button>
       )}
     </div>
   )

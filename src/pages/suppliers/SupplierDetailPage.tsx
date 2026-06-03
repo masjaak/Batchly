@@ -1,10 +1,13 @@
-import { useParams, Link } from 'react-router-dom'
-import { useSupplier, useSupplierTransactions } from '@/hooks/useSuppliers'
+import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useSupplier, useSupplierTransactions, useDeleteSupplier } from '@/hooks/useSuppliers'
+import { toast } from 'sonner'
 
 export default function SupplierDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const { data: supplier, isLoading } = useSupplier(id ?? '')
   const { data: transactions } = useSupplierTransactions(id ?? '')
+  const { mutateAsync: deleteSupplier } = useDeleteSupplier()
 
   if (isLoading) {
     return <div className="h-32 animate-pulse rounded-xl bg-surface-muted border border-border" />
@@ -138,6 +141,26 @@ export default function SupplierDetailPage() {
           </div>
         )}
       </div>
+
+      <button
+        onClick={async () => {
+          const hasTx = (transactions?.length ?? 0) > 0
+          const msg = hasTx
+            ? `Hapus pemasok "${supplier.name}"? Pemasok punya ${transactions?.length} transaksi. Riwayat tetap tersimpan, hanya disembunyikan dari daftar.`
+            : `Hapus pemasok "${supplier.name}"?`
+          if (!window.confirm(msg)) return
+          try {
+            await deleteSupplier({ id: supplier!.id, hasTransactions: hasTx })
+            toast.success('Pemasok dihapus')
+            navigate('/app/suppliers')
+          } catch {
+            toast.error('Gagal menghapus pemasok')
+          }
+        }}
+        className="h-11 w-full rounded-xl border border-border bg-surface text-sm font-medium text-primary"
+      >
+        Hapus Pemasok
+      </button>
     </div>
   )
 }

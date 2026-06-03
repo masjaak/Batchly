@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useSales, useCreateSale } from '@/hooks/useSales'
+import { useSales, useCreateSale, useDeleteSale } from '@/hooks/useSales'
 import { useProducts } from '@/hooks/useProducts'
 import { useAuth } from '@/hooks/useAuth'
 import { calculateRecipeCost, calculateSaleProfit, getTopProducts, formatCurrency } from '@/lib/calculations'
@@ -15,6 +15,7 @@ export default function SalesPage() {
   const { data: sales } = useSales()
   const { data: products } = useProducts()
   const { mutateAsync: createSale, isPending } = useCreateSale()
+  const { mutateAsync: deleteSale } = useDeleteSale()
 
   const [productId, setProductId] = useState('')
   const [quantity, setQuantity] = useState('')
@@ -138,8 +139,8 @@ export default function SalesPage() {
                   : { perUnitHpp: 0 }
                 const profit = calculateSaleProfit(sale.unit_price, sale.quantity, cost.perUnitHpp)
                 return (
-                  <div key={sale.id} className="flex items-center justify-between rounded-xl border border-border p-3">
-                    <div>
+                  <div key={sale.id} className="flex items-center justify-between gap-2 rounded-xl border border-border p-3">
+                    <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-primary">{sale.product?.name}</p>
                       <p className="text-xs text-secondary">{sale.quantity} × {formatCurrency(sale.unit_price)} · {String(sale.sale_date).slice(0, 10)}</p>
                     </div>
@@ -149,6 +150,21 @@ export default function SalesPage() {
                         {profit.grossProfit >= 0 ? '+' : ''}{formatCurrency(profit.grossProfit)}
                       </p>
                     </div>
+                    <button
+                      onClick={async () => {
+                        if (!window.confirm('Hapus transaksi penjualan ini?')) return
+                        try {
+                          await deleteSale(sale.id)
+                          toast.success('Penjualan dihapus')
+                        } catch {
+                          toast.error('Gagal menghapus penjualan')
+                        }
+                      }}
+                      className="shrink-0 text-xs font-medium text-secondary hover:text-ink"
+                      aria-label="Hapus"
+                    >
+                      Hapus
+                    </button>
                   </div>
                 )
               })}

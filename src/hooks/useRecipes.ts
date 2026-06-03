@@ -154,6 +154,36 @@ export function useAddRecipeItem() {
   })
 }
 
+export function useDeleteRecipe() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data: productsUsing, error: checkError } = await supabase
+        .from('products')
+        .select('id, name')
+        .eq('recipe_id', id)
+        .limit(1)
+
+      if (checkError) throw checkError
+      if (productsUsing && productsUsing.length > 0) {
+        throw new Error('Resep dipakai oleh produk. Hapus produk terkait dulu.')
+      }
+
+      const { error } = await supabase
+        .from('recipes')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recipes'] })
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+    },
+  })
+}
+
 export function useRemoveRecipeItem() {
   const queryClient = useQueryClient()
 

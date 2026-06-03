@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom'
-import { useRecipes } from '@/hooks/useRecipes'
+import { useRecipes, useDeleteRecipe } from '@/hooks/useRecipes'
 import { calculateRecipeCost } from '@/lib/calculations'
+import { toast } from 'sonner'
 import { EmptyState, PageHeader } from '@/components/ui/EmptyState'
 import { Button } from '@/components/ui/Button'
 
 export default function RecipesPage() {
   const { data: recipes, isLoading } = useRecipes()
+  const { mutateAsync: deleteRecipe } = useDeleteRecipe()
 
   return (
     <div className="space-y-4">
@@ -42,8 +44,8 @@ export default function RecipesPage() {
                 to={`/app/recipes/${recipe.id}`}
                 className="block rounded-xl border border-border bg-surface p-4"
               >
-                <div className="flex items-center justify-between">
-                  <div>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-primary">{recipe.name}</p>
                     <p className="mt-0.5 text-xs text-secondary">
                       Hasil: {recipe.yield_amount} {recipe.yield_unit}
@@ -63,6 +65,23 @@ export default function RecipesPage() {
                       </>
                     )}
                   </div>
+                  <button
+                    onClick={async (e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      if (!window.confirm(`Hapus resep "${recipe.name}"? Bahan resep juga akan terhapus.`)) return
+                      try {
+                        await deleteRecipe(recipe.id)
+                        toast.success('Resep dihapus')
+                      } catch (err) {
+                        toast.error(err instanceof Error ? err.message : 'Gagal menghapus resep')
+                      }
+                    }}
+                    className="shrink-0 text-xs font-medium text-secondary hover:text-ink"
+                    aria-label="Hapus"
+                  >
+                    Hapus
+                  </button>
                 </div>
               </Link>
             )

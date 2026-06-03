@@ -68,3 +68,46 @@ export function useIngredientTransactions(ingredientId: string) {
     enabled: !!ingredientId,
   })
 }
+
+export function useDeleteInventoryTransaction() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data: tx, error: fetchError } = await supabase
+        .from('inventory_transactions')
+        .select('ingredient_id, quantity, organization_id')
+        .eq('id', id)
+        .single()
+
+      if (fetchError || !tx) throw fetchError ?? new Error('Transaksi tidak ditemukan')
+
+      const { data: ing, error: ingError } = await supabase
+        .from('ingredients')
+        .select('current_stock')
+        .eq('id', tx.ingredient_id)
+        .single()
+
+      if (ingError) throw ingError
+
+      const { error: updateError } = await supabase
+        .from('ingredients')
+        .update({ current_stock: Number(ing?.current_stock ?? 0) - Number(tx.quantity) })
+        .eq('id', tx.ingredient_id)
+
+      if (updateError) throw updateError
+
+      const { error: deleteError } = await supabase
+        .from('inventory_transactions')
+        .delete()
+        .eq('id', id)
+
+      if (deleteError) throw deleteError
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['inventory_transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['ingredients'] })
+      queryClient.invalidateQueries({ queryKey: ['reorder_suggestions'] })
+    },
+  })
+}

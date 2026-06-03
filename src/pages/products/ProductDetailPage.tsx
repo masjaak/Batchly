@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { useProducts } from '@/hooks/useProducts'
+import { useProducts, useDeleteProduct } from '@/hooks/useProducts'
 import { useProductVariants, useCreateProductVariant, useDeleteProductVariant } from '@/hooks/useProductVariants'
 import { calculateRecipeCost, formatCurrency } from '@/lib/calculations'
 import { useState } from 'react'
@@ -12,6 +12,7 @@ export default function ProductDetailPage() {
   const { data: variants } = useProductVariants(id!)
   const { mutateAsync: createVariant } = useCreateProductVariant()
   const { mutateAsync: deleteVariant } = useDeleteProductVariant()
+  const { mutateAsync: deleteProduct } = useDeleteProduct()
 
   const product = products?.find((p: any) => p.id === id)
 
@@ -190,6 +191,22 @@ export default function ProductDetailPage() {
           </div>
         )}
       </div>
+
+      <button
+        onClick={async () => {
+          if (!window.confirm(`Hapus produk "${product.name}"?`)) return
+          try {
+            await deleteProduct(id!)
+            toast.success('Produk dihapus')
+            navigate('/app/products')
+          } catch (err) {
+            toast.error(err instanceof Error ? err.message : 'Gagal menghapus produk')
+          }
+        }}
+        className="h-11 w-full rounded-xl border border-border bg-surface text-sm font-medium text-primary"
+      >
+        Hapus Produk
+      </button>
     </div>
   )
 }

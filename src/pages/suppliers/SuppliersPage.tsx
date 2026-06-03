@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
-import { useSuppliers } from '@/hooks/useSuppliers'
+import { useSuppliers, useCreateSupplier, useDeleteSupplier } from '@/hooks/useSuppliers'
 import { useAuth } from '@/hooks/useAuth'
-import { useCreateSupplier } from '@/hooks/useSuppliers'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { EmptyState, PageHeader } from '@/components/ui/EmptyState'
@@ -12,6 +11,7 @@ export default function SuppliersPage() {
   const { data: suppliers, isLoading } = useSuppliers()
   const { organization } = useAuth()
   const { mutateAsync: createSupplier } = useCreateSupplier()
+  const { mutateAsync: deleteSupplier } = useDeleteSupplier()
   const [showForm, setShowForm] = useState(false)
   const [name, setName] = useState('')
   const [contact, setContact] = useState('')
@@ -76,14 +76,35 @@ export default function SuppliersPage() {
               to={`/app/suppliers/${sup.id}`}
               className="block rounded-xl border border-border bg-surface p-4"
             >
-              <p className="text-sm font-medium text-primary">{sup.name}</p>
-              {(sup.contact_person || sup.phone) && (
-                <p className="mt-0.5 text-xs text-secondary">
-                  {sup.contact_person && `${sup.contact_person}`}
-                  {sup.contact_person && sup.phone && ' — '}
-                  {sup.phone && `${sup.phone}`}
-                </p>
-              )}
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-primary">{sup.name}</p>
+                  {(sup.contact_person || sup.phone) && (
+                    <p className="mt-0.5 text-xs text-secondary">
+                      {sup.contact_person && `${sup.contact_person}`}
+                      {sup.contact_person && sup.phone && ' — '}
+                      {sup.phone && `${sup.phone}`}
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={async (e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    if (!window.confirm(`Hapus pemasok "${sup.name}"?`)) return
+                    try {
+                      await deleteSupplier({ id: sup.id, hasTransactions: false })
+                      toast.success('Pemasok dihapus')
+                    } catch {
+                      toast.error('Gagal menghapus pemasok')
+                    }
+                  }}
+                  className="shrink-0 text-xs font-medium text-secondary hover:text-ink"
+                  aria-label="Hapus"
+                >
+                  Hapus
+                </button>
+              </div>
             </Link>
           ))}
         </div>

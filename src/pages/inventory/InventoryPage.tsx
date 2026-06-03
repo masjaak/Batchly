@@ -1,7 +1,8 @@
-import { useIngredients } from '@/hooks/useIngredients'
+import { useIngredients, useDeleteIngredient } from '@/hooks/useIngredients'
 import { Link } from 'react-router-dom'
 import { exportCSV, downloadCSV } from '@/lib/export'
 import { useAuth } from '@/hooks/useAuth'
+import { toast } from 'sonner'
 import { EmptyState, PageHeader } from '@/components/ui/EmptyState'
 import { Button } from '@/components/ui/Button'
 import { StatCard } from '@/components/ui/StatCard'
@@ -12,6 +13,7 @@ const CURATED_UNITS = ['g', 'kg', 'ml', 'L', 'pcs', 'sdt', 'sdm', 'cup']
 export default function InventoryPage() {
   const { data: ingredients, isLoading, error } = useIngredients()
   const { organization } = useAuth()
+  const { mutateAsync: deleteIngredient } = useDeleteIngredient()
 
   const handleExport = () => {
     if (!ingredients) return
@@ -96,8 +98,8 @@ export default function InventoryPage() {
                 to={`/app/inventory/${ingredient.id}`}
                 className="block rounded-xl border border-border bg-surface p-4"
               >
-                <div className="flex items-center justify-between">
-                  <div>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-primary">{ingredient.name}</p>
                     <p className="mt-0.5 text-xs text-secondary">
                       Rp {ingredient.latest_price.toLocaleString('id-ID')}/{ingredient.unit}
@@ -116,6 +118,23 @@ export default function InventoryPage() {
                       <p className="text-xs text-warning">Stok menipis</p>
                     )}
                   </div>
+                  <button
+                    onClick={async (e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      if (!window.confirm(`Hapus bahan "${ingredient.name}"? Riwayat transaksi tetap tersimpan.`)) return
+                      try {
+                        await deleteIngredient(ingredient.id)
+                        toast.success('Bahan dihapus')
+                      } catch {
+                        toast.error('Gagal menghapus bahan')
+                      }
+                    }}
+                    className="shrink-0 text-xs font-medium text-secondary hover:text-ink"
+                    aria-label="Hapus"
+                  >
+                    Hapus
+                  </button>
                 </div>
               </Link>
             ))}

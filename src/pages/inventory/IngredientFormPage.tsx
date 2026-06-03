@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useIngredients, useCreateIngredient, useUpdateIngredient } from '@/hooks/useIngredients'
-import { useIngredientCategories, useCreateCategory } from '@/hooks/useIngredientCategories'
+import { useIngredientCategories, useCreateCategory, useDeleteCategory } from '@/hooks/useIngredientCategories'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { Select } from '@/components/ui/Select'
@@ -17,6 +17,7 @@ export default function IngredientFormPage() {
   const { mutateAsync: create } = useCreateIngredient()
   const { mutateAsync: update } = useUpdateIngredient()
   const { mutateAsync: createCategory } = useCreateCategory()
+  const { mutateAsync: deleteCategory } = useDeleteCategory()
 
   const existing = id ? ingredients?.find((i: any) => i.id === id) : null
   const isEditing = !!existing
@@ -124,7 +125,37 @@ export default function IngredientFormPage() {
             <button type="button" onClick={() => setAddingCategory(false)} className="h-10 rounded-xl border border-border px-3 text-sm text-secondary">Batal</button>
           </div>
         ) : (
-          <button type="button" onClick={() => setAddingCategory(true)} className="mt-1.5 text-xs font-medium text-accent">+ Kategori baru</button>
+          <div className="mt-1.5 flex items-center gap-3">
+            <button type="button" onClick={() => setAddingCategory(true)} className="text-xs font-medium text-accent">+ Kategori baru</button>
+            {categories && categories.length > 0 && (
+              <details className="text-xs text-secondary">
+                <summary className="cursor-pointer">Kelola ({categories.length})</summary>
+                <ul className="mt-2 space-y-1">
+                  {categories.map((cat: any) => (
+                    <li key={cat.id} className="flex items-center justify-between rounded-lg border border-border bg-surface px-2.5 py-1.5">
+                      <span className="truncate text-primary">{cat.name}</span>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (!window.confirm(`Hapus kategori "${cat.name}"?`)) return
+                          try {
+                            await deleteCategory(cat.id)
+                            if (categoryId === cat.id) setCategoryId('')
+                            toast.success('Kategori dihapus')
+                          } catch {
+                            toast.error('Kategori dipakai bahan. Hapus atau pindah kategori di bahan terkait dulu.')
+                          }
+                        }}
+                        className="shrink-0 text-xs font-medium text-secondary hover:text-ink"
+                      >
+                        Hapus
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
+          </div>
         )}
       </div>
 

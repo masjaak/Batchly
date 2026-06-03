@@ -1,11 +1,15 @@
-import { useParams, Link } from 'react-router-dom'
-import { useIngredients } from '@/hooks/useIngredients'
-import { useIngredientTransactions } from '@/hooks/useInventoryTransactions'
+import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useIngredients, useDeleteIngredient } from '@/hooks/useIngredients'
+import { useIngredientTransactions, useDeleteInventoryTransaction } from '@/hooks/useInventoryTransactions'
+import { toast } from 'sonner'
 
 export default function IngredientDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const { data: ingredients } = useIngredients()
   const { data: transactions } = useIngredientTransactions(id ?? '')
+  const { mutateAsync: deleteIngredient } = useDeleteIngredient()
+  const { mutateAsync: deleteTransaction } = useDeleteInventoryTransaction()
 
   const ingredient = ingredients?.find((i) => i.id === id)
 
@@ -115,25 +119,60 @@ export default function IngredientDetailPage() {
           <div className="space-y-2">
             {transactions.map((tx) => (
               <div key={tx.id} className="rounded-xl border border-border bg-surface p-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className={`text-sm font-medium ${
-                      tx.type === 'in' ? 'text-success' : 'text-danger'
-                    }`}>
-                      {tx.type === 'in' ? '+' : ''}{tx.quantity} {ingredient.unit}
-                    </span>
-                    {tx.supplier && (
-                      <span className="text-xs text-secondary">{tx.supplier.name}</span>
-                    )}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className={`text-sm font-medium ${
+                        tx.type === 'in' ? 'text-success' : 'text-danger'
+                      }`}>
+                        {tx.type === 'in' ? '+' : ''}{tx.quantity} {ingredient.unit}
+                      </span>
+                      {tx.supplier && (
+                        <span className="text-xs text-secondary">{tx.supplier.name}</span>
+                      )}
+                    </div>
+                    {tx.notes && <p className="mt-1 text-xs text-secondary">{tx.notes}</p>}
                   </div>
-                  <span className="text-xs text-secondary">{tx.transaction_date}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-secondary">{tx.transaction_date}</span>
+                    <button
+                      onClick={async () => {
+                        if (!window.confirm('Hapus transaksi ini? Stok akan disesuaikan otomatis.')) return
+                        try {
+                          await deleteTransaction(tx.id)
+                          toast.success('Transaksi dihapus')
+                        } catch {
+                          toast.error('Gagal menghapus transaksi')
+                        }
+                      }}
+                      className="text-xs font-medium text-secondary hover:text-ink"
+                      aria-label="Hapus transaksi"
+                    >
+                      Hapus
+                    </button>
+                  </div>
                 </div>
-                {tx.notes && <p className="mt-1 text-xs text-secondary">{tx.notes}</p>}
               </div>
             ))}
           </div>
         )}
       </div>
+
+      <button
+        onClick={async () => {
+          if (!window.confirm(`Hapus bahan "${ingredient.name}"? Bahan tidak akan muncul di daftar, tapi riwayat transaksi tetap tersimpan.`)) return
+          try {
+            await deleteIngredient(ingredient.id)
+            toast.success('Bahan dihapus')
+            navigate('/app/inventory')
+          } catch {
+            toast.error('Gagal menghapus bahan')
+          }
+        }}
+        className="h-11 w-full rounded-xl border border-border bg-surface text-sm font-medium text-primary"
+      >
+        Hapus Bahan
+      </button>
     </div>
   )
 }

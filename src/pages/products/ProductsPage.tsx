@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom'
-import { useProducts } from '@/hooks/useProducts'
+import { useProducts, useDeleteProduct } from '@/hooks/useProducts'
 import { calculateRecipeCost, formatCurrency } from '@/lib/calculations'
+import { toast } from 'sonner'
 import { EmptyState, PageHeader } from '@/components/ui/EmptyState'
 import { StatCard } from '@/components/ui/StatCard'
 
 export default function ProductsPage() {
   const { data: products, isLoading } = useProducts()
+  const { mutateAsync: deleteProduct } = useDeleteProduct()
 
   const withCost = (products ?? []).map((p: any) => ({
     p,
@@ -48,8 +50,8 @@ export default function ProductsPage() {
             return (
               <Link key={product.id} to={`/app/products/${product.id}`}>
                 <div className="rounded-xl border border-border bg-surface p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-primary">{product.name}</p>
                       <p className="text-xs text-secondary">SKU: {product.sku ?? '-'} · {product.recipe?.name}</p>
                     </div>
@@ -66,6 +68,23 @@ export default function ProductsPage() {
                         {cost.margin.toFixed(0)}%
                       </p>
                     </div>
+                    <button
+                      onClick={async (e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        if (!window.confirm(`Hapus produk "${product.name}"?`)) return
+                        try {
+                          await deleteProduct(product.id)
+                          toast.success('Produk dihapus')
+                        } catch (err) {
+                          toast.error(err instanceof Error ? err.message : 'Gagal menghapus produk')
+                        }
+                      }}
+                      className="shrink-0 text-xs font-medium text-secondary hover:text-ink"
+                      aria-label="Hapus"
+                    >
+                      Hapus
+                    </button>
                   </div>
                 </div>
               </Link>

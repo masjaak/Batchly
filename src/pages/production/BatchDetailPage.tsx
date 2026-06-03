@@ -1,10 +1,13 @@
-import { useParams } from 'react-router-dom'
-import { useProductionBatch } from '@/hooks/useProductionBatches'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useProductionBatch, useDeleteProductionBatch } from '@/hooks/useProductionBatches'
 import { calculateBatchCostVariance, formatCurrency } from '@/lib/calculations'
+import { toast } from 'sonner'
 
 export default function BatchDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const { data: batch, isLoading } = useProductionBatch(id!)
+  const { mutateAsync: deleteBatch } = useDeleteProductionBatch()
 
   if (isLoading) {
     return <div className="h-20 animate-pulse rounded-xl bg-surface-muted border border-border" />
@@ -104,6 +107,34 @@ export default function BatchDetailPage() {
           <p className="text-sm text-primary">{batch.notes}</p>
         </div>
       )}
+
+      {(() => {
+        const ageHours = (Date.now() - new Date(batch.created_at).getTime()) / (1000 * 60 * 60)
+        if (ageHours > 24) {
+          return (
+            <p className="text-xs text-secondary text-center">
+              Batch ini sudah lebih dari 24 jam dan tidak bisa dihapus.
+            </p>
+          )
+        }
+        return (
+          <button
+            onClick={async () => {
+              if (!window.confirm(`Hapus batch ${batch.batch_number}? Stok bahan akan dikembalikan otomatis.`)) return
+              try {
+                await deleteBatch(batch.id)
+                toast.success('Batch dihapus')
+                navigate('/app/production')
+              } catch {
+                toast.error('Gagal menghapus batch')
+              }
+            }}
+            className="h-11 w-full rounded-xl border border-border bg-surface text-sm font-medium text-primary"
+          >
+            Hapus Batch
+          </button>
+        )
+      })()}
     </div>
   )
 }
