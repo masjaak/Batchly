@@ -96,29 +96,47 @@ describe('useAuthStore', () => {
     })
 
     const { result } = renderHook(() => useAuthStore())
-    let error: string | null = null
+    let error: Awaited<ReturnType<typeof result.current.signIn>> = null
     await act(async () => {
       error = await result.current.signIn('wrong@email.com', 'wrongpassword')
     })
-    expect(error).toBe('Invalid credentials')
+    expect(error?.code).toBe('invalid_credentials')
+    expect(error?.message).toMatch(/Email atau password salah/)
+    expect(result.current.user).toBeNull()
+  })
+
+  it('does not set user when signIn returns a user but no session', async () => {
+    const mockUser = { id: 'user-1', email: 'unconfirmed@batchly.id' }
+    mockSignInWithPassword.mockResolvedValue({
+      data: { user: mockUser, session: null },
+      error: null,
+    })
+
+    const { result } = renderHook(() => useAuthStore())
+    let error: Awaited<ReturnType<typeof result.current.signIn>> = null
+    await act(async () => {
+      error = await result.current.signIn('unconfirmed@batchly.id', 'password123')
+    })
+    expect(error?.code).toBe('email_unconfirmed')
     expect(result.current.user).toBeNull()
   })
 
   it('validates email format before sign-in', async () => {
     const { result } = renderHook(() => useAuthStore())
-    let error: string | null = null
+    let error: Awaited<ReturnType<typeof result.current.signIn>> = null
     await act(async () => {
       error = await result.current.signIn('not-an-email', 'password123')
     })
-    expect(error).toBe('Email tidak valid')
+    expect(error?.message).toBe('Email tidak valid')
   })
 
   it('validates password length before sign-in', async () => {
     const { result } = renderHook(() => useAuthStore())
-    let error: string | null = null
+    let error: Awaited<ReturnType<typeof result.current.signIn>> = null
     await act(async () => {
       error = await result.current.signIn('test@batchly.id', 'ab')
     })
-    expect(error).toBe('Password minimal 6 karakter')
+    expect(error?.code).toBe('weak_password')
+    expect(error?.message).toBe('Password minimal 6 karakter')
   })
 })

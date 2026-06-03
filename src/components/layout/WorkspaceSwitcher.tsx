@@ -18,7 +18,7 @@ export default function WorkspaceSwitcher({ collapsed }: { collapsed?: boolean }
     setBusy(true)
     const err = await switchOrganization(id)
     setBusy(false)
-    if (err) { toast.error(err); return }
+    if (err) { toast.error(err.message); return }
     qc.clear()
     setOpen(false)
     toast.success('Usaha aktif diganti')
@@ -29,7 +29,7 @@ export default function WorkspaceSwitcher({ collapsed }: { collapsed?: boolean }
     setBusy(true)
     const err = await createBusiness(name)
     setBusy(false)
-    if (err) { toast.error(err); return }
+    if (err) { toast.error(err.message); return }
     qc.clear()
     setName('')
     setCreating(false)
