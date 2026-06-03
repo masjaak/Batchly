@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useAuth } from '@/hooks/useAuth'
+import { Icon } from '@/components/ui/Icon'
 
 type Mode = 'login' | 'forgot'
 
@@ -70,138 +71,149 @@ export default function LoginPage() {
   return (
     <div className="w-full max-w-sm">
       <div className="mb-8 text-center">
-        <h1 className="text-2xl font-bold text-primary">Batchly</h1>
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-ink text-base font-semibold text-white shadow-card">
+          B
+        </div>
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Batchly</h1>
         <p className="mt-1 text-sm text-secondary">
           {mode === 'login' ? 'Masuk ke akun Anda' : 'Reset password'}
         </p>
       </div>
 
-      {mode === 'login' ? (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="mb-1 block text-sm font-medium text-secondary">
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
-            />
-          </div>
-          <div>
-            <div className="mb-1 flex items-center justify-between">
-              <label htmlFor="password" className="block text-sm font-medium text-secondary">
-                Password
-              </label>
-              <button
-                type="button"
-                onClick={() => { setMode('forgot'); setError(null); setErrorCode(null); setInfo(null) }}
-                className="text-xs font-medium text-primary underline"
-              >
-                Lupa password?
-              </button>
+      <div className="rounded-3xl border border-border bg-surface p-6 shadow-soft">
+        {mode === 'login' ? (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-secondary">Email</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-ink/60 focus:ring-4 focus:ring-ink/5"
+              />
             </div>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
-            />
-          </div>
-
-          {error && (
-            <div className="rounded-xl border border-danger/30 bg-danger/5 p-3">
-              <p className="text-sm text-danger">{error}</p>
-              {errorCode === 'email_unconfirmed' && (
+            <div>
+              <div className="mb-1.5 flex items-center justify-between">
+                <label htmlFor="password" className="block text-xs font-medium text-secondary">Password</label>
                 <button
                   type="button"
-                  onClick={handleResend}
-                  disabled={submitting || !email}
-                  className="mt-2 text-xs font-medium text-primary underline disabled:opacity-50"
+                  onClick={() => { setMode('forgot'); setError(null); setErrorCode(null); setInfo(null) }}
+                  className="text-xs font-medium text-secondary transition-colors hover:text-ink"
                 >
-                  Kirim ulang email konfirmasi
+                  Lupa password?
                 </button>
-              )}
+              </div>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-ink/60 focus:ring-4 focus:ring-ink/5"
+              />
             </div>
-          )}
 
-          {info && (
-            <div className="rounded-xl border border-success/30 bg-success/5 p-3">
-              <p className="text-sm text-success">{info}</p>
+            {error && (
+              <div className="flex items-start gap-2.5 rounded-xl border border-pink bg-pink-soft p-3">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-pink text-pink-strong">
+                  <Icon name="alert" size={11} strokeWidth={2.5} />
+                </span>
+                <div className="flex-1">
+                  <p className="text-sm text-pink-strong">{error}</p>
+                  {errorCode === 'email_unconfirmed' && (
+                    <button
+                      type="button"
+                      onClick={handleResend}
+                      disabled={submitting || !email}
+                      className="mt-1.5 text-xs font-semibold text-ink underline disabled:opacity-50"
+                    >
+                      Kirim ulang email konfirmasi
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {info && (
+              <div className="flex items-start gap-2.5 rounded-xl border border-mint bg-mint/40 p-3">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-mint text-mint-strong">
+                  <Icon name="check" size={11} strokeWidth={2.5} />
+                </span>
+                <p className="text-sm text-mint-strong">{info}</p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-ink text-sm font-semibold text-white shadow-card transition-colors hover:bg-ink/90 disabled:opacity-50"
+            >
+              {submitting ? 'Memproses…' : 'Masuk'}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleForgot} className="space-y-4">
+            <p className="text-sm text-secondary">Masukkan email Anda. Kami akan mengirim link untuk mengatur password baru.</p>
+            <div>
+              <label htmlFor="reset-email" className="mb-1.5 block text-xs font-medium text-secondary">Email</label>
+              <input
+                id="reset-email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-ink/60 focus:ring-4 focus:ring-ink/5"
+              />
             </div>
-          )}
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="h-11 w-full rounded-xl bg-ink text-base font-medium text-white disabled:opacity-60"
-          >
-            {submitting ? 'Memproses…' : 'Masuk'}
-          </button>
-        </form>
-      ) : (
-        <form onSubmit={handleForgot} className="space-y-4">
-          <p className="text-sm text-secondary">
-            Masukkan email Anda. Kami akan mengirim link untuk mengatur password baru.
-          </p>
-          <div>
-            <label htmlFor="reset-email" className="mb-1 block text-sm font-medium text-secondary">
-              Email
-            </label>
-            <input
-              id="reset-email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
-            />
-          </div>
+            {error && (
+              <div className="flex items-start gap-2.5 rounded-xl border border-pink bg-pink-soft p-3">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-pink text-pink-strong">
+                  <Icon name="alert" size={11} strokeWidth={2.5} />
+                </span>
+                <p className="text-sm text-pink-strong">{error}</p>
+              </div>
+            )}
 
-          {error && (
-            <div className="rounded-xl border border-danger/30 bg-danger/5 p-3">
-              <p className="text-sm text-danger">{error}</p>
-            </div>
-          )}
+            {info && (
+              <div className="flex items-start gap-2.5 rounded-xl border border-mint bg-mint/40 p-3">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-mint text-mint-strong">
+                  <Icon name="check" size={11} strokeWidth={2.5} />
+                </span>
+                <p className="text-sm text-mint-strong">{info}</p>
+              </div>
+            )}
 
-          {info && (
-            <div className="rounded-xl border border-success/30 bg-success/5 p-3">
-              <p className="text-sm text-success">{info}</p>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="h-11 w-full rounded-xl bg-ink text-base font-medium text-white disabled:opacity-60"
-          >
-            {submitting ? 'Mengirim…' : 'Kirim link reset'}
-          </button>
-          <button
-            type="button"
-            onClick={() => { setMode('login'); setError(null); setErrorCode(null); setInfo(null) }}
-            className="h-11 w-full rounded-xl border border-border bg-surface text-sm font-medium text-primary"
-          >
-            Kembali ke masuk
-          </button>
-        </form>
-      )}
+            <button
+              type="submit"
+              disabled={submitting}
+              className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-ink text-sm font-semibold text-white shadow-card transition-colors hover:bg-ink/90 disabled:opacity-50"
+            >
+              {submitting ? 'Mengirim…' : 'Kirim link reset'}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setMode('login'); setError(null); setErrorCode(null); setInfo(null) }}
+              className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-border bg-surface text-sm font-medium text-ink transition-colors hover:bg-surface-muted"
+            >
+              Kembali ke masuk
+            </button>
+          </form>
+        )}
+      </div>
 
       {mode === 'login' && (
         <p className="mt-6 text-center text-sm text-secondary">
           Belum punya akun?{' '}
-          <Link to="/signup" className="font-medium text-primary underline">
+          <Link to="/signup" className="font-semibold text-ink underline-offset-4 hover:underline">
             Daftar
           </Link>
         </p>

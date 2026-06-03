@@ -6,9 +6,20 @@ import { toast } from 'sonner'
 import { EmptyState, PageHeader } from '@/components/ui/EmptyState'
 import { Button } from '@/components/ui/Button'
 import { StatCard } from '@/components/ui/StatCard'
+import { Icon, type IconName } from '@/components/ui/Icon'
 import { formatCurrency } from '@/lib/calculations'
 
 const CURATED_UNITS = ['g', 'kg', 'ml', 'L', 'pcs', 'sdt', 'sdm', 'cup']
+
+const ICON_BY_NAME = (n: string): IconName => {
+  const k = n.toLowerCase()
+  if (k.includes('tepung')) return 'leaf'
+  if (k.includes('gula')) return 'sparkles'
+  if (k.includes('minyak') || k.includes('oil')) return 'package'
+  if (k.includes('susu') || k.includes('dairy')) return 'flame'
+  if (k.includes('telur') || k.includes('egg')) return 'star'
+  return 'box'
+}
 
 export default function InventoryPage() {
   const { data: ingredients, isLoading, error } = useIngredients()
@@ -63,15 +74,18 @@ export default function InventoryPage() {
   const grouped = groupBy(ingredients, 'category?.name' as any)
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <PageHeader
+        eyebrow="Operasional"
         title="Stok Bahan"
         subtitle="Kelola bahan baku dan pantau stok menipis."
         action={
           <div className="flex gap-2">
-            <Link to="/app/inventory/new"><Button variant="secondary">+ Bahan</Button></Link>
-            <button onClick={handleExport} className="h-10 rounded-xl border border-border bg-surface px-3 text-sm font-medium text-ink hover:bg-surface-muted">CSV</button>
-            <Link to="/app/inventory/stock-in"><Button>Stok Masuk</Button></Link>
+            <Link to="/app/inventory/new"><Button variant="secondary"><Icon name="plus" size={14} /> Bahan</Button></Link>
+            <button onClick={handleExport} className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-border bg-surface px-3 text-sm font-medium text-ink transition-colors hover:bg-surface-muted">
+              <Icon name="arrow-down" size={14} /> CSV
+            </button>
+            <Link to="/app/inventory/stock-in"><Button><Icon name="arrow-down" size={14} /> Stok Masuk</Button></Link>
           </div>
         }
       />
@@ -80,43 +94,44 @@ export default function InventoryPage() {
         const low = ingredients.filter((i) => i.current_stock <= i.min_stock_level).length
         const totalValue = ingredients.reduce((s, i) => s + i.current_stock * i.latest_price, 0)
         return (
-          <div className="grid grid-cols-3 gap-4">
-            <StatCard label="Total Bahan" value={String(ingredients.length)} />
-            <StatCard label="Stok Menipis" value={String(low)} tone={low > 0 ? 'dark' : 'plain'} />
-            <StatCard label="Nilai Stok" value={formatCurrency(totalValue)} />
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+            <StatCard label="Total Bahan" value={String(ingredients.length)} icon="box" tone="lavender" />
+            <StatCard label="Stok Menipis" value={String(low)} icon="alert" tone={low > 0 ? 'yellow' : 'mint'} />
+            <StatCard label="Nilai Stok" value={formatCurrency(totalValue)} icon="wallet" tone="pink" />
           </div>
         )
       })()}
 
       {Object.entries(grouped).map(([category, items]) => (
         <section key={category}>
-          <h2 className="mb-2 text-xs font-medium uppercase text-secondary">{category || 'Lainnya'}</h2>
-          <div className="space-y-1">
-            {(items as any[]).map((ingredient) => (
-              <Link
-                key={ingredient.id}
-                to={`/app/inventory/${ingredient.id}`}
-                className="block rounded-xl border border-border bg-surface p-4"
-              >
-                <div className="flex items-center justify-between gap-3">
+          <div className="mb-2.5 flex items-center justify-between">
+            <h2 className="text-[11px] font-semibold uppercase tracking-wider text-secondary">{category || 'Lainnya'}</h2>
+            <span className="text-[11px] text-secondary tnum">{(items as any[]).length} item</span>
+          </div>
+          <div className="space-y-2">
+            {(items as any[]).map((ingredient) => {
+              const low = ingredient.current_stock <= ingredient.min_stock_level
+              return (
+                <Link
+                  key={ingredient.id}
+                  to={`/app/inventory/${ingredient.id}`}
+                  className="group flex items-center gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors hover:bg-surface-muted"
+                >
+                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${low ? 'bg-yellow text-yellow-strong' : 'bg-lavender text-grape'}`}>
+                    <Icon name={ICON_BY_NAME(ingredient.name)} size={18} />
+                  </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-primary">{ingredient.name}</p>
-                    <p className="mt-0.5 text-xs text-secondary">
-                      Rp {ingredient.latest_price.toLocaleString('id-ID')}/{ingredient.unit}
-                      {!CURATED_UNITS.includes(ingredient.unit) && <span className="text-secondary"> (kustom)</span>}
+                    <p className="truncate text-sm font-semibold text-ink">{ingredient.name}</p>
+                    <p className="mt-0.5 truncate text-xs text-secondary tnum">
+                      {formatCurrency(ingredient.latest_price)}/{ingredient.unit}
+                      {!CURATED_UNITS.includes(ingredient.unit) && <span className="text-tertiary"> (kustom)</span>}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className={`text-sm font-semibold ${
-                      ingredient.current_stock <= ingredient.min_stock_level
-                        ? 'text-warning'
-                        : 'text-primary'
-                    }`}>
-                      {ingredient.current_stock} {ingredient.unit}
+                    <p className={`text-sm font-semibold tnum ${low ? 'text-warning' : 'text-ink'}`}>
+                      {ingredient.current_stock} <span className="text-xs font-normal text-secondary">{ingredient.unit}</span>
                     </p>
-                    {ingredient.current_stock <= ingredient.min_stock_level && (
-                      <p className="text-xs text-warning">Stok menipis</p>
-                    )}
+                    {low && <p className="text-[11px] font-medium text-warning">Stok menipis</p>}
                   </div>
                   <button
                     onClick={async (e) => {
@@ -130,14 +145,14 @@ export default function InventoryPage() {
                         toast.error('Gagal menghapus bahan')
                       }
                     }}
-                    className="shrink-0 text-xs font-medium text-secondary hover:text-ink"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-secondary opacity-0 transition-all hover:bg-pink hover:text-pink-strong group-hover:opacity-100"
                     aria-label="Hapus"
                   >
-                    Hapus
+                    <Icon name="trash" size={14} />
                   </button>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              )
+            })}
           </div>
         </section>
       ))}

@@ -25,12 +25,14 @@ export function Select({
     <RS.Root value={value || undefined} onValueChange={onValueChange} required={required}>
       <RS.Trigger
         className={cn(
-          'flex h-10 w-full items-center justify-between gap-2 rounded-xl border border-border bg-surface px-3 text-sm text-ink outline-none transition-colors data-[placeholder]:text-secondary focus:border-ink focus:ring-1 focus:ring-ink/15',
+          'flex h-10 w-full items-center justify-between gap-2 rounded-xl border border-border bg-surface px-3 text-sm text-ink outline-none transition-colors data-[placeholder]:text-tertiary hover:bg-surface-muted',
           className,
         )}
       >
         <RS.Value placeholder={placeholder} />
-        <RS.Icon className="text-secondary">▾</RS.Icon>
+        <RS.Icon className="text-secondary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </RS.Icon>
       </RS.Trigger>
       <RS.Portal>
         <RS.Content

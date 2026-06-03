@@ -13,7 +13,7 @@ export default function AppLayout() {
   const [drawer, setDrawer] = useState(false)
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex min-h-screen bg-background">
       {/* Desktop sidebar */}
       <div className="hidden lg:block">
         <Sidebar />
@@ -22,8 +22,8 @@ export default function AppLayout() {
       {/* Mobile drawer */}
       {drawer && (
         <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="absolute inset-0 bg-ink/30" onClick={() => setDrawer(false)} />
-          <div className="absolute left-0 top-0 h-full">
+          <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" onClick={() => setDrawer(false)} />
+          <div className="absolute left-0 top-0 h-full bg-shell">
             <Sidebar />
           </div>
         </div>
@@ -32,8 +32,8 @@ export default function AppLayout() {
       {/* Main column */}
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar onMenu={() => setDrawer(true)} />
-        <main className="flex-1 overflow-y-auto px-4 pb-24 pt-5 lg:px-8 lg:pb-10">
-          <div key={pathname} className={`stagger ${isNarrow ? 'mx-auto max-w-2xl' : 'mx-auto max-w-[1200px]'}`}>
+        <main className="flex-1 px-4 pb-28 pt-6 lg:px-8 lg:pb-12 lg:pt-8">
+          <div key={pathname} className={`stagger ${isNarrow ? 'mx-auto max-w-2xl' : 'mx-auto max-w-[1240px]'}`}>
             <Outlet />
           </div>
         </main>

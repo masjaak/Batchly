@@ -6,6 +6,11 @@ import { useAuth } from '@/hooks/useAuth'
 import { saveOpnameCount, getOpnameCounts, clearOpnameCounts } from '@/lib/offline'
 import { toast } from 'sonner'
 import VoiceInput from '@/components/opname/VoiceInput'
+import { Card, CardHeader } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { Icon } from '@/components/ui/Icon'
+import { PageHeader } from '@/components/ui/EmptyState'
+import { cn } from '@/lib/utils'
 
 interface OpnameEntry {
   ingredientId: string
@@ -80,7 +85,6 @@ export default function StockOpnamePage() {
       for (const entry of differences) {
         const diff = entry.physicalQty - entry.systemQty
         if (diff !== 0) {
-          // Check for conflict: has stock changed since we loaded?
           const currentIngredient = ingredients?.find((i) => i.id === entry.ingredientId)
           if (currentIngredient && currentIngredient.current_stock !== entry.systemQty) {
             toast.warning(`Stok ${entry.name} berubah sejak dimuat. Periksa kembali.`)
@@ -106,85 +110,101 @@ export default function StockOpnamePage() {
   }
 
   if (isLoading) {
-    return <div className="h-32 animate-pulse rounded-xl bg-surface-muted border border-border" />
+    return <div className="h-32 animate-pulse rounded-2xl bg-surface-muted border border-border" />
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-secondary">
-          Catat jumlah fisik bahan. Sistem menghitung selisih.
-        </p>
-        <span className={`flex items-center gap-1 text-xs font-medium ${isOnline ? 'text-success' : 'text-warning'}`}>
-          <span className={`inline-block h-2 w-2 rounded-full ${isOnline ? 'bg-success' : 'bg-warning'}`} />
-          {isOnline ? 'Online' : 'Offline'}
-        </span>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        eyebrow="Stok"
+        title="Stock Opname"
+        subtitle="Catat jumlah fisik bahan — sistem akan hitung selisih otomatis."
+        action={
+          <span className={cn(
+            'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold',
+            isOnline ? 'bg-mint text-mint-strong' : 'bg-yellow text-yellow-strong',
+          )}>
+            <span className={cn('h-1.5 w-1.5 rounded-full', isOnline ? 'bg-mint-strong' : 'bg-yellow-strong')} />
+            {isOnline ? 'Online' : 'Offline'}
+          </span>
+        }
+      />
 
       {pendingCounts > 0 && isOnline && (
-        <div className="rounded-xl border border-warning/30 bg-orange-50 p-3">
-          <p className="text-sm font-medium text-warning">
-            {pendingCounts} data opname tersimpan offline. Konfirmasi untuk menyinkronkan.
+        <div className="flex items-center gap-3 rounded-2xl border border-yellow bg-yellow/20 p-4">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow text-yellow-strong">
+            <Icon name="info" size={14} />
+          </span>
+          <p className="text-sm text-ink">
+            <span className="font-semibold">{pendingCounts} data opname</span> tersimpan offline. Konfirmasi untuk menyinkronkan.
           </p>
         </div>
       )}
 
-      {entries.map((entry) => (
-        <div key={entry.ingredientId} className="rounded-xl border border-border bg-surface p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-primary">{entry.name}</p>
-              <p className="text-xs text-secondary">Sistem: {entry.systemQty} {entry.unit}</p>
-            </div>
-            <div className="text-right">
-              <div className="flex items-center gap-1 justify-end">
-                <VoiceInput
-                  onResult={(value) => updatePhysical(entry.ingredientId, value)}
-                  disabled={confirmed}
-                />
-                <input
-                  type="number"
-                  value={entry.physicalQty}
-                  onChange={(e) => updatePhysical(entry.ingredientId, Number(e.target.value))}
-                  className="h-10 w-24 rounded-xl border border-border bg-surface px-3 text-right text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
-                  disabled={confirmed}
-                />
+      <Card className="p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-lavender text-grape">
+              <Icon name="check" size={18} />
+            </span>
+            <CardHeader title="Progress" subtitle={`${entries.length} bahan, ${differences.length} selisih`} />
+          </div>
+        </div>
+      </Card>
+
+      <div className="space-y-2">
+        {entries.map((entry) => {
+          const diff = entry.physicalQty - entry.systemQty
+          const match = diff === 0
+          return (
+            <div key={entry.ingredientId} className={cn(
+              'rounded-2xl border bg-surface p-4 transition-colors',
+              match ? 'border-border' : 'border-pink',
+            )}>
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-ink">{entry.name}</p>
+                  <p className="mt-0.5 text-xs text-secondary tnum">Sistem: {entry.systemQty} {entry.unit}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <VoiceInput onResult={(value) => updatePhysical(entry.ingredientId, value)} disabled={confirmed} />
+                  <input
+                    type="number"
+                    value={entry.physicalQty}
+                    onChange={(e) => updatePhysical(entry.ingredientId, Number(e.target.value))}
+                    className="h-10 w-24 rounded-xl border border-border bg-surface px-3 text-right text-sm tnum outline-none focus:border-ink/60 focus:ring-4 focus:ring-ink/5"
+                    disabled={confirmed}
+                  />
+                </div>
+              </div>
+              <div className="mt-3 flex items-center justify-between">
+                <span className="text-[11px] font-medium uppercase tracking-wider text-secondary">{entry.unit}</span>
+                <span className={cn(
+                  'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold tnum',
+                  match ? 'bg-mint text-mint-strong' : 'bg-pink text-pink-strong',
+                )}>
+                  <Icon name={match ? 'check' : diff > 0 ? 'trending-up' : 'trending-down'} size={11} />
+                  {match ? 'Cocok' : `Selisih ${diff > 0 ? '+' : ''}${diff}`}
+                </span>
               </div>
             </div>
-          </div>
-          <div className="mt-2 text-right">
-            <span className={`text-xs font-medium ${
-              entry.systemQty === entry.physicalQty
-                ? 'text-success'
-                : 'text-warning'
-            }`}>
-              {entry.systemQty === entry.physicalQty
-                ? '✓ Cocok'
-                : `Selisih: ${(entry.physicalQty - entry.systemQty) > 0 ? '+' : ''}${(entry.physicalQty - entry.systemQty)} ${entry.unit}`
-              }
-            </span>
-          </div>
-        </div>
-      ))}
+          )
+        })}
+      </div>
 
-      {entries.length > 0 && (
-        <div className="rounded-xl border border-border bg-surface p-4">
-          <p className="text-sm text-secondary">
-            {entries.length} bahan diperiksa, {differences.length} perlu penyesuaian
-          </p>
-        </div>
-      )}
-
-      <button
-        onClick={handleConfirm}
-        disabled={confirmed || differences.length === 0}
-        className="h-11 w-full rounded-xl bg-ink text-base font-medium text-white disabled:opacity-50"
-      >
-        {confirmed
-          ? (isOnline ? 'Tersimpan' : 'Tersimpan (offline)')
-          : (isOnline ? 'Konfirmasi Opname' : 'Simpan Offline')
-        }
-      </button>
+      <div className="sticky bottom-20 lg:bottom-4">
+        <Button
+          onClick={handleConfirm}
+          disabled={confirmed || differences.length === 0}
+          className="w-full shadow-pop"
+          size="lg"
+        >
+          {confirmed
+            ? (isOnline ? 'Tersimpan' : 'Tersimpan (offline)')
+            : (isOnline ? `Konfirmasi Opname (${differences.length} selisih)` : 'Simpan Offline')
+          }
+        </Button>
+      </div>
     </div>
   )
 }

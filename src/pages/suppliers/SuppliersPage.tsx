@@ -6,6 +6,8 @@ import { toast } from 'sonner'
 import { EmptyState, PageHeader } from '@/components/ui/EmptyState'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { Card } from '@/components/ui/Card'
+import { Icon } from '@/components/ui/Icon'
 
 export default function SuppliersPage() {
   const { data: suppliers, isLoading } = useSuppliers()
@@ -38,23 +40,42 @@ export default function SuppliersPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <PageHeader
+        eyebrow="Operasional"
         title="Pemasok"
         subtitle="Kelola pemasok dan riwayat harga bahan."
-        action={!showForm ? <Button onClick={() => setShowForm(true)}>+ Pemasok</Button> : undefined}
+        action={!showForm ? (
+          <Button onClick={() => setShowForm(true)}>
+            <Icon name="plus" size={14} /> Pemasok
+          </Button>
+        ) : undefined}
       />
 
       {showForm && (
-        <form onSubmit={handleAdd} className="space-y-3 rounded-2xl border border-border bg-surface p-4">
-          <Input placeholder="Nama Pemasok*" value={name} onChange={(e) => setName(e.target.value)} required />
-          <Input placeholder="Kontak Person" value={contact} onChange={(e) => setContact(e.target.value)} />
-          <Input placeholder="No. Telepon" value={phone} onChange={(e) => setPhone(e.target.value)} />
-          <div className="flex gap-2">
-            <Button type="submit" className="flex-1">Simpan</Button>
-            <Button type="button" variant="secondary" onClick={() => setShowForm(false)}>Batal</Button>
-          </div>
-        </form>
+        <Card className="p-5">
+          <h3 className="mb-4 text-base font-semibold text-ink">Tambah Pemasok</h3>
+          <form onSubmit={handleAdd} className="space-y-3">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-secondary">Nama Pemasok</label>
+              <Input placeholder="cth. Toko Sumber Rezeki" value={name} onChange={(e) => setName(e.target.value)} required />
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-secondary">Kontak Person</label>
+                <Input placeholder="Pak Budi" value={contact} onChange={(e) => setContact(e.target.value)} />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-secondary">No. Telepon</label>
+                <Input placeholder="0812…" value={phone} onChange={(e) => setPhone(e.target.value)} />
+              </div>
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button type="submit" className="flex-1"><Icon name="check" size={14} /> Simpan</Button>
+              <Button type="button" variant="secondary" onClick={() => setShowForm(false)}>Batal</Button>
+            </div>
+          </form>
+        </Card>
       )}
 
       {isLoading ? (
@@ -67,44 +88,47 @@ export default function SuppliersPage() {
         <EmptyState
           title="Belum ada pemasok"
           description="Tambahkan pemasok untuk melacak riwayat harga bahan dan mempercepat pencatatan stok masuk."
+          action={!showForm ? <Button onClick={() => setShowForm(true)}><Icon name="plus" size={14} /> Tambah Pemasok</Button> : undefined}
         />
       ) : (
-        <div className="space-y-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {suppliers.map((sup) => (
             <Link
               key={sup.id}
               to={`/app/suppliers/${sup.id}`}
-              className="block rounded-xl border border-border bg-surface p-4"
+              className="group relative flex items-center gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors hover:bg-surface-muted"
             >
-              <div className="flex items-center justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-primary">{sup.name}</p>
-                  {(sup.contact_person || sup.phone) && (
-                    <p className="mt-0.5 text-xs text-secondary">
-                      {sup.contact_person && `${sup.contact_person}`}
-                      {sup.contact_person && sup.phone && ' — '}
-                      {sup.phone && `${sup.phone}`}
-                    </p>
-                  )}
-                </div>
-                <button
-                  onClick={async (e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    if (!window.confirm(`Hapus pemasok "${sup.name}"?`)) return
-                    try {
-                      await deleteSupplier({ id: sup.id, hasTransactions: false })
-                      toast.success('Pemasok dihapus')
-                    } catch {
-                      toast.error('Gagal menghapus pemasok')
-                    }
-                  }}
-                  className="shrink-0 text-xs font-medium text-secondary hover:text-ink"
-                  aria-label="Hapus"
-                >
-                  Hapus
-                </button>
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue text-blue-strong text-sm font-semibold">
+                {sup.name.charAt(0).toUpperCase()}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-ink">{sup.name}</p>
+                {(sup.contact_person || sup.phone) ? (
+                  <p className="mt-0.5 truncate text-xs text-secondary tnum">
+                    {[sup.contact_person, sup.phone].filter(Boolean).join(' · ')}
+                  </p>
+                ) : (
+                  <p className="mt-0.5 text-xs text-tertiary">Belum ada kontak</p>
+                )}
               </div>
+              <Icon name="chevron-right" size={14} className="text-secondary" />
+              <button
+                onClick={async (e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  if (!window.confirm(`Hapus pemasok "${sup.name}"?`)) return
+                  try {
+                    await deleteSupplier({ id: sup.id, hasTransactions: false })
+                    toast.success('Pemasok dihapus')
+                  } catch {
+                    toast.error('Gagal menghapus pemasok')
+                  }
+                }}
+                className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-lg text-secondary opacity-0 transition-all hover:bg-pink hover:text-pink-strong group-hover:opacity-100"
+                aria-label="Hapus"
+              >
+                <Icon name="trash" size={12} />
+              </button>
             </Link>
           ))}
         </div>

@@ -6,6 +6,19 @@ import { formatCurrency } from '@/lib/calculations'
 import { Card, CardHeader } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
+import { PageHeader } from '@/components/ui/EmptyState'
+import { Icon } from '@/components/ui/Icon'
+import { StatCard } from '@/components/ui/StatCard'
+import { Input } from '@/components/ui/Input'
+
+const CAT_PALETTE = [
+  { bg: 'bg-pink', text: 'text-pink-strong' },
+  { bg: 'bg-yellow', text: 'text-yellow-strong' },
+  { bg: 'bg-blue', text: 'text-blue-strong' },
+  { bg: 'bg-mint', text: 'text-mint-strong' },
+  { bg: 'bg-lavender', text: 'text-grape' },
+  { bg: 'bg-purple', text: 'text-purple-strong' },
+]
 
 export default function ExpensesPage() {
   const { organization } = useAuth()
@@ -48,106 +61,117 @@ export default function ExpensesPage() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-      {/* Form */}
-      <Card className="p-5 lg:col-span-1">
-        <CardHeader title="Catat Biaya Operasional" subtitle="Catat pengeluaran rutin bisnis Anda." />
-        <form onSubmit={handleSubmit} className="mt-4 space-y-3">
-          <div>
-            <label className="mb-1 block text-xs font-medium text-secondary">Kategori</label>
-            <Select
-              value={category}
-              onValueChange={setCategory}
-              options={EXPENSE_CATEGORIES.map((c) => ({ value: c, label: c }))}
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-secondary">Jumlah (Rp)</label>
-            <input
-              type="number"
-              min="0"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              required
-              placeholder="0"
-              className="h-11 w-full px-3 text-sm"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-secondary">Tanggal</label>
-            <input type="date" value={expenseDate} onChange={(e) => setExpenseDate(e.target.value)} className="h-11 w-full px-3 text-sm" />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-secondary">Catatan (opsional)</label>
-            <input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="cth. Bayar listrik bulan ini"
-              className="h-11 w-full px-3 text-sm"
-            />
-          </div>
-          <Button type="submit" disabled={isPending} className="w-full">
-            {isPending ? 'Menyimpan…' : 'Simpan Biaya'}
-          </Button>
-        </form>
-      </Card>
+    <div className="space-y-6">
+      <PageHeader
+        eyebrow="Keuangan"
+        title="Biaya Operasional"
+        subtitle="Catat pengeluaran rutin bisnis Anda."
+      />
 
-      {/* Summary + list */}
-      <div className="space-y-5 lg:col-span-2">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="rounded-2xl bg-ink p-5 text-white">
-            <p className="text-sm opacity-80">Biaya Bulan Ini</p>
-            <p className="mt-2 text-2xl font-semibold tnum">{formatCurrency(monthTotal)}</p>
-          </div>
-          <div className="rounded-2xl border border-border bg-surface p-5">
-            <p className="text-sm text-secondary">Total Tercatat</p>
-            <p className="mt-2 text-2xl font-semibold text-primary tnum">{formatCurrency(total)}</p>
-            <p className="mt-1 text-xs text-secondary">{list.length} transaksi</p>
-          </div>
-        </div>
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <StatCard label="Biaya Bulan Ini" value={formatCurrency(monthTotal)} icon="receipt" tone="pink" />
+        <StatCard label="Total Tercatat" value={formatCurrency(total)} icon="wallet" tone="dark" />
+        <StatCard label="Jumlah Transaksi" value={String(list.length)} icon="calendar" tone="lavender" />
+      </div>
 
-        <Card className="p-5">
-          <CardHeader title="Riwayat Biaya" />
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <Card className="p-5 lg:col-span-1">
+          <CardHeader title="Catat Biaya" subtitle="Tambahkan pengeluaran operasional." />
+          <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-secondary">Kategori</label>
+              <Select
+                value={category}
+                onValueChange={setCategory}
+                options={EXPENSE_CATEGORIES.map((c) => ({ value: c, label: c }))}
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-secondary">Jumlah (Rp)</label>
+              <Input
+                type="number"
+                min="0"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                required
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-secondary">Tanggal</label>
+              <input type="date" value={expenseDate} onChange={(e) => setExpenseDate(e.target.value)} className="h-10 w-full px-3 text-sm" />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-secondary">Catatan (opsional)</label>
+              <Input
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="cth. Bayar listrik bulan ini"
+              />
+            </div>
+            <Button type="submit" disabled={isPending} className="w-full">
+              {isPending ? 'Menyimpan…' : 'Simpan Biaya'}
+            </Button>
+          </form>
+        </Card>
+
+        <Card className="p-5 lg:col-span-2">
+          <CardHeader title="Riwayat Biaya" subtitle={`${list.length} transaksi`} />
           {list.length === 0 ? (
-            <p className="mt-6 text-sm text-secondary">Belum ada biaya tercatat. Mulai catat pengeluaran pertama Anda.</p>
+            <div className="mt-8 flex flex-col items-center gap-2 text-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-mint text-mint-strong">
+                <Icon name="check" size={20} />
+              </span>
+              <p className="text-sm font-medium text-ink">Belum ada biaya tercatat</p>
+              <p className="text-xs text-secondary">Mulai catat pengeluaran pertama Anda di form samping.</p>
+            </div>
           ) : (
             <div className="mt-4 overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-xs text-secondary">
-                    <th className="pb-2 font-medium">Kategori</th>
-                    <th className="pb-2 font-medium">Catatan</th>
-                    <th className="pb-2 font-medium">Tanggal</th>
-                    <th className="pb-2 text-right font-medium">Jumlah</th>
-                    <th className="pb-2" />
+                  <tr className="border-b border-border text-left text-[11px] font-semibold uppercase tracking-wider text-secondary">
+                    <th className="pb-3 font-semibold">Kategori</th>
+                    <th className="pb-3 font-semibold">Catatan</th>
+                    <th className="pb-3 font-semibold">Tanggal</th>
+                    <th className="pb-3 text-right font-semibold">Jumlah</th>
+                    <th className="pb-3" />
                   </tr>
                 </thead>
                 <tbody>
-                  {list.map((e) => (
-                    <tr key={e.id} className="border-t border-border">
-                      <td className="py-2.5 font-medium text-primary">{e.category}</td>
-                      <td className="py-2.5 text-secondary">{e.description ?? '-'}</td>
-                      <td className="py-2.5 text-secondary">{String(e.expense_date).slice(0, 10)}</td>
-                      <td className="py-2.5 text-right font-semibold text-primary">{formatCurrency(Number(e.amount))}</td>
-                      <td className="py-2.5 text-right">
-                        <button
-                          onClick={async () => {
-                            try {
-                              await deleteExpense(e.id)
-                              toast.success('Biaya dihapus')
-                            } catch {
-                              toast.error('Gagal menghapus')
-                            }
-                          }}
-                          className="text-sm text-secondary hover:text-ink"
-                          aria-label="Hapus"
-                        >
-                          Hapus
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {list.map((e) => {
+                    const palette = CAT_PALETTE[[...e.category].reduce((a, c) => a + c.charCodeAt(0), 0) % CAT_PALETTE.length]
+                    return (
+                      <tr key={e.id} className="group border-b border-border last:border-0">
+                        <td className="py-3">
+                          <div className="flex items-center gap-2.5">
+                            <span className={`flex h-8 w-8 items-center justify-center rounded-xl ${palette.bg} ${palette.text}`}>
+                              <Icon name="receipt" size={14} />
+                            </span>
+                            <span className="font-medium text-ink">{e.category}</span>
+                          </div>
+                        </td>
+                        <td className="py-3 text-secondary">{e.description ?? '—'}</td>
+                        <td className="py-3 text-secondary tnum">{String(e.expense_date).slice(0, 10)}</td>
+                        <td className="py-3 text-right font-semibold text-ink tnum">{formatCurrency(Number(e.amount))}</td>
+                        <td className="py-3 text-right">
+                          <button
+                            onClick={async () => {
+                              try {
+                                await deleteExpense(e.id)
+                                toast.success('Biaya dihapus')
+                              } catch {
+                                toast.error('Gagal menghapus')
+                              }
+                            }}
+                            className="flex h-7 w-7 items-center justify-center rounded-lg text-secondary opacity-0 transition-all hover:bg-pink hover:text-pink-strong group-hover:opacity-100 ml-auto"
+                            aria-label="Hapus"
+                          >
+                            <Icon name="trash" size={12} />
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>

@@ -1,48 +1,67 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   * {
-    border-color: #E4E4E4;
+    border-color: #E8E2D5;
+  }
+  html, body, #root {
+    height: 100%;
   }
   body {
     @apply bg-background text-ink;
-    font-family: 'Poppins', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-feature-settings: 'cv11', 'ss01', 'ss03';
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    color-scheme: light;
+  }
+  /* Numeric columns read better with tabular figures everywhere. */
+  .tnum, table, [data-numeric] {
+    font-variant-numeric: tabular-nums;
   }
   input[type='text'],
   input[type='email'],
   input[type='password'],
   input[type='number'],
   input[type='date'],
-  textarea {
+  textarea,
+  select {
     @apply rounded-xl border border-border bg-surface text-ink outline-none transition-colors duration-150;
   }
   input:focus,
-  textarea:focus {
-    @apply border-ink ring-1 ring-ink/15;
+  textarea:focus,
+  select:focus {
+    @apply border-ink/60 ring-4 ring-ink/5;
   }
+  ::placeholder { color: #B5AFA6; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #E8E2D5; border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #D6CFC0; }
+  ::-webkit-scrollbar-track { background: transparent; }
 }
 
 @layer components {
   .card {
-    @apply rounded-2xl border border-border bg-surface;
+    @apply rounded-2xl border border-border bg-surface shadow-soft;
   }
-  /* Subtle background shift on interactive cards/links (no lift/shadow). */
   .lift {
     @apply transition-colors duration-150 ease-out hover:bg-surface-muted;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+  }
+  .heading {
+    @apply text-2xl font-semibold tracking-tight text-ink;
+  }
+  .sub {
+    @apply text-sm text-secondary;
   }
 }
 
 @layer utilities {
-  /* Tabular figures for aligned numeric columns (HPP, prices). */
-  .tnum {
-    font-variant-numeric: tabular-nums;
-  }
-  /* Page entrance: gentle, quick fade-up. */
   .stagger > * {
     animation: fade-up 0.18s ease-out both;
   }

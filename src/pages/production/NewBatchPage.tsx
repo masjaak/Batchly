@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useRecipes } from '@/hooks/useRecipes'
 import { useCreateProductionBatch } from '@/hooks/useProductionBatches'
-import { calculateBatchCostVariance } from '@/lib/calculations'
 import { toast } from 'sonner'
 import { Select } from '@/components/ui/Select'
+import { Card, CardHeader } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { Icon } from '@/components/ui/Icon'
+import { Input } from '@/components/ui/Input'
 
 export default function NewBatchPage() {
   const navigate = useNavigate()
@@ -49,82 +52,86 @@ export default function NewBatchPage() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <Select
-        value={recipeId}
-        onValueChange={(v) => {
-          setRecipeId(v)
-          const r = recipes?.find((rec: any) => rec.id === v)
-          if (r) setPlannedQty(String(r.yield_amount))
-        }}
-        placeholder="Pilih resep..."
-        options={(recipes ?? []).map((r: any) => ({ value: r.id, label: `${r.name} (${r.yield_amount} ${r.yield_unit})` }))}
-      />
-
-      <div className="flex gap-2">
-        <input
-          type="number"
-          placeholder="Jumlah direncanakan"
-          value={plannedQty}
-          onChange={(e) => setPlannedQty(e.target.value)}
-          className="h-11 flex-1 rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
-        />
-        <input
-          type="number"
-          placeholder="Jumlah aktual *"
-          value={actualQty}
-          onChange={(e) => setActualQty(e.target.value)}
-          required
-          min="1"
-          className="h-11 flex-1 rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
-        />
+    <Card className="p-6">
+      <div className="flex items-center gap-3">
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-lavender text-grape">
+          <Icon name="factory" size={18} />
+        </span>
+        <CardHeader title="Catat Produksi" subtitle="Pilih resep & jumlah yang dibuat." />
       </div>
 
-      <input
-        type="date"
-        value={productionDate}
-        onChange={(e) => setProductionDate(e.target.value)}
-        className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
-      />
-
-      <textarea
-        placeholder="Catatan (opsional)"
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-        rows={2}
-        className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
-      />
-
-      {selectedRecipe && Number(actualQty) > 0 && (
-        <div className="rounded-xl border border-border bg-surface p-4">
-          <p className="mb-2 text-xs font-medium text-secondary uppercase tracking-wider">
-            Pratinjau Pengurangan Stok
-          </p>
-          {selectedRecipe.recipe_items && selectedRecipe.recipe_items.length > 0 ? (
-            <div className="space-y-1">
-              {selectedRecipe.recipe_items.map((item: any) => (
-                <div key={item.id} className="flex justify-between text-sm">
-                  <span className="text-primary">{item.ingredient?.name}</span>
-                  <span className="text-secondary">
-                    -{(item.quantity * scaleFactor).toFixed(2)} {item.unit}
-                  </span>
-                </div>
-              ))}
-              <p className="mt-2 text-xs text-warning">Stok bahan akan otomatis dikurangi saat disimpan</p>
-            </div>
-          ) : (
-            <p className="text-sm text-secondary">Resep tidak memiliki bahan (tidak ada pengurangan stok)</p>
-          )}
+      <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-secondary">Resep</label>
+          <Select
+            value={recipeId}
+            onValueChange={(v) => {
+              setRecipeId(v)
+              const r = recipes?.find((rec: any) => rec.id === v)
+              if (r) setPlannedQty(String(r.yield_amount))
+            }}
+            placeholder="Pilih resep..."
+            options={(recipes ?? []).map((r: any) => ({ value: r.id, label: `${r.name} (${r.yield_amount} ${r.yield_unit})` }))}
+          />
         </div>
-      )}
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="h-11 w-full rounded-xl bg-ink text-sm font-medium text-white disabled:opacity-50"
-      >
-        {isPending ? 'Menyimpan...' : 'Simpan & Kurangi Stok'}
-      </button>
-    </form>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-secondary">Jumlah Direncanakan</label>
+            <Input type="number" value={plannedQty} onChange={(e) => setPlannedQty(e.target.value)} placeholder="0" />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-secondary">Jumlah Aktual *</label>
+            <Input type="number" value={actualQty} onChange={(e) => setActualQty(e.target.value)} required min={1} placeholder="0" />
+          </div>
+        </div>
+
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-secondary">Tanggal Produksi</label>
+          <Input type="date" value={productionDate} onChange={(e) => setProductionDate(e.target.value)} />
+        </div>
+
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-secondary">Catatan (opsional)</label>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={2}
+            placeholder="cth. Ada bahan yang hampir kadaluarsa"
+            className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm outline-none focus:border-ink/60 focus:ring-4 focus:ring-ink/5"
+          />
+        </div>
+
+        {selectedRecipe && Number(actualQty) > 0 && (
+          <div className="rounded-2xl border border-border bg-surface-muted p-4">
+            <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-secondary">Pratinjau Pengurangan Stok</p>
+            {selectedRecipe.recipe_items && selectedRecipe.recipe_items.length > 0 ? (
+              <div className="space-y-1.5">
+                {selectedRecipe.recipe_items.map((item: any) => (
+                  <div key={item.id} className="flex items-center justify-between rounded-lg bg-surface px-3 py-2 text-sm">
+                    <span className="text-ink">{item.ingredient?.name}</span>
+                    <span className="font-semibold text-pink-strong tnum">
+                      −{(item.quantity * scaleFactor).toFixed(2)} {item.unit}
+                    </span>
+                  </div>
+                ))}
+                <div className="mt-2 flex items-center gap-2 rounded-lg bg-yellow/30 px-3 py-2 text-xs text-warning">
+                  <Icon name="info" size={12} /> Stok bahan akan otomatis dikurangi saat disimpan.
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-secondary">Resep tidak memiliki bahan (tidak ada pengurangan stok)</p>
+            )}
+          </div>
+        )}
+
+        <div className="flex gap-2 pt-2">
+          <Button type="submit" disabled={isPending} className="flex-1">
+            {isPending ? 'Menyimpan...' : 'Simpan & Kurangi Stok'}
+          </Button>
+          <Link to="/app/production"><Button type="button" variant="secondary">Batal</Button></Link>
+        </div>
+      </form>
+    </Card>
   )
 }

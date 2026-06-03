@@ -5,6 +5,9 @@ import { useIngredientCategories, useCreateCategory, useDeleteCategory } from '@
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { Select } from '@/components/ui/Select'
+import { Card, CardHeader } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { Icon } from '@/components/ui/Icon'
 
 const CURATED_UNITS = ['g', 'kg', 'ml', 'L', 'pcs', 'sdt', 'sdm', 'cup']
 
@@ -91,136 +94,146 @@ export default function IngredientFormPage() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <div>
-        <label className="mb-1 block text-sm font-medium text-secondary">Nama Bahan</label>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          placeholder="Contoh: Tepung Terigu"
-          className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
-        />
+    <Card className="p-6">
+      <div className="flex items-center gap-3">
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-lavender text-grape">
+          <Icon name="box" size={18} />
+        </span>
+        <CardHeader title={isEditing ? 'Edit Bahan' : 'Tambah Bahan'} subtitle={isEditing ? 'Ubah detail bahan baku.' : 'Tambahkan bahan baru ke inventaris.'} />
       </div>
 
-      <div>
-        <label className="mb-1 block text-sm font-medium text-secondary">Kategori (opsional)</label>
-        <Select
-          value={categoryId}
-          onValueChange={setCategoryId}
-          placeholder="Pilih kategori..."
-          options={(categories ?? []).map((cat: any) => ({ value: cat.id, label: cat.name }))}
-        />
-        {addingCategory ? (
-          <div className="mt-2 flex gap-2">
-            <input
-              type="text"
-              value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
-              placeholder="Nama kategori baru"
-              className="h-10 flex-1 rounded-xl border border-border bg-surface px-3 text-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
-            />
-            <button type="button" onClick={handleAddCategory} className="h-10 rounded-xl bg-ink px-4 text-sm font-medium text-white">Simpan</button>
-            <button type="button" onClick={() => setAddingCategory(false)} className="h-10 rounded-xl border border-border px-3 text-sm text-secondary">Batal</button>
-          </div>
-        ) : (
-          <div className="mt-1.5 flex items-center gap-3">
-            <button type="button" onClick={() => setAddingCategory(true)} className="text-xs font-medium text-accent">+ Kategori baru</button>
-            {categories && categories.length > 0 && (
-              <details className="text-xs text-secondary">
-                <summary className="cursor-pointer">Kelola ({categories.length})</summary>
-                <ul className="mt-2 space-y-1">
-                  {categories.map((cat: any) => (
-                    <li key={cat.id} className="flex items-center justify-between rounded-lg border border-border bg-surface px-2.5 py-1.5">
-                      <span className="truncate text-primary">{cat.name}</span>
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          if (!window.confirm(`Hapus kategori "${cat.name}"?`)) return
-                          try {
-                            await deleteCategory(cat.id)
-                            if (categoryId === cat.id) setCategoryId('')
-                            toast.success('Kategori dihapus')
-                          } catch {
-                            toast.error('Kategori dipakai bahan. Hapus atau pindah kategori di bahan terkait dulu.')
-                          }
-                        }}
-                        className="shrink-0 text-xs font-medium text-secondary hover:text-ink"
-                      >
-                        Hapus
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </details>
-            )}
-          </div>
-        )}
-      </div>
+      <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-secondary">Nama Bahan</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            placeholder="cth. Tepung Terigu"
+            className="h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm text-ink outline-none focus:border-ink/60 focus:ring-4 focus:ring-ink/5"
+          />
+        </div>
 
-      <div>
-        <label className="mb-1 block text-sm font-medium text-secondary">Satuan</label>
-        <div className="space-y-2">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="radio"
-              name="unitType"
-              checked={unitType === 'curated'}
-              onChange={() => setUnitType('curated')}
-            />
-            Pilihan satuan
-          </label>
-          {unitType === 'curated' && (
-            <Select
-              value={curatedUnit}
-              onValueChange={setCuratedUnit}
-              options={CURATED_UNITS.map((u) => ({ value: u, label: u }))}
-            />
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-secondary">Kategori (opsional)</label>
+          <Select
+            value={categoryId}
+            onValueChange={setCategoryId}
+            placeholder="Pilih kategori..."
+            options={(categories ?? []).map((cat: any) => ({ value: cat.id, label: cat.name }))}
+          />
+          {addingCategory ? (
+            <div className="mt-2 flex gap-2">
+              <input
+                type="text"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                placeholder="Nama kategori baru"
+                className="h-10 flex-1 rounded-xl border border-border bg-surface px-3 text-sm outline-none focus:border-ink/60 focus:ring-4 focus:ring-ink/5"
+              />
+              <Button type="button" onClick={handleAddCategory}>Simpan</Button>
+              <Button type="button" variant="secondary" onClick={() => setAddingCategory(false)}>Batal</Button>
+            </div>
+          ) : (
+            <div className="mt-1.5 flex items-center gap-3">
+              <button type="button" onClick={() => setAddingCategory(true)} className="inline-flex items-center gap-1 text-xs font-semibold text-ink">
+                <Icon name="plus" size={12} /> Kategori baru
+              </button>
+              {categories && categories.length > 0 && (
+                <details className="text-xs text-secondary">
+                  <summary className="cursor-pointer">Kelola ({categories.length})</summary>
+                  <ul className="mt-2 space-y-1">
+                    {categories.map((cat: any) => (
+                      <li key={cat.id} className="flex items-center justify-between rounded-lg border border-border bg-surface px-2.5 py-1.5">
+                        <span className="truncate text-ink">{cat.name}</span>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (!window.confirm(`Hapus kategori "${cat.name}"?`)) return
+                            try {
+                              await deleteCategory(cat.id)
+                              if (categoryId === cat.id) setCategoryId('')
+                              toast.success('Kategori dihapus')
+                            } catch {
+                              toast.error('Kategori dipakai bahan. Hapus atau pindah kategori di bahan terkait dulu.')
+                            }
+                          }}
+                          className="shrink-0 text-xs font-medium text-secondary hover:text-ink"
+                        >
+                          Hapus
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+            </div>
           )}
+        </div>
 
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="radio"
-              name="unitType"
-              checked={unitType === 'custom'}
-              onChange={() => setUnitType('custom')}
-            />
-            Satuan kustom
-          </label>
-          {unitType === 'custom' && (
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-secondary">Satuan</label>
+          <div className="grid grid-cols-2 gap-3">
+            <label className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-3 ${unitType === 'curated' ? 'border-ink bg-surface-muted' : 'border-border bg-surface'}`}>
+              <input
+                type="radio"
+                name="unitType"
+                checked={unitType === 'curated'}
+                onChange={() => setUnitType('curated')}
+                className="sr-only"
+              />
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-lavender text-grape">
+                <Icon name="check" size={12} />
+              </span>
+              <span className="text-sm font-medium text-ink">Standar</span>
+            </label>
+            <label className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-3 ${unitType === 'custom' ? 'border-ink bg-surface-muted' : 'border-border bg-surface'}`}>
+              <input
+                type="radio"
+                name="unitType"
+                checked={unitType === 'custom'}
+                onChange={() => setUnitType('custom')}
+                className="sr-only"
+              />
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-pink text-pink-strong">
+                <Icon name="edit" size={12} />
+              </span>
+              <span className="text-sm font-medium text-ink">Kustom</span>
+            </label>
+          </div>
+          {unitType === 'curated' ? (
+            <Select className="mt-2" value={curatedUnit} onValueChange={setCuratedUnit} options={CURATED_UNITS.map((u) => ({ value: u, label: u }))} />
+          ) : (
             <input
               type="text"
               value={customUnit}
               onChange={(e) => setCustomUnit(e.target.value)}
-              placeholder="Contoh: bungkus, ikat, pack"
-              className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
+              placeholder="cth. bungkus, ikat, pack"
+              className="mt-2 h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm text-ink outline-none focus:border-ink/60 focus:ring-4 focus:ring-ink/5"
             />
           )}
         </div>
-        {unitType === 'custom' && (
-          <p className="mt-1 text-xs text-secondary">Satuan kustom akan ditandai (kustom) di daftar</p>
-        )}
-      </div>
 
-      <div>
-        <label className="mb-1 block text-sm font-medium text-secondary">Stok Minimal</label>
-        <input
-          type="number"
-          min="0"
-          value={minStock}
-          onChange={(e) => setMinStock(e.target.value)}
-          className="h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
-        />
-        <p className="mt-1 text-xs text-secondary">Peringatan stok menipis jika stok di bawah nilai ini</p>
-      </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-secondary">Stok Minimal</label>
+          <input
+            type="number"
+            min="0"
+            value={minStock}
+            onChange={(e) => setMinStock(e.target.value)}
+            className="h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm text-ink outline-none focus:border-ink/60 focus:ring-4 focus:ring-ink/5"
+          />
+          <p className="mt-1 text-xs text-secondary">Peringatan stok menipis jika stok di bawah nilai ini</p>
+        </div>
 
-      <button
-        type="submit"
-        className="h-11 w-full rounded-xl bg-ink text-base font-medium text-white"
-      >
-        {isEditing ? 'Simpan Perubahan' : 'Tambah Bahan'}
-      </button>
-    </form>
+        <div className="flex gap-2 pt-2">
+          <Button type="submit" className="flex-1">
+            {isEditing ? 'Simpan Perubahan' : 'Tambah Bahan'}
+          </Button>
+          <Button type="button" variant="secondary" onClick={() => navigate(-1)}>Batal</Button>
+        </div>
+      </form>
+    </Card>
   )
 }
